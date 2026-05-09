@@ -1,0 +1,49 @@
+version: '3.7'
+
+services:
+
+  db:
+    image: mariadb
+    restart: always
+    #env_file:
+    #  - ./.env
+    volumes:
+      - .data/mysqldb:/var/lib/mysql/
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+    ports: 
+      - 3307:3306
+    environment:
+      - MARIADB_ROOT_PASSWORD=toor
+      - MARIADB_PASSWORD=toor
+      - MARIADB_DATABASE=InmobilApDB
+    networks:
+      - Apnet
+
+  gui:
+    image: node:22-alpine
+    working_dir: /app
+    command: "npm run start"
+    volumes:
+      - ./gui:/app
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    networks:
+      - Apnet
+ 
+  api:
+    image: api
+    build: ./api
+    working_dir: /var/www/
+    volumes:
+      - ./api:/var/www/
+      - ./api/public/:/var/www/html/
+    ports:
+      - 8080:80
+    networks:
+      - Apnet
+networks:
+  Apnet:
+    driver: bridge
+      
