@@ -27,11 +27,9 @@ class ContractController extends Controller
 
         //contract_client_view
 
-
-
         foreach ($contract as $o) {
             $o['cliente'] = $o['buyer']['name'] . " " . $o['buyer']['lastnames'];
-            $o['pagado'] = $this->total($o['tickets']);
+            $o['pagado'] = $this->total($o['tickets']) <= 0 ? $o['advance'] : $this->total($o['tickets']);
             $o['saldo'] = $o['property']['amount_init'] - $o['pagado'];;
         }
 
@@ -154,12 +152,24 @@ class ContractController extends Controller
      */
     public function update(Request $request)
     {
+        //dd($request);
         // inserta los datos
-        Contract::where('id', $request->id)->update([
+        $contract = Contract::find($request->id);
+        //$contract->buyer_id = $request->buyer_id;
+        //$contract->seller_id = $request->seller_id;
+        //$contract->agent_id = $request->agent_id;
+        //$contract->property_id = $request->property_id;
+        //$contract->plazo = $request->plazo;
+        //$contract->paytype = $request->paytype;
+        //$contract->ref = $request->ref;
+        //$contract->date = $request->date;
+        //$contract->save();
+
+        $contract->update([
             "buyer_id" => $request->buyer_id,
             "seller_id" => $request->seller_id,
             "agent_id" => $request->agent_id,
-            "property_id" => $request->property_id,
+            "property_id" => ($request->property_id),
             "plazo" => $request->plazo,
             "paytype" => $request->paytype,
             "ref" => $request->ref,

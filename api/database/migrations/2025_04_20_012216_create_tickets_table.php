@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('concept');
             $table->double('amount',14,5);
             $table->date('date');
-            $table->integer('paytype');
+            $table->string('paytype');
             $table->unsignedBigInteger('contract_id')->nullable();
             $table->foreign('contract_id')
                 ->references('id')->on('contracts')->onDelete('set null')->onUpdate('cascade');

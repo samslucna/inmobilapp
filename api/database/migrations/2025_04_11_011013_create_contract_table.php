@@ -28,7 +28,7 @@ return new class extends Migration
                 ->references('id')->on('properties')->onDelete('set null')->onUpdate('cascade');
             $table->integer('plazo');
             $table->double('advance', 13, 5);
-            $table->integer('ref');
+            $table->string('ref');
             $table->string('paytype',100)->nullable();
             $table->timestamps();
         });

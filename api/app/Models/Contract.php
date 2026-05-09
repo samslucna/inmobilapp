@@ -12,6 +12,9 @@ class Contract extends Model
 {
 
     use HasFactory, Notifiable, HasApiTokens, Searchable;
+    protected $table = 'contracts';
+    protected $primaryKey = 'id';
+    public $incrementing = true;
     //
     protected $fillable = [
         "buyer_id",
