@@ -1,0 +1,8 @@
+.button-style {
+  /* Estilos del botón */
+  background-color: rgb(56, 236, 182);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}

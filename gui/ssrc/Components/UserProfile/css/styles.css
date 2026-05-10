@@ -1,0 +1,147 @@
+@import url("https://fonts.googleapis.com/css?family=Poppins&display=swap");
+
+body {
+  background: #f2f2f2;
+  font-family: "Poppins", sans-serif;
+}
+
+h3 {
+  font-family: "Poppins", sans-serif;
+}
+
+.ticketlayout {
+  display: flex;
+  padding: 30px;
+  flex-direction: column;
+  width: 90%;
+  border: solid black 1px;
+}
+.ticketheader {
+  margin-top: 20px;
+  margin-left: 10px;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.ticketbody {
+  margin-top: 10px;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.logoheader {
+  width: 30%;
+  font-weight: bold;
+  font-size: 1.8rem;
+  color: rgb(39, 109, 230);
+}
+.datepay {
+  display: flex;
+  width: 30%;
+}
+
+.datepay .date {
+  text-align: right;
+  font-weight: bold;
+  font-size: 1.4rem;
+}
+
+.datepay .dateres {
+  text-align: right;
+  font-size: 1.2rem;
+}
+
+.rowbody {
+  display: flex;
+  margin-top: 10px;
+  width: 90%;
+}
+
+.rowbody .col1 {
+  display: flex;
+
+  width: 100%;
+}
+.rowbody .col2 {
+  display: flex;
+
+  width: 100%;
+}
+
+.rowbody .col1 .title {
+  width: 60%;
+  text-align: right;
+  font-weight: bold;
+  font-size: 1.4rem;
+}
+
+.rowbody .col1 .subtitle {
+  margin-left: 5px;
+  font-size: 1.2rem;
+  border-bottom: 1px black solid;
+  width: 100%;
+}
+
+.rowbody .col2 .title {
+  margin-left: 5%;
+  text-align: right;
+  font-weight: bold;
+  font-size: 1.4rem;
+}
+
+.rowbody .col2 .subtitle {
+  margin-left: 5px;
+  font-size: 1.2rem;
+}
+
+.rowfoot {
+  display: flex;
+  margin-top: 40px;
+  width: 80%;
+}
+
+.rowfoot .col1 {
+  display: flex;
+  width: 100%;
+ 
+}
+
+.rowfoot .col2 {
+  display: flex;
+  
+  width: 100%;
+}
+
+.rowfoot .col1 .title {
+    text-align: right;
+  width: 100%;
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+
+.rowfoot .col1 .subtitle {
+  margin-left: 5px;
+ 
+  font-size: 1.2rem;
+  border-bottom: 1px black solid;
+  width: 100%;
+}
+
+.rowfoot .col2 .title {
+    text-align: right;
+  margin-left: 5px;
+  width: 100%;
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+
+.rowfoot .col2 .subtitle {
+  text-align: left;
+  font-size: 1.2rem;
+  border-bottom: 1px black solid;
+  width: 50%;
+}

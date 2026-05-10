@@ -1,0 +1,239 @@
+<form>
+
+    <div className="row">
+      <p style={{ textAlign: "center", fontWeight: "bold" }}>1. Datos Generales:</p> <br />
+    </div>
+    <div classNameName="row">
+      <div className="col-5">
+        <label for="">Entidad Federativa:</label>
+        <input className="form-control" type="text" id="ef" name="ef" value="Guerrero" className="validate" />
+
+      </div>
+      <div className="col-7">
+        <label for="">Municipio:</label>
+        <input className="form-control" type="text" id="nmunicipio" name="nmunicipio" value="Tlalixtaquilla de Maldonado" className="validate" />
+      </div>
+      <div className="col-3">
+
+
+
+      </div>
+    </div>
+    <div classNameName="row">
+      <label >Programa Presupuestario:</label>
+      <input value="Tlalixtaquilla de Maldonado" type="text" id="npp" name="npp" className="validate" />
+    </div>
+
+
+    <div classNameName="row">
+      <div className="form-group col-md-4  col-md-4">
+        <label >Programado:</label>
+        <input className="form-control" type="text" id="pprogramado" name="pprogramado" className="validate" />
+
+      </div>
+      <div className="form-group col-md-4  col-md-4">
+        <label >Modificado:</label>
+        <input className="form-control" type="text" id="pmodificado" name="pmodificado" className="validate" />
+
+      </div>
+      <div className="form-group col-md-4  col-md-4">
+        <label for="icon_prefix">Ejercido:</label>
+        <input className="form-control" type="text" id="pejercido" name="pejercido" className="validate" />
+      </div>
+    </div>
+
+
+    <div classNameName="row">
+      <div className="form-group col-12 col-lg-12">
+
+        <p style={{ textAlign: "center", fontWeight: "bold" }}>2. Datos de Vinculación Plan Estatal y Municipal:</p> <br />
+      </div>
+      <div className="form-group col-12 col-lg-12">
+        <p style={{ textAlign: "center" }}>2.1. Plan Estatal de Desarrollo (PED):</p>
+      </div>
+      <div className="col-12">
+        <label>2.1.1. Eje (PED)</label>
+        <select id="ctipoindicador" name="ctipoindicador" className="form-select" >
+          <option  defaultValue={'0'}>Elige una opcion</option>
+        </select>
+
+
+      </div>
+      <div className="col-12">
+        <label>2.1.2. Objetivo  (PED)</label>
+        <select id="ctipoindicador" name="ctipoindicador" className="form-select" >
+          <option  defaultValue={'0'}>Elige una opcion</option>
+        </select>
+
+      </div>
+      <div className="col-12">
+        <label>2.1.3. Estrategia  (PED)</label>
+        <select id="ctipoindicador" name="ctipoindicador" className="form-select" >
+          <option  defaultValue={'0'}>Elige una opcion</option>
+        </select>
+      </div>
+
+      <div className="col-12">
+        <label>2.1.4. Linea de Acción (PED)</label>
+        <select id="ctipoindicador" name="ctipoindicador" className="form-select" >
+          <option  defaultValue={'0'}>Elige una opcion</option>
+        </select>
+
+      </div>
+    </div>
+
+
+
+    <div className="form-group col-12 col-lg-12">
+      <p style={{ textAlign: "center" }}>2.2. Plan Municipal de Desarrollo (PMD):</p>
+    </div>
+    <div className="col-12">
+      <label>2.2.1. Eje (PMD)</label>
+      <select id="ctipoindicador" name="ctipoindicador" className="form-select" >
+        <option  defaultValue={'0'}>Elige una opcion</option>
+      </select>
+
+
+    </div>
+    <div className="col-12">
+      <label>2.2.2. Objetivo  (PMD)</label>
+      <select id="ctipoindicador" name="ctipoindicador" className="form-select" >
+        <option  defaultValue={'0'}>Elige una opcion</option>
+      </select>
+
+    </div>
+    <div className="col-12">
+      <label>2.2.3. Estrategia  (PMD)</label>
+      <select id="ctipoindicador" name="ctipoindicador" className="form-select" >
+        <option  defaultValue={'0'}>Elige una opcion</option>
+      </select>
+    </div>
+
+    <div className="col-12">
+      <label>2.2.4. Linea de Acción (PMD)</label>
+      <select id="ctipoindicador" name="ctipoindicador" className="form-select" >
+        <option  defaultValue={'0'}>Elige una opcion</option>
+      </select>
+
+    </div>
+  </form>
+
+
+  <li className="nav-item dropdown">
+    <a className="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Catalogos
+    </a>
+    <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+        <li><a id='uadmin' onClick={(e) => { getId(e) }} className="dropdown-item" href="#">Unidades Admin.</a></li>
+        <li><a id='indicadores' onClick={(e) => { getId(e) }} className="dropdown-item" href="#">Indicadores</a></li>
+        <li><a id='plnds' onClick={(e) => { getId(e) }} className="dropdown-item" href="#">Planes de Desarrollo</a></li>
+    </ul>
+</li>
+
+
+{/* 
+  <div className="form-group">
+
+    <input type="text" placeholder='Busar...' onChange={searchDatas} className='form-control' />
+  </div>
+  <table className='table table-responsive table-bordered table-sm'>
+    <thead>
+      <tr>
+        <th width={'10%'}>ID</th>
+        <th width={'25%'}>Nombre</th>
+        <th width={'25%'}>Fecha</th>
+        <th width={'10%'}>Hora</th>
+        <th width={'30%'}>Motivo</th>
+        <th width={'10%'}>Accion</th>
+      </tr>
+
+    </thead>
+    <tbody>
+
+      {
+        datasTable !== [] ?
+          datasAuxTable.map(data => {
+            return <tr key={'r' + data.idresponsable}>
+              <td>{data.idcita}</td>
+              <td>{data.expediente}</td>
+              <td>{data.fecha}</td>
+
+              <td>{data.hora}</td>
+              <td>{data.motivo}</td>
+              <td>
+                <div className="btn-group">
+                  <button type="button" className="btn btn-primary btn-sm" onClick={(e) => { actionBtns(e) }} id={'vie' + data.idresponsable}>
+                    <i className="bi bi-eye" id={'vie' + data.idresponsable}></i>
+                  </button>
+                  <button type="button" className="btn btn-info btn-sm" onClick={(e) => { actionBtns(e) }} id={'upd' + data.idresponsable}>
+                    <i className="bi bi-pencil-square" id={'upd' + data.idresponsable}></i>
+                  </button>
+                  <button type="button" className="btn btn-danger btn-sm" onClick={(e) => { actionBtns(e) }} id={'del' + data.idresponsable}>
+                    <i className="bi bi-trash-fill" id={'del' + data.idresponsable}></i>
+                  </button>
+
+                </div>
+              </td>
+            </tr>
+          })
+          : null
+      }
+    </tbody>
+    <tfoot>
+      <tr>
+        <th colSpan="6">
+          <nav aria-label="Page navigation example">
+            <ul className="pagination">
+              {renderPagination(pagNum)}
+            </ul>
+          </nav>
+        </th>
+      </tr>
+    </tfoot>
+  </table>
+
+*/}
+
+
+
+              <h6 className="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                <span>Saved reports</span>
+                <a className="link-secondary" href="#" aria-label="Add a new report">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="feather feather-plus-circle" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                </a>
+              </h6>
+              <ul className="nav flex-column mb-2">
+                <li className="nav-item">
+                  <a className="nav-link" href="#">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="feather feather-file-text" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Current month
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link" href="#">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="feather feather-file-text" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Last quarter
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link" href="#">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="feather feather-file-text" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Social engagement
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link" href="#">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="feather feather-file-text" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Year-end sale
+                  </a>
+                </li>
+              </ul>
+
+
+              {/*    <ul>
+                <li><a href='#' id='' onClick={(e) => navMenu(e)}>Inicio</a></li>
+                <li><a href='#' id='agendar' onClick={(e) => navMenu(e)}>Agendar</a></li>
+                <li><a href='#' id='etc.' onClick={() => setSelectedPage('user-profile')}> Salir</a></li>
+              </ul>
+     */}
+    
