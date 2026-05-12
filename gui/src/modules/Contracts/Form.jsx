@@ -50,6 +50,61 @@ export default function Form() {
     plazo,
   } = state;
 
+  const cleanForm = () => {
+    ContractStore.setContract({
+      id: null,
+      buyer_id: "",
+      seller_id: "",
+      agent_id: "",
+      property_id: "",
+      plazo: "",
+      paytype: "",
+      ref: "",
+      date: "",
+      advance: "$ 0.00",
+    });
+
+    setClient({
+      id: null,
+      name: "",
+      lastnames: "",
+      phone: "",
+      email: "",
+      dni: "",
+    });
+    setAgent({
+      id: null,
+      name: "",
+      lastnames: "",
+      phone: "",
+      email: "",
+      dni: "",
+    });
+    setPropertary({
+      id: null,
+      name: "",
+      lastnames: "",
+      phone: "",
+      email: "",
+      dni: "",
+    });
+
+    setProperty({
+      id: null,
+      project_id: null,
+      stage_id: null,
+      block_id: null,
+      name: "",
+      description: "",
+      m2: 0.0,
+      address: "",
+      amount_init: 0.0,
+      amount_end: 0.0,
+      status: "disponible",
+      boundaries: [],
+    });
+  };
+
   const saveContract = async (e) => {
     setState(state);
     handleSubmit(e);
@@ -98,7 +153,8 @@ export default function Form() {
   };
 
   useEffect(() => {
-    if (ContractStore.editing) {
+    if (!ContractStore.editing) {
+    
     }
   }, []);
 
@@ -426,6 +482,7 @@ export default function Form() {
                 onClick={() => {
                   ContractStore.setHiddenForm(false);
                   ContractStore.setEditing(false);
+                  cleanForm();
                 }}
                 sx={{ background: "gray", color: "whitesmoke" }}
               >
