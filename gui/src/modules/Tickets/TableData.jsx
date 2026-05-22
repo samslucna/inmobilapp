@@ -3,7 +3,7 @@ import InputBase from "@mui/material/InputBase";
 import { observer } from "mobx-react-lite";
 import { styled, alpha } from "@mui/material/styles";
 import Pagination from "@mui/material/Pagination";
-import { useState, Fragment } from "react";
+import { useState, Fragment, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import Button from "@mui/material/Button";
@@ -13,6 +13,7 @@ import ClientStore from "../../store/ClientStore";
 import PropertyStore from "../../store/PropertyStore";
 import PropertaryStore from "../../store/PropertaryStore";
 import changeFormat from "../../helper/changeFormat";
+import ContractStore from "../../store/ContractStore";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -59,6 +60,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 const TableData = observer(({ datasTable }) => {
   const [list, setList] = useState([]);
   const [mn, setMn] = useState("");
+  const [edit, setEdit] = useState(null)
 
   const handleDelete = async (id) => {
     const resp = await Swal.fire({
@@ -91,6 +93,10 @@ const TableData = observer(({ datasTable }) => {
   };
 
   const goEdit = async (ticket) => {
+    console.log(ticket.contract_id)
+    const contract = await ContractStore.showContract('contracts',ticket.contract_id);
+    
+    ContractStore.setContract(contract.contract)
     PropertyStore.setProperty(ticket.property);
     PropertaryStore.setPropertary(ticket.seller);
     TicketStore.setEditing(true);
@@ -107,6 +113,17 @@ const TableData = observer(({ datasTable }) => {
 
     //setInptUpd(true);
   };
+
+//  useEffect(()=>{
+//
+//    const updateContract = async ()=>{
+//
+//      const contract = await ContractStore.showContract('constracts',edit)
+//
+//    }
+//    updateContract()
+//
+//  },[goEdit])
 
   return (
     <Fragment>

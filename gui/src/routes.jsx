@@ -48,4 +48,4 @@ export const router = createBrowserRouter([
       { path: "reportes", element: <ReportesPage /> },
     ],
   },
-], {basename: "/",});
+], {basename: "/"});

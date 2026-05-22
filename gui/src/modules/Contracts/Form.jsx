@@ -171,7 +171,6 @@ export default function Form() {
 
             <TextField
               name="date"
-              label="Fecha"
               type="date"
               fullWidth
               value={date ? changeFormat.toDate(date) : ""}

@@ -104,11 +104,36 @@ export default function Form() {
 
   useEffect(() => {
     const setContractData = async () => {
-      const getContract = await showContract("contracts", contract.id);
-      setContract(getContract.contract);
+      try {
+        if (!TicketStore.editing) {
+          ContractStore.setContract({
+            id: null,
+            buyer_id: "",
+            seller_id: "",
+            agent_id: "",
+            property_id: "",
+            plazo: "",
+            paytype: "",
+            ref: "",
+            date: "",
+            advance: "$ 0.00",
+          });
+          setState({
+            id: null,
+            concept: "Mensualidad",
+            contract_id: null,
+            paytype: "Efectivo",
+            ref: "",
+            date: "",
+            amount: "$ 0.00",
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
     };
     setContractData();
-  }, [handleSubmit]);
+  }, []);
 
   return (
     <>
@@ -124,6 +149,7 @@ export default function Form() {
             <Autocomplete
               sx={{ marginBottom: 2 }}
               key={"cliente"}
+              value={contract}
               options={datasContract}
               getOptionLabel={(option) => {
                 try {
@@ -137,7 +163,7 @@ export default function Form() {
                   if (e.currentTarget !== undefined) {
                     setState({ ...state, contract_id: newValue?.id });
                     // Muestra el valor seleccionado
-                    setClient(newValue);
+                    setContract(newValue);
                   }
                 } catch (error) {
                   console.log(error);

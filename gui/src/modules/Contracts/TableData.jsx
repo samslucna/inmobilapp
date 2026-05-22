@@ -89,13 +89,16 @@ const TableData = observer(({ datasTable }) => {
   };
 
   const goEdit = async (contract) => {
+    
     AgentStore.setAgent(contract.agent);
     ClientStore.setClient(contract.buyer);
     PropertyStore.setProperty(contract.property);
     PropertaryStore.setPropertary(contract.seller);
     ContractStore.setEditing(true);
     ContractStore.setEditId(contract.id);
+    console.log(contract)
     ContractStore.setContract(contract);
+    
     ContractStore.setHiddenForm(true);
   };
 
