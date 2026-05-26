@@ -17,6 +17,7 @@ import TicketsPage from './modules/Tickets';
 import FinanzasPage from "./modules/finances";
 import ReportesPage from "./modules/reports";
 import UsersPage from "./modules/users";
+import ReporteLotes from "./modules/reports/Lots";
 
 export const router = createBrowserRouter([
   {
@@ -45,7 +46,7 @@ export const router = createBrowserRouter([
 
       { path: "contratos", element: <ContractsPage /> },
       { path: "recibos", element: <TicketsPage /> },
-      { path: "reportes", element: <ReportesPage /> },
+      { path: "reportelotes", element: <ReporteLotes /> },
     ],
   },
 ], {basename: "/"});

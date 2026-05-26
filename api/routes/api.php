@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
@@ -98,7 +97,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
   Route::get('/tickets/export/xls/date', [XlsController::class, "exportTicketsByDate"]);
   Route::get('/tickets/export/xls', [XlsController::class, "exportTickets"]);
   Route::post('/tickets/import', [XlsController::class, "importTickets"]);
-  Route::get('/tickets/export/pdf/exportticket', [PdfController::class, 'exportTicketPDF']);
+  Route::get('/tickets/export/pdf/ticket', [PdfController::class, 'exportTicketPDF']);
 
   //exports excel contracts
   Route::get('/contracts/export/pdf/contractExportPDF', [PdfController::class, 'contractExportPDF']);

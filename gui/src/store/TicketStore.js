@@ -9,6 +9,7 @@ import {
   setUrImport,
   searchDatas,
   setUrlExportPdf,
+  setUrlExportXls,
   showDataBd,
 } from "../api/QueryApi";
 import Swal from "sweetalert2";
@@ -19,7 +20,7 @@ class TicketStore {
     id: null,
     concept: "Mensualidad",
     contract_id: null,
-    paytype: 'Efectivo',
+    paytype: "Efectivo",
     ref: "",
     date: "",
     amount: "$ 0.00",
@@ -43,11 +44,18 @@ class TicketStore {
   editId = null;
   hiddenForm = false;
   loading = true;
+  rangeDate = {
+    date_init: "",
+    date_end: "",
+  };
 
   constructor() {
     makeAutoObservable(this);
   }
 
+  setRangeDate = (range) => {
+    this.rangeDate = range;
+  };
   setUrlImp = (url) => {
     this.urlImp = url;
   };
@@ -81,6 +89,22 @@ class TicketStore {
 
   setEditing = (editing) => {
     this.editing = editing;
+  };
+
+  updateRangeDate = (e, result) => {
+    e.preventDefault();
+    const { name, value } = e.target || result;
+
+    switch (name) {
+      case "date_init":
+        this.rangeDate.date_init = new Date(value);
+        this.setRangeDate(this.rangeDate);
+        break;
+      case "date_end":
+        this.rangeDate.date_end = new Date(value);
+        this.setRangeDate(this.rangeDate);
+        break;
+    }
   };
 
   setPagination = (pagination) => {
@@ -119,12 +143,12 @@ class TicketStore {
 
     if (data.id !== null) {
       await updateBd("tickets", this.editId, data);
-      this.setHiddenForm(false);
+
       this.setEditing(false);
       this.loadTickets();
     } else {
       await createBd("tickets", data);
-      this.setHiddenForm(false);
+
       this.setEditing(false);
       this.loadTickets();
     }
@@ -143,7 +167,13 @@ class TicketStore {
     return setUrlExportPdf(url, nameDoc, data);
   };
 
-  removeTickets = async (id) => {
+  
+
+  toExportExcel = async (url, namedoc, data) => {
+    return setUrlExportXls(url, namedoc, data);
+  };
+
+  removeTicket = async (id) => {
     try {
       await deleteBd("tickets", id);
 
@@ -161,8 +191,10 @@ class TicketStore {
       if (value !== "") {
         this.setTickets([]);
         let seachRender = await searchBd(table, value);
-
-        this.setTickets(seachRender);
+        console.log(seachRender[0]);
+        if (seachRender[0] !== null) {
+          this.setTickets(seachRender);
+        }
       } else {
         await this.loadTickets();
       }

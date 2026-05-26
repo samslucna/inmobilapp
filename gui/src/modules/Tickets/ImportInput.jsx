@@ -37,17 +37,6 @@ const ImportInput = ({ btnMnSearch, btnMn }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = (e) => {
-    if (e.target.id === "searchClient") {
-      btnMn(e);
-    } else {
-      btnMnSearch(e);
-    }
-    setAnchorEl(null);
-  };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -128,37 +117,6 @@ const ImportInput = ({ btnMnSearch, btnMn }) => {
                   // accept="image/*" // Opcional: para limitar el tipo de archivos
                 />
               </Button>
-              <Button
-                id="main"
-                sx={{ background: "#3d5b92", color: "white" }}
-                id="fade-button"
-                aria-controls={open ? "fade-menu" : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? "true" : undefined}
-                onClick={handleClick}
-              >
-                Buscar
-              </Button>
-
-              <Menu
-                id="fade-menu"
-                slotProps={{
-                  list: {
-                    "aria-labelledby": "fade-button",
-                  },
-                }}
-                slots={{ transition: Fade }}
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-              >
-                <MenuItem id="seachbydate" onClick={handleClose}>
-                  Por fecha
-                </MenuItem>
-                <MenuItem id="searchClient" onClick={handleClose}>
-                  Cliente
-                </MenuItem>
-              </Menu>
             </ButtonGroup>
           </div>
         ) : null}

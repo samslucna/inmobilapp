@@ -152,8 +152,8 @@ class ContractStore {
         this.setEditing(false);
         this.loadContracts();
       } else {
-        await createBd("contracts", data);
 
+        await createBd("contracts", data);
         this.setHiddenForm(false);
         this.setEditing(false);
         this.loadContracts();

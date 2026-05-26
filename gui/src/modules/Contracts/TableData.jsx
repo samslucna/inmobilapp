@@ -1,10 +1,12 @@
 import Swal from "sweetalert2";
 import InputBase from "@mui/material/InputBase";
+import { Box,Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { styled, alpha } from "@mui/material/styles";
 import Pagination from "@mui/material/Pagination";
 import { useState, Fragment } from "react";
-
+import ImportInput from "./ImportInput";
+import SearchInput from "./SearchInput";
 import ContractStore from "../../store/ContractStore";
 import AgentStore from "../../store/AgentStore";
 import ClientStore from "../../store/ClientStore";
@@ -89,16 +91,15 @@ const TableData = observer(({ datasTable }) => {
   };
 
   const goEdit = async (contract) => {
-    
     AgentStore.setAgent(contract.agent);
     ClientStore.setClient(contract.buyer);
     PropertyStore.setProperty(contract.property);
     PropertaryStore.setPropertary(contract.seller);
     ContractStore.setEditing(true);
     ContractStore.setEditId(contract.id);
-    console.log(contract)
+   
     ContractStore.setContract(contract);
-    
+
     ContractStore.setHiddenForm(true);
   };
 
@@ -174,104 +175,108 @@ const TableData = observer(({ datasTable }) => {
 
       case "table":
         return (
-          <table className="ui stackable small table">
-            <thead>
-              <tr>
-                <th>Numero</th>
-                <th>Fecha</th>
-                <th>Comprador/Cliente</th>
-                <th>Lote</th>
+          <div>
+            <Box display="flex" justifyContent="space-between">
+              <Typography variant="h5" gutterBottom>
+                {ContractStore.hiddenForm ? null : <ImportInput />}
+              </Typography>
 
-                <th>Costo($)</th>
-                <th>Pagado($)</th>
-                <th>Saldo($)</th>
-                <th>Accion</th>
-              </tr>
-            </thead>
-            <tbody>
-              {datasTable && datasTable !== undefined
-                ? datasTable.map((data) => {
-                    if (data.buyer !== undefined) {
-                      return (
-                        <tr key={"r" + data.id}>
-                          <td>{data.id}</td>
+              {ContractStore.hiddenForm ? null : <SearchInput />}
+            </Box>
+            <table className="ui stackable small table">
+              <thead>
+                <tr>
+                  <th>Numero</th>
+                  <th>Fecha</th>
+                  <th>Comprador/Cliente</th>
+                  <th>Lote</th>
+                  <th>Costo($)</th>
+                  <th>Pagado($)</th>
+                  <th>Saldo($)</th>
+                  <th>Accion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {datasTable && datasTable !== undefined
+                  ? datasTable.map((data) => {
+                      if (data.buyer !== undefined) {
+                        return (
+                          <tr key={"r" + data.id}>
+                            <td>{data.id}</td>
 
-                          <td>{changeFormat.toDate(data.date)}</td>
-                          <td>
-                            {data.buyer.name + " " + data.buyer.lastnames}
-                          </td>
-                          <td>{data.property.name}</td>
+                            <td>{changeFormat.toDate(data.date)}</td>
+                            <td>
+                              {data.buyer.name + " " + data.buyer.lastnames}
+                            </td>
+                            <td>{data.property.name}</td>
 
-                          <td>
-                            {changeFormat.numberToString(
-                              data.property.amount_init,
-                            )}
-                          </td>
-                          <td>{changeFormat.numberToString(data.pagado)}</td>
-                          <td>
-                            {changeFormat.numberToString(
-                              data.saldo,
-                            )}
-                          </td>
-                          <td>
-                            <div
-                              key={"edit" + data.id}
-                              className="ui mini basic icon buttons"
-                            >
-                              <button id="delete" className="ui  button">
-                                <i
-                                  id={"del" + data.id}
-                                  onClick={(e) => {
-                                    handleDelete(data.id);
-                                  }}
-                                  className="trash red icon"
-                                ></i>
-                              </button>
-                              <button className="ui  button">
-                                <i
-                                  id={"edit" + data.id}
-                                  onClick={(e) => {
-                                    goEdit(data);
-                                  }}
-                                  className="edit blue icon"
-                                ></i>
-                              </button>
-                              <button className="ui  button">
-                                <i
-                                  id={"view"}
-                                  onClick={(e) => {
-                                    btnView(e, data);
-                                  }}
-                                  className="eye blue icon"
-                                ></i>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    }
-                  })
-                : null}
-            </tbody>
-            <tfoot>
-              <tr align="center">
-                <td colSpan={6}>
-                  <div className="ui divider"></div>
-                  <div className="ui icon buttons">
-                    <Pagination
-                      count={ContractStore.pagination.last_page}
-                      page={ContractStore.pagination.currentPage}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+                            <td>
+                              {changeFormat.numberToString(
+                                data.property.amount_init,
+                              )}
+                            </td>
+                            <td>{changeFormat.numberToString(data.pagado)}</td>
+                            <td>{changeFormat.numberToString(data.saldo)}</td>
+                            <td>
+                              <div
+                                key={"edit" + data.id}
+                                className="ui mini basic icon buttons"
+                              >
+                                <button id="delete" className="ui  button">
+                                  <i
+                                    id={"del" + data.id}
+                                    onClick={(e) => {
+                                      handleDelete(data.id);
+                                    }}
+                                    className="trash red icon"
+                                  ></i>
+                                </button>
+                                <button className="ui  button">
+                                  <i
+                                    id={"edit" + data.id}
+                                    onClick={(e) => {
+                                      goEdit(data);
+                                    }}
+                                    className="edit blue icon"
+                                  ></i>
+                                </button>
+                                <button className="ui  button">
+                                  <i
+                                    id={"view"}
+                                    onClick={(e) => {
+                                      btnView(e, data);
+                                    }}
+                                    className="eye blue icon"
+                                  ></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      }
+                    })
+                  : null}
+              </tbody>
+              <tfoot>
+                <tr align="center">
+                  <td colSpan={6}>
+                    <div className="ui divider"></div>
+                    <div className="ui icon buttons">
+                      <Pagination
+                        count={ContractStore.pagination.last_page}
+                        page={ContractStore.pagination.currentPage}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         );
 
       case "view":
-        return <Show btnView={btnView} list={list} />;
+        return <Show btnView={btnView} list={list} setList={setList} />;
       default:
         setMn("table");
         return;

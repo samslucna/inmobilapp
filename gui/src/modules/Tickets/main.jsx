@@ -36,7 +36,7 @@ export default function Page() {
         );
 
       case "searchClient":
-        return <SearchViewContract />;
+        return <SearchViewContract btnMn={btnMn} />;
 
       default:
         return (
@@ -54,16 +54,7 @@ export default function Page() {
       <Typography variant="h4" mb={2}>
         Recibos
       </Typography>
-      <ButtonGroup
-        variant="outlined"
-        aria-label="outlined button group"
-        sx={{ mb: 2 }}
-      >
-        <Button id="main" onClick={btnMn}>
-          Principal
-        </Button>
    
-      </ButtonGroup>
       {handlerPage()}
     </>
   );

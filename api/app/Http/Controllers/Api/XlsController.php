@@ -258,10 +258,9 @@ class XlsController extends Controller
 
     public function exportTicketsByDate(Request $request)
     {
-        //
-        //dd($request['dates']);
+        //dd($request);
 
-        Excel::store(new TicketsByDateExport($request['dates'], $request['datee']), 'GralDateTickets.xlsx');
+        Excel::store(new TicketsByDateExport($request['date_init'], $request['date_end']), 'GralDateTickets.xlsx');
 
         return response()->file(storage_path() . '/app/private/GralDateTickets.xlsx');
     }

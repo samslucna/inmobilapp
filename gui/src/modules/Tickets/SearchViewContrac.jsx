@@ -17,12 +17,11 @@ import Modal from "./Modal";
 import { set } from "mobx";
 import ModalDoc from "./ModalDoc";
 
-export default function SearchViewContract() {
+export default function SearchViewContract({btnMn}) {
   const { searchEdit, seachQueryData, contract, setSearchEdit, queryTable } =
     ContractStore;
   const { urlImp, setUrlImp } = TicketStore;
   const { client, setClient } = ClientStore;
-  const [tktdDatas, setTktDatas] = useState([]);
   const [datas, setDatas] = useState([]);
   const [state, setState] = useState({});
 
@@ -47,6 +46,7 @@ export default function SearchViewContract() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      
     } catch (error) {
       console.error("Error al crear usuario", error.response?.data);
       alert("Hubo un error al registrar");
@@ -64,8 +64,19 @@ export default function SearchViewContract() {
         Buscar cliente:
       </Typography>
       <div className="row">
+          <ButtonGroup
+        variant="outlined"
+        aria-label="outlined button group"
+        sx={{ mb: 2 }}
+      >
+        <Button id="main" onClick={e=>btnMn(e)}>
+          Principal
+        </Button>
+   
+      </ButtonGroup>
         <div class="ui centered grid">
           <div class=" row">
+           
             <div class="column">
               <div class="ui category search">
                 <Autocomplete
@@ -75,7 +86,7 @@ export default function SearchViewContract() {
                   getOptionLabel={(option) => {
                     try {
                      
-                      setTktDatas(option?.tickets);
+                      //setTktDatas(option?.tickets);
                       return option?.id + ".- " + option?.cliente;
                     } catch (error) {
                       console.log(error);
@@ -223,8 +234,7 @@ export default function SearchViewContract() {
                         <div class="field">
                           <h4 class="ui dividing header">Recibos:</h4>
                           <div className="field">
-                            <Modal color={"success"} title={"Excel"} />
-
+                     
                             <ModalDoc
                               data={state}
                               color={"error"}
@@ -239,74 +249,14 @@ export default function SearchViewContract() {
                             
                                 setState({});
                                 ContractStore.setContract({});
-                                setTktDatas([]);
+                                //setTktDatas([]);
                               }}
                             >
                               Limpiar
                             </Button>
                           </div>
 
-                          <table class="ui stackable small table">
-                            <thead>
-                              <tr>
-                                <th>N°</th>
-                                <th>Fecha</th>
-
-                                <th>Concepto</th>
-                                <th>Pago</th>
-                                <th>Monto($)</th>
-                                <th>Accion</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {tktdDatas !== [] && tktdDatas !== undefined
-                                ? tktdDatas.map((data) => {
-                                    return (
-                                      <tr key={"r" + data.id}>
-                                        <td>{data.id}</td>
-                                        <td>
-                                          {changeFormat.toDate(data.date)}
-                                        </td>
-
-                                        <td> {data.concept}</td>
-                                        <td>{data.paytype}</td>
-                                        <td>
-                                          {changeFormat.numberToString(
-                                            data.amount,
-                                          )}
-                                        </td>
-
-                                        <td>
-                                          <div
-                                            key={data.id}
-                                            className="ui mini basic icon buttons"
-                                          >
-                                            <button className="ui  button">
-                                              <i
-                                                id={data.id}
-                                                onClick={(e) => {
-                                                  //btnEdit(e, data);
-                                                }}
-                                                className="edit blue icon"
-                                              ></i>
-                                            </button>
-                                            <button className="ui  button">
-                                              <i
-                                                id={"view" + data.id}
-                                                onClick={(e) => {
-                                                  //showModal(e, data);
-                                                }}
-                                                className="eye blue icon"
-                                              ></i>
-                                            </button>
-                                          </div>
-                                        </td>
-                                      </tr>
-                                    );
-                                  })
-                                : null}
-                            </tbody>
-                          </table>
+                       
                         </div>
                       </div>
                     </div>

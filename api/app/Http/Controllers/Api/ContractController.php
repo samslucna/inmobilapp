@@ -33,7 +33,7 @@ class ContractController extends Controller
             $o['saldo'] = $o['property']['amount_init'] - $o['pagado'];;
         }
 
-
+//(1,'sam',1,'sam@gmail.com',NULL,'$2y$12$wo5pRQcU86J7BIiKmgy/rOZK1eZZonmcW2HHOyQ/m.Ux5E3V7i5gS',NULL,NULL,NULL,NULL);
         return new JsonResponse($contract);
     }
 
@@ -150,6 +150,7 @@ class ContractController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    
     public function update(Request $request)
     {
         //dd($request);

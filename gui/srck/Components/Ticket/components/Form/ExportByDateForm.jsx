@@ -21,7 +21,7 @@ const ExportByDateForm = ({}) => {
                 e,
                 "/api/tickets/export/xls/date",
                 "xls",
-                "bydate",
+                "bydate", 
                 "Todos los contratos por fecha de "+renderDate(rangeDate.dates)+"-"+renderDate(rangeDate.datee),
               )
             }

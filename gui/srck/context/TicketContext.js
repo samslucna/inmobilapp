@@ -25,7 +25,7 @@ const TicketProvider = (props) => {
 
   const [rangeDate, setRangeDate] = useState({
     dates: "",
-    datee: "",
+    datee: "", 
   });
  
   const [xlsImport, setXlsImport] = useState(null);

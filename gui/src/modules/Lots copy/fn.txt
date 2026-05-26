@@ -1,0 +1,43 @@
+  const goEdit = async (user) => {
+    userStore.setEditing(true);
+    userStore.setEditId(user.id);
+    userStore.setUser(user);
+    navigate(`/usuarios/editar/${user.id}`);
+  };
+
+  const handleDelete = async (id) => {
+    const resp = await Swal.fire({
+      title: "¿Eliminar usuario?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+    });
+
+    if (resp.isConfirmed) {
+      await userStore.removeUser(id);
+      Swal.fire({
+        title: "Eliminado",
+        text: "El usuario ha sido eliminado correctamente",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  };
+
+
+        $table->id();
+            $table->string('name');
+            $table->text('description');
+            $table->string('m2');
+            $table->string('address');
+            $table->integer('block_id');
+            $table->double('amount',14,5);
+            $table->string('status');
+            $table->string('buyer_id');
+            $table->string('seller_id');
+            $table->timestamps();

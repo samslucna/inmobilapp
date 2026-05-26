@@ -13,15 +13,15 @@ class TicketsByDateExport implements FromQuery
     */
     use Exportable;
 
-    protected $dates;
-    protected $datee;
+    protected $date_init;
+    protected $date_end;
 
     
 
-    public function __construct(string $dates,string $datee)
+    public function __construct(string $date_init,string $date_end)
     {
-        $this->dates = $dates;
-        $this->datee = $datee;
+        $this->date_init = $date_init;
+        $this->date_end = $date_end;
     }
 
 
@@ -29,7 +29,7 @@ class TicketsByDateExport implements FromQuery
 
     public function query()
     {
-        $query =Ticket::whereBetween('datepay', [$this->dates,$this->datee]);
+        $query =Ticket::whereBetween('date', [$this->date_init,$this->date_end]);
        //dd($query);
         return $query;
     }

@@ -9,8 +9,10 @@ import useSaveSub from "../../hooks/useSaveSub";
 import TicketStore from "../../store/TicketStore";
 import ticketValidate from "../../validator/ticketValidate";
 import Swal from "sweetalert2";
+import FormTicket from "./FormTicket";
+import TableTickets from "./TableTickets";
 
-const Show = ({ btnView,list }) => {
+const Show = ({ btnView, list, setList }) => {
   const { contract, loadContracts } = ContractStore;
   const { state, errors, setState, handleChange, handleSubmit, handleBlur } =
     useSaveSub(TicketStore.ticket, ticketValidate, TicketStore.addTicket);
@@ -72,194 +74,14 @@ const Show = ({ btnView,list }) => {
     e.preventDefault();
     setMn(e.target.id);
   };
+
   const handlerPage = () => {
     switch (mn) {
       case "tickets":
-        return (
-          <div>
-            <div className="ui buttons">
-              <ModalDoc
-                data={ContractStore.contract}
-                url={"/api/contracts/export/pdf/contractExportPDF?id="}
-                color={"secondary"}
-                title={"Contrato promesa"}
-              />
-              <ModalDoc
-                data={ContractStore.contract}
-                url={"/api/contracts/export/pdf/contractExportPDF?id="}
-                color={"primary"}
-                title={"Contrato Final"}
-              />
-            </div>
-            <table className="ui stackable small table">
-              <thead>
-                <tr>
-                  <th>N°</th>
-                  <th>Fecha</th>
-
-                  <th>Concepto</th>
-                  <th>Pago</th>
-                  <th>Monto($)</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {list !== [] && list !== undefined
-                  ? list.map((data) => {
-                      return (
-                        <tr key={"r" + data.id}>
-                          <td>{data.id}</td>
-                          <td>{data.date}</td>
-
-                          <td> {data.concept}</td>
-                          <td>{data.paytype}</td>
-                          <td>{changeFormat.numberToString(data.amount)}</td>
-                          <td>
-                            <div
-                              key={"edit" + data.id}
-                              className="ui mini basic icon buttons"
-                            >
-                              <button id="delete" className="ui  button">
-                                <i
-                                  id={"del" + data.id}
-                                  onClick={(e) => {
-                                    //removeTicket(e, data.id);
-                                    //btnView(e);
-                                  }}
-                                  className="trash red icon"
-                                ></i>
-                              </button>
-                              <button className="ui  button">
-                                <i
-                                  id={"del" + data.id}
-                                  onClick={() => {
-                                    console.log(data);
-                                    goEdit(data);
-                                  }}
-                                  id={"edit" + data.id}
-                                  className="edit blue icon"
-                                ></i>
-                              </button>
-                              <button className="ui  button">
-                                <i
-                                  onClick={() => {
-                                    goEdit(data);
-                                  }}
-                                  id={"view" + data.id}
-                                  className="eye blue icon"
-                                ></i>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  : null}
-              </tbody>
-            </table>
-          </div>
-        );
-
-      case "contract":
-        return (
-          <embed
-            type="application/pdf"
-            //src={urlPdf}
-            width={"100%"}
-            height={"500px"}
-            title="Fall Nature Hikes"
-          />
-        );
+        return <TableTickets contract={contract} setMn={setMn} />;
 
       case "nwticket":
-        return (
-          <form action="" className="ui form">
-            <div className="right four wide field">
-              <div className="field">
-                <h4 className="ui dividing header">Nuevo recibo:</h4>
-                <label>Fecha:</label>
-                <input
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={state.date}
-                  type="date"
-                  name="date"
-                  placeholder="0.00"
-                />
-              </div>
-              <div className="field">
-                <label>Concepto:</label>
-                <input
-                  className="ui fluid dropdown"
-                  onChange={handleChange}
-                  value={state.concept}
-                  name="concept"
-                />
-              </div>
-              <div className="field">
-                <label>Forma de pago:</label>
-
-                <select
-                  class="ui dropdown"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={state.paytype}
-                  name="paytype"
-                >
-                  <option value="">Opciones</option>
-                  <option value="Efectivo">Efectivo</option>
-                  <option value="Transferencia">Transferencia</option>
-                  <option value="Tarjeta">Tarjeta</option>
-                </select>
-              </div>
-              <div className="field">
-                <label>Por la cantidad ($):</label>
-                <div className="fields">
-                  <div className="sixteen wide field">
-                    <input
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      value={state.amount}
-                      type="text"
-                      name="amount"
-                      placeholder="0.00"
-                    />
-                  </div>
-                </div>
-
-                <label>Referencia:</label>
-                <div className="sixteen wide field">
-                  <input
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={state.ref}
-                    type="text"
-                    name="ref"
-                    placeholder="Referencia de pago"
-                  />
-                </div>
-
-                <div
-                  className="ui green button"
-                  onClick={(e) => {
-                    //addTicket(e);
-                  }}
-                >
-                  Guardar recibo
-                </div>
-                <div
-                  className="ui black button"
-                  id={"contractid"}
-                  onClick={(e) => {
-                    setMn("tickets");
-                  }}
-                >
-                  Cancelar
-                </div>
-              </div>
-            </div>
-          </form>
-        );
+        return <FormTicket setMn={setMn} />;
 
       default:
         setMn("tickets");
@@ -332,7 +154,7 @@ const Show = ({ btnView,list }) => {
                 </div>
               </div>
               <div className="row">
-                <div className="five wide mobile three wide computer column">
+                <div className="sixteen wide mobile three wide computer column">
                   <div
                     className="ui green attached button"
                     id="nwticket"
@@ -364,16 +186,15 @@ const Show = ({ btnView,list }) => {
                   <div
                     className="ui black attached button"
                     id="exit"
-                    
                     onClick={(e) => {
-                      btnView(e)
+                      btnView(e);
                     }}
                   >
                     Regresar
                   </div>
                 </div>
 
-                <div className="eleven wide mobile thirteen wide computer column">
+                <div className="sixteen wide mobile thirteen wide computer column">
                   {handlerPage()}
                 </div>
               </div>

@@ -45,21 +45,21 @@ class PdfController extends Controller
         $db  = Ticket::find($request->id);
         $contract = Contract::with("buyer")->with("property")->find($db->contract_id);
         $datetext = $this->dateText(Carbon::parse($db["datepay"])->timestamp);
-
+ 
         $data = [
             'title' => 'COLONIA MONTE TLAPA',
             'date' =>$datetext,
             'amount' =>$db["amount"],
-            "lotstage"=> strtoupper($contract["property"]->stage),
+            "lotstage"=> strtoupper($contract["property"]->block_id),
             "place"=>"Tlapa de Comonfort, Guerrero",
             "received"=> strtoupper($contract["buyer"]->name)." ".strtoupper($contract["buyer"]->lastnames),
             "fortheamount"=>$this->RenderNumberToWords(strval($db["amount"])),
             "concept"=>strval($db["concept"]),
             "lotname"=> strtoupper($contract["property"]->name),
             "lotm2"=> strtoupper($contract["property"]->m2),
-            "lotmz"=> strtoupper($contract["property"]->mz),
-            "lotamount"=> $contract->amount,
-            "paytype"=> strtoupper($db["paytype_id"]),
+            "lotmz"=> strtoupper($contract["property"]->block_id),
+            "lotamount"=> $contract["property"]->amount_init,
+            "paytype"=> strtoupper($db["paytype"]),
             "lotplazo"=>$contract["plazo"],
             "adreessbuyer"=> strtoupper($contract["buyer"]->address),
             "phonebuyer"=> strtoupper($contract["buyer"]->phone),

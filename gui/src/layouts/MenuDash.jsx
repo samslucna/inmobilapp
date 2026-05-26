@@ -25,12 +25,12 @@ import { Link } from 'react-router-dom';
 // Supongamos que este es tu arreglo de entrada
 const menuData = [
    {
-      text: "Ventas",
-      link: "/ventas",
+      text: "Finanzas",
+      link: "#!",
       submenu: [
         { text: "Contratos", link: "/contratos" ,icon: <HistoryEduIcon fontSize="small" /> }, // Crud Contratos
         { text: "Recibos de Ingresos", link: "/recibos", icon: <PaymentsIcon variant="small"  /> }, // Captura los recibos
-        { text: "Estado de Cuenta", link: "/usuarios",icon: <RequestQuoteIcon variant="small" /> }, //Para los estados de cuenta de los clientes?
+        //{ text: "Estado de Cuenta", link: "/usuarios",icon: <RequestQuoteIcon variant="small" /> }, //Para los estados de cuenta de los clientes?
       ],
       icon: <MonetizationOnIcon variant="outline" />,
     },
@@ -49,18 +49,18 @@ const menuData = [
       ],
       icon: <ListAltIcon />,
     },
-    // {
-    //   text: "Reportes",
-    //   link: "/reportes",
-    //   submenu: [
-    //     { text: "Lotes", link: "/lotes",icon: <MonetizationOnIcon variant="small" /> },
-    //     { text: "Recibos", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
-    //     { text: "Ingresos", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
-    //     { text: "Ventas", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
-   
-    //   ],
-    //   icon: <BarChart />,
-    // },
+     {
+       text: "Reportes",
+       link: "#!",
+       submenu: [
+         { text: "Lotes", link: "/reportelotes",icon: <BorderAll variant="small" /> },
+         //{ text: "Recibos", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
+         //{ text: "Ingresos", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
+         //{ text: "Ventas", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
+
+       ],
+       icon: <BarChart />,
+     },
   ];
 
 const MenuDash = ({ items }) => {

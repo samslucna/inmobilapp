@@ -54,7 +54,7 @@ class BlockStore {
   };
 
   handlePaginationChange = async (page) => {
-    const pagCurrent = await getDatasBd("stages?page=" + page);
+    const pagCurrent = await getDatasBd("blocks?page=" + page);
     console.log(pagCurrent);
     if (pagCurrent) {
       this.setBlocks(pagCurrent.data);

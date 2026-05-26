@@ -17,8 +17,9 @@ class TicketController extends Controller
     public function index()
     {
 
-        $ticket = Ticket::orderBy('id', 'desc')->paginate(10);
+        $ticket = Ticket::orderBy('id', 'desc')->paginate(5);
 
+        //dd($ticket);
         return new JsonResponse($ticket);
     }
 
@@ -61,11 +62,11 @@ class TicketController extends Controller
 
     public function search(Request $request)
     {
-        $query = $request->name;
+        $query = $request->q;
         //dd($query);
-        $items = Ticket::where('id', 'LIKE', "%$query%")
-            ->get();
-        return response()->json($items);
+        $items = Ticket::find($query);
+        
+        return response()->json([$items]);
     }
     /**
      * Update the specified resource in storage.
@@ -95,10 +96,10 @@ class TicketController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request)
+    public function destroy($id)
     {
         // Eliminar
-        Ticket::where('id', $request->id)->delete();
+        Ticket::where('id', $id)->delete();
         // respesta de JSON
         $response['message'] = "Elimino exitosamente";
         $response['success'] = true;

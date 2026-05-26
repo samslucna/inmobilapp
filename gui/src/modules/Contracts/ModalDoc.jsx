@@ -15,9 +15,9 @@ import TicketStore from "../../store/TicketStore";
 
 export default function ModalDoc({ color, component, title, data,url }) {
   const { toExport } = TicketStore;
-
   const [open, setOpen] = useState(false);
   const [urlImp, setUrlImp] = useState("");
+  
   const handleClickOpen = async () => {
     try {
       const pdfUrl = await toExport(

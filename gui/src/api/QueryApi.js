@@ -10,7 +10,7 @@ export const getDatasBd = async (table) => {
   return data;
 };
 
-export const showDataBd = async (table,id) => {
+export const showDataBd = async (table, id) => {
   const { data } = await axios.get(`api/${table}/${id}`);
   return data;
 };
@@ -87,6 +87,28 @@ export const setUrlExport = async (url, namedoc) => {
   return exp;
 };
 
+export const setUrlExportXls = async (url, namedoc, data) => {
+  let exp = await axios.get(url, {
+    params: data,
+    headers: {
+      "Content-Type":
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "Content-Disposition": "attachment",
+    },
+    responseType: "blob",
+  });
+
+  const urlExp = URL.createObjectURL(exp.data);
+  //console.log(url)
+  const link = document.createElement("a");
+  link.href = urlExp;
+  link.setAttribute("download", "" + namedoc + ".xlsx");
+  document.body.appendChild(link);
+  link.click();
+
+  return exp;
+};
+
 export const setUrlExportPdf = async (url, data) => {
   let exp = await axios.get(url, {
     headers: {
@@ -98,6 +120,4 @@ export const setUrlExportPdf = async (url, data) => {
   });
 
   return URL.createObjectURL(exp.data);
-
-  
 };

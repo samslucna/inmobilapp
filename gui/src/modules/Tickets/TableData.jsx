@@ -14,6 +14,7 @@ import PropertyStore from "../../store/PropertyStore";
 import PropertaryStore from "../../store/PropertaryStore";
 import changeFormat from "../../helper/changeFormat";
 import ContractStore from "../../store/ContractStore";
+import ModalDocIcon from "./ModalDocIcon";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -60,11 +61,11 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 const TableData = observer(({ datasTable }) => {
   const [list, setList] = useState([]);
   const [mn, setMn] = useState("");
-  const [edit, setEdit] = useState(null)
+  const [edit, setEdit] = useState(null);
 
   const handleDelete = async (id) => {
     const resp = await Swal.fire({
-      title: "¿Eliminar usuario?",
+      title: "¿Esta por eliminar este recibo?",
       text: "Esta acción no se puede deshacer.",
       icon: "warning",
       showCancelButton: true,
@@ -75,7 +76,7 @@ const TableData = observer(({ datasTable }) => {
     });
 
     if (resp.isConfirmed) {
-      await TicketStore.removeContracts(id);
+      await TicketStore.removeTicket(id);
       await TicketStore.loadTickets();
 
       Swal.fire({
@@ -93,10 +94,13 @@ const TableData = observer(({ datasTable }) => {
   };
 
   const goEdit = async (ticket) => {
-    console.log(ticket.contract_id)
-    const contract = await ContractStore.showContract('contracts',ticket.contract_id);
-    
-    ContractStore.setContract(contract.contract)
+    console.log(ticket.contract_id);
+    const contract = await ContractStore.showContract(
+      "contracts",
+      ticket.contract_id,
+    );
+
+    ContractStore.setContract(contract.contract);
     PropertyStore.setProperty(ticket.property);
     PropertaryStore.setPropertary(ticket.seller);
     TicketStore.setEditing(true);
@@ -114,16 +118,16 @@ const TableData = observer(({ datasTable }) => {
     //setInptUpd(true);
   };
 
-//  useEffect(()=>{
-//
-//    const updateContract = async ()=>{
-//
-//      const contract = await ContractStore.showContract('constracts',edit)
-//
-//    }
-//    updateContract()
-//
-//  },[goEdit])
+  //  useEffect(()=>{
+  //
+  //    const updateContract = async ()=>{
+  //
+  //      const contract = await ContractStore.showContract('constracts',edit)
+  //
+  //    }
+  //    updateContract()
+  //
+  //  },[goEdit])
 
   return (
     <Fragment>
@@ -137,7 +141,7 @@ const TableData = observer(({ datasTable }) => {
                   <th>Fecha</th>
                   <th>Concepto($)</th>
                   <th>Monto($)</th>
-                  <th>Status</th>
+                  
                   <th>Accion</th>
                 </tr>
               </thead>
@@ -148,11 +152,11 @@ const TableData = observer(({ datasTable }) => {
                         <tr key={"r" + data.id}>
                           <td>{data?.id}</td>
 
-                          <td>{changeFormat.toDate(data.date)}</td>
+                          <td>{data.date}</td>
                           <td>{data.concept}</td>
 
                           <td>{changeFormat.numberToString(data.amount)}</td>
-                          <td>{data.status}</td>
+                          
 
                           <td>
                             <div
@@ -177,15 +181,12 @@ const TableData = observer(({ datasTable }) => {
                                   className="edit blue icon"
                                 ></i>
                               </button>
-                              <button className="ui  button">
-                                <i
-                                  id={"view" + data.id}
-                                  onClick={(e) => {
-                                    //btnView(e, data);
-                                  }}
-                                  className="eye blue icon"
-                                ></i>
-                              </button>
+                              <ModalDocIcon
+                                data={data}
+                                url={"/api/tickets/export/pdf/ticket?id="}
+                                color={"eye blue icon"}
+                                title={"Recibo #"+data.id}
+                              />
                             </div>
                           </td>
                         </tr>
