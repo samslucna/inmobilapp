@@ -27,9 +27,10 @@ return new class extends Migration
             $table->foreign('property_id')
                 ->references('id')->on('properties')->onDelete('set null')->onUpdate('cascade');
             $table->integer('plazo');
-            $table->double('advance', 13, 5);
+            $table->decimal('advance', 13, 5);
             $table->string('ref');
             $table->string('paytype',100)->nullable();
+            $table->string('status')->default('credito');
             $table->timestamps();
         });
     }

@@ -79,6 +79,7 @@ class ContractController extends Controller
                 "paytype" => $request->paytype,
                 "ref" => $request->ref,
                 "advance" => $request->advance,
+                "status" => $request->status,
                 "date" => Carbon::parse($request->date)->format('Y-m-d'),
             ]
         );
@@ -176,6 +177,7 @@ class ContractController extends Controller
             "ref" => $request->ref,
             "advance" => $request->advance,
             "date" => Carbon::parse($request->date)->format('Y-m-d'),
+            "status" => $request->status,   
         ]);
 
         // respesta de JSON

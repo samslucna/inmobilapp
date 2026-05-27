@@ -3,7 +3,7 @@ import { Button, Box, Typography, IconButton } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import ClearIcon from "@mui/icons-material/Clear";
 import { styled } from "@mui/material/styles";
-import PropertyStore from "../../store/PropertyStore";
+import ContractStore from "../../store/ContractStore";
 import { useImportExcel } from "../../hooks/useImportExcel";
 import { Toaster } from "react-hot-toast";
 import ToastStore from "../../store/ToastStore";
@@ -35,7 +35,7 @@ const ImportInput = () => {
   
     const imporBtn = async (e) => {
       try {
-        await importExcel(fileName, PropertyStore.importXlsProperties);
+        await importExcel(fileName, ContractStore.importXlsContracts);
         deleteFileHandle(e)
     
       } catch (error) {
@@ -69,7 +69,7 @@ const ImportInput = () => {
   
       setFileName(file.name);
       // Aquí puedes procesar el archivo
-      PropertyStore.setUrlImp(file);
+      ContractStore.setUrlImp(file);
       ToastStore.showSuccess(`Archivo seleccionado: ${file.name}`);
       return true;
     };
@@ -78,7 +78,7 @@ const ImportInput = () => {
       e.preventDefault();
       if (fileName !== "") {
         setFileName("");
-        PropertyStore.setUrlImp("");
+        ContractStore.setUrlImp("");
       }
     };
 

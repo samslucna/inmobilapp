@@ -26,9 +26,11 @@ class Property extends Model
         "block_id",
         "amount_init",
         "amount_end",
-        "status",
-        "boundaries",
+        "status"
     ];
+
+    // (`buyer_id`, `seller_id`, `agent_id`, `property_id`, `plazo`, `advance`, `paytype`, `ref`, `status`, `date`, `updated_at`, `created_at`) values 
+    //(48, 1, 5, 98, 3, 50000, Efectivo, nd, pendiente }
 
     public function block()
     {

@@ -24,6 +24,7 @@ class Contract extends Model
         "plazo",
         "paytype",
         "ref",
+        "status",
         "advance",
         "date",
     ];

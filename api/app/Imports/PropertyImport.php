@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Models\Buyer;
+
 use App\Models\Property;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -59,14 +59,14 @@ class PropertyImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
     public function customValidationMessages()
     {
         return [
-            'nombre.required' => 'El nombre del cliente es requerido',
-            'descripcion.required' => 'La descripcion del cliente es requerido',
-            'm2.required' => 'El m2 del cliente es requerido',
-            'direccion.required' => 'La direccion del cliente es requerido',
-            'manzana.required' => 'La manzana del cliente es requerido',
-            'precio_inicial.required' => 'El precio inicial del cliente es requerido',
-            'precio_final.required' => 'El precio final del cliente es requerido',
-            'status.required' => 'El status del cliente es requerido',
+            'nombre.required' => 'El nombre de la propiedad es requerido',
+            'descripcion.required' => 'La descripcion de la propiedad es requerido',
+            'm2.required' => 'El m2 de la propiedad es requerido',
+            'direccion.required' => 'La direccion de la propiedad es requerido',
+            'manzana.required' => 'La manzana de la propiedad es requerido',
+            'precio_inicial.required' => 'El precio inicial de la propiedad es requerido',
+            'precio_final.required' => 'El precio final de la propiedad es requerido',
+            'status.required' => 'El status de la propiedad es requerido',
         ];
     }
 

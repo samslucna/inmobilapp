@@ -29,6 +29,7 @@ class ContractRequest extends FormRequest
             'plazo' => ['nullable', 'integer'],
             'paytype' => ['nullable', 'integer'],
             'ref' => ['nullable', 'string'],
+            'status' => ['nullable', 'string'],
             'advance' => ['nullable', 'double'],
             'date' => ['nullable', 'date']
         ];

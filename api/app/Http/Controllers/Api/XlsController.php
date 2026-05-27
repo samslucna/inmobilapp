@@ -7,14 +7,13 @@ use App\Exports\BuyersExport;
 use App\Exports\ContractsExport;
 use App\Exports\PropertiesExport;
 use App\Exports\SellersExport;
-use App\Exports\TicketsByBuyerExport;
 use App\Exports\TicketsByDateExport;
 use App\Exports\TicketsExport;
 use App\Http\Controllers\Controller;
 use App\Imports\AgentsImport;
 use App\Imports\BuyersImport;
-use App\Imports\ContractsImport;
 use App\Imports\PropertiesImport;
+use App\Imports\ContractsImport;
 use App\Imports\PropertyImport;
 use App\Imports\SellersImport;
 use App\Imports\TicketsImport;
@@ -211,22 +210,39 @@ class XlsController extends Controller
 
     public function importContracts(Request $request)
     {
-        //dd($request);
+
+              //dd($request);
         // Validate the uploaded file
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls',
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240'
         ]);
 
-        // Get the uploaded file
-        $file = $request->file('file');
+        try {
+            // 2. Pasamos la instancia al método import
+            DB::beginTransaction();
 
-        // Process the Excel file
-        Excel::import(new ContractsImport, $file);
+            $import = new ContractsImport();
+            Excel::import($import, $request->file('file'));
 
-        $response['message'] = "Importacion satisfactoria";
-        $response['success'] = true;
+            DB::commit();
 
-        return $response;
+            $mesage = $import->getErrorCount() === 0 ? 'Importación completada' : 'Errores al importar datos';
+
+            return response()->json([
+                'message' => $mesage,
+                'success_count' => $import->getSuccessCount(),
+                'error_count' => $import->getErrorCount(),
+                'errors' => $import->getErrors()
+            ], 200);
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error en la importación',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+  
     }
 
     public function importTickets(Request $request)

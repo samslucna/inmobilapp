@@ -22,6 +22,7 @@ import StageStore from "../../store/StageStore";
 import { observer } from "mobx-react-lite";
 import TableDatas from "./Components/TableDatas";
 import Checkets from "./Components/Ckeckets";
+import SearchByDate from "./SearchByDate";
 
 const Lots = observer(() => {
   const [data, setData] = useState({
@@ -155,8 +156,7 @@ const Lots = observer(() => {
             stage: stages[0]?.id,
             block: parseInt(block[0]?.id),
           };
-
-          console.log(selectOpt);
+          
           setState({ ...state, project_id: selectOpt.projecs });
           setState({ ...state, stage_id: selectOpt.stage });
           setState({ ...state, block_id: selectOpt.block });
@@ -175,9 +175,8 @@ const Lots = observer(() => {
       <Box  >
         <Card size={{ xs: "100%", md: "70%" }} sx={{p:4, m: "0 auto" }}>
           <Typography variant="h6" sx={{ mb: 2 }}>
-            {PropertyStore.editing === false
-              ? "Registrar nuevo lote"
-              : "Editar lote"}
+           Reportes de lotes
+            
           </Typography>
 
           <Grid spacing={2}>
@@ -203,7 +202,7 @@ const Lots = observer(() => {
                   blur={handleBlur}
                 />
               </Grid>
-              <Grid size={{ xs: 12, md: 2 }}>
+              <Grid size={{ xs: 12, md: 1 }}>
                 <Selector
                   datas={data.blocks}
                   label={"Manzana"}
@@ -216,21 +215,15 @@ const Lots = observer(() => {
 
               <Grid size={{ xs: 12, md: 3 }} sx={{ mt: 2 }}>
               <Checkets />
+            
+              </Grid>
+               <Grid size={{ xs: 12, md: 2 }} sx={{ mt: 2 }}>
+           
+              <SearchByDate />
               </Grid>
               
-              <DialogActions sx={{ p: 3 ,mt: -1}}>
-                <Button
-                  onClick={() => {
-                    PropertyStore.setHiddenForm(false);
-                    PropertyStore.setEditing(false);
-                  }}
-                  sx={{ background: "#2d5bda", color: "white" }}
-                >
-                  Filtrar
-                </Button>
-               
-              </DialogActions>
             </Grid>
+        
           </Grid>
         </Card>
         <TableDatas list={[]} />

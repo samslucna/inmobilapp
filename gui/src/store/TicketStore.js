@@ -137,7 +137,7 @@ class TicketStore {
     console.log(seachRender.data);
     return seachRender.data;
   };
-
+ 
   addTicket = async (data) => {
     data.amount = changeFormat.toInt(data.amount);
 

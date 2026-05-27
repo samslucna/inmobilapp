@@ -20,12 +20,12 @@ const TableDatas = observer(({ list }) => {
         <thead>
           <tr>
             <th>N°</th>
-            <th>Fecha</th>
-
-            <th>Concepto</th>
-            <th>Pago</th>
-            <th>Monto($)</th>
-            <th>Action</th>
+            <th>Lote</th>
+            <th>Manzana</th>
+            <th>Etapa</th>
+            <th>Pagado($)</th>
+            <th>Saldo($)</th>
+            <th>status</th>
           </tr>
         </thead>
         <tbody>
@@ -38,6 +38,8 @@ const TableDatas = observer(({ list }) => {
 
                     <td> {data.concept}</td>
                     <td>{data.paytype}</td>
+                    <td>{(data.amount)}</td>
+                    <td>{(data.amount)}</td>
                     <td>{(data.amount)}</td>
                     <td>
                       <div
@@ -63,12 +65,7 @@ const TableDatas = observer(({ list }) => {
                             className="edit blue icon"
                           ></i>
                         </button>
-                        {/* <ModalDocIcon
-                          data={data}
-                          url={"/api/tickets/export/pdf/ticket?id="}
-                          color={"eye blue icon"}
-                          title={"Recibo #"+data.id}
-                        /> */}
+                    
                       </div>
                     </td>
                   </tr>
