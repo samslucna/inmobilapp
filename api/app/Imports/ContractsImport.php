@@ -4,6 +4,8 @@ namespace App\Imports;
 
 
 use App\Models\Contract;
+use App\Models\Property;
+use App\Models\Ticket;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -32,11 +34,10 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
         $this->successCount++;
         $this->successRows[] = $row;
 
+        $property = Property::where('id', $row['lote'])->first();
         $row['fechacontrato'] = Carbon::instance(Date::excelToDateTimeObject($row['fechacontrato']));
 
-      
-        return new Contract([
-            
+        $contract =  new Contract([
             "buyer_id" => $row['cliente'],
             "seller_id" => $row['propietario'],
             "agent_id" => $row['agente'],
@@ -47,8 +48,67 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             "ref" => $row['ref'],
             "status" => $row['status'],
             "date" => $row['fechacontrato'],
-            
         ]);
+
+        // Guardar el contrato para obtener su ID
+        $contract->save();
+
+        // Crear el recibo (Ticket) por el monto del enganche
+        $this->crearReciboEnganche($contract, $row);
+
+        // Actualizar etapa
+        if (isset($row['status']) && !empty($row['status'])) {
+            if ($property && $property->status === 'disponible') {
+                $property->update(['status' => 'apartado']);
+            } else {
+                $property->update(['status' => 'disponible']);
+            }
+        }
+        // Registrar éxito
+        $this->successCount++;
+        $this->successRows[] = array_merge($row, ['contract_id' => $contract->id]);
+
+        return $contract;
+    }
+
+
+
+    /**
+     * Crear el recibo asociado al enganche del contrato
+     */
+    protected function crearReciboEnganche($contract, array $row)
+    {
+
+
+        // Generar número de recibo único (puedes personalizarlo)
+        $numeroRecibo = $this->generarNumeroRecibo();
+
+        // Crear el ticket/recibo
+        $ticket = new Ticket([
+            'receipt_number' => $numeroRecibo, // Número de recibo
+            'concept' => 'Enganche - Contrato #: ' . ($contract['id'] ?? 'N/A'),
+            'amount' => $row['enganche'],
+            'date' => $row['fechacontrato'],
+            'paytype' => $contract['paytype'],
+            'contract_id' => $contract['id'],
+            //'status' => 'pagado',
+            'description' => 'Enganche inicial para el contrato con referencia ' . ($row['ref'] ?? '')
+        ]);
+
+        $ticket->save();
+
+        return $ticket;
+    }
+
+    /**
+     * Generar número de recibo único
+     */
+    protected function generarNumeroRecibo()
+    {
+        $ultimoTicket = Ticket::orderBy('id', 'desc')->first();
+        $numero = $ultimoTicket ? intval(substr($ultimoTicket->receipt_number, -6)) + 1 : 1;
+
+        return 'REC-' . date('Ymd') . '-' . str_pad($numero, 6, '0', STR_PAD_LEFT);
     }
 
     public function rules(): array
@@ -58,7 +118,7 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             'propietario' => 'required|numeric|max:255',
             'agente' => 'required|numeric|max:255',
             'lote' => 'required|numeric|max:255',
-            //'fechacontrato' => 'required|numeric|max:255',
+            'fechacontrato' => 'required',
             'ref' => 'required|string|max:255',
             'enganche' => 'required|numeric|min:0',
             'tipo_pago' => 'required|string|max:100',
@@ -74,7 +134,7 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             'propietario.required' => 'Error referencia dueño/propietario',
             'agente.required' => 'Error referencia agente',
             'lote.required' => 'Error de referencia lote/propiedad',
-            //'fechacontrato.required' => 'Es necesatrio agregar una fecha',
+            'fechacontrato.required' => 'Es necesatrio agregar una fecha',
             'ref.required' => 'Error al almacenar referencia',
             'enganche.required' => 'Es necesatrio agregar un anticipo',
             'tipo_pago.required' => 'Es nesesario seleccionar una forma de pago',

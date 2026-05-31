@@ -5,6 +5,11 @@ export const getAllBd = async (table) => {
   return data;
 };
 
+export const getFilteredBd = async (table, filters) => {
+  const { data } = await axios.get(`api/${table}`, { params: filters });
+  return data;
+};
+
 export const getDatasBd = async (table) => {
   const { data } = await axios.get(`api/${table}`);
   return data;

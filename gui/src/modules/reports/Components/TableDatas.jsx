@@ -5,6 +5,8 @@ import { observer } from "mobx-react-lite";
 import { styled, alpha } from "@mui/material/styles";
 import Pagination from "@mui/material/Pagination";
 import { useState, Fragment } from "react";
+import changeFormat from "../../../helper/changeFormat";
+import ReportStore from "../../../store/ReportStore";
 
 //import Show from "./Show";
 
@@ -12,10 +14,7 @@ const TableDatas = observer(({ list }) => {
   
   return (
     <div className="right sixteen wide five wide computer field">
-      <div className="ui buttons">
-     
-     
-      </div>
+      <div className="ui buttons"></div>
       <table className="ui stackable small  table">
         <thead>
           <tr>
@@ -23,8 +22,10 @@ const TableDatas = observer(({ list }) => {
             <th>Lote</th>
             <th>Manzana</th>
             <th>Etapa</th>
+            <th>Costo($)</th>
             <th>Pagado($)</th>
             <th>Saldo($)</th>
+            <th>Fecha C.</th>
             <th>status</th>
           </tr>
         </thead>
@@ -34,46 +35,29 @@ const TableDatas = observer(({ list }) => {
                 return (
                   <tr key={"r" + data.id}>
                     <td>{data.id}</td>
-                    <td>{data.date}</td>
+                    <td>{data.name}</td>
 
-                    <td> {data.concept}</td>
-                    <td>{data.paytype}</td>
-                    <td>{(data.amount)}</td>
-                    <td>{(data.amount)}</td>
-                    <td>{(data.amount)}</td>
-                    <td>
-                      <div
-                        key={"edit" + data.id}
-                        className="ui mini basic icon buttons"
-                      >
-                        <button id="delete" className="ui  button">
-                          <i
-                            id={"del" + data.id}
-                            onClick={(e) => {
-                              //handleDelete(data.id);
-                            }}
-                            className="trash red icon"
-                          ></i>
-                        </button>
-                        <button className="ui  button">
-                          <i
-                            id={"del" + data.id}
-                            onClick={() => {
-                              //goEdit(data);
-                            }}
-                            id={"edit" + data.id}
-                            className="edit blue icon"
-                          ></i>
-                        </button>
-                    
-                      </div>
-                    </td>
+                    <td> {data.manzana}</td>
+                    <td>{data.stage_id}</td>
+                    <td>{changeFormat.numberToString(data.amount_init)}</td>
+                    <td>{changeFormat.numberToString(data.total_pagado)}</td>
+                    <td>{changeFormat.numberToString(data.saldo)}</td>
+                    <td>{changeFormat.toDate(data.fecha_contrato)}</td> 
+                    <td>{data.status}</td>
+
                   </tr>
                 );
               })
             : null}
         </tbody>
       </table>
+      <div className="ui icon buttons">
+        <Pagination
+          count={ReportStore.pagination.last_page}
+          page={ReportStore.pagination.currentPage}
+          onChange={ReportStore.handlePaginationChange}
+        />
+      </div>
     </div>
   );
 });

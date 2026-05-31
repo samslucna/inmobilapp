@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 
-import TicketStore from "../../store/TicketStore";
+import ReportStore from "../../store/ReportStore";
 
 import changeFormat from "../../helper/changeFormat";
 
@@ -51,15 +51,15 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function SearchByDate({ setMnSearch }) {
+export default function SearchByDate({ action }) {
   return (
     <Toolbar sx={{ mb: 2 }}>
-      {TicketStore.hiddenForm ? null : (
+     
         <>
           <Search sx={{ background: "#f5f5f5", mb: 4 }}>
             <SearchIconWrapper>Del:</SearchIconWrapper>
             <StyledInputBase
-              onChange={(e) => TicketStore.updateRangeDate(e)}
+              onChange={(e) => ReportStore.updateRangeDate(e)}
               name="date_init"
               type="date"
               placeholder="Buscar…"
@@ -69,7 +69,7 @@ export default function SearchByDate({ setMnSearch }) {
           <Search sx={{ background: "#f5f5f5", mb: 4 }}>
             <SearchIconWrapper>Al:</SearchIconWrapper>
             <StyledInputBase
-              onChange={(e) => TicketStore.updateRangeDate(e)}
+              onChange={(e) => ReportStore.updateRangeDate(e)}
               name="date_end"
               type="date"
               placeholder="Buscar…"
@@ -80,14 +80,15 @@ export default function SearchByDate({ setMnSearch }) {
             <Button
               variant="contained"
          
+              onClick={(e)=>action(e)}
               sx={{ mb: 2 }}
             >
-              filtrar
+              Filtrar
             </Button>
           </Box>
     
         </>
-      )}
+      
     </Toolbar>
   );
 }

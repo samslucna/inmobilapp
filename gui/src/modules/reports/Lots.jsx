@@ -14,7 +14,7 @@ import propertyValidate from "../../validator/propertyValidate";
 import Selector from "./Selector";
 import BlocksStore from "../../store/BlocksStore";
 import { useEffect, useState } from "react";
-import BoundaryStore from "../../store/BoundaryStore";
+import ReportStore from "../../store/ReportStore";
 import BoundaryMain from "../boundaries";
 import useSaveSub from "../../hooks/useSaveSub";
 import ProjectStore from "../../store/ProjectStore";
@@ -36,31 +36,13 @@ const Lots = observer(() => {
     stage: "",
     block: "",
   });
+  
   const { state, errors, setState, handleChange, handleSubmit, handleBlur } =
-    useSaveSub(
-      PropertyStore.property,
-      propertyValidate,
-      PropertyStore.addProperty,
-    );
+    useSaveSub(ReportStore.report, propertyValidate, ReportStore.addReport);
 
-  const {
-    id,
-    block_id,
-    project_id,
-    stage_id,
-    name,
-    description,
-    address,
-    m2,
-    amount_end,
-    amount_init,
-  } = state;
+  const { id, block_id, project_id, stage_id, dates, status } = state;
 
   const saveProperty = async (e) => {
-    const data = {
-      ...state,
-      boundaries: BoundaryStore.Boundaries,
-    };
     setState(data);
     handleSubmit(e);
   };
@@ -69,25 +51,54 @@ const Lots = observer(() => {
     const { name, value } = e.target;
 
     if (name === "project_id") {
-      const projects = data.projects.filter((project) => project.id === value);
+      let projects = data.projects;
+
+      projects = projects.filter((project) => project.id === value);
+
+      let stages = projects[0].stages;
+      let blocks = await BlocksStore.getBlocksByStage(stages[0].id);
+
+      if (stages[0].name !== "Todas las etapas") {
+        stages.unshift({
+          id: 0,
+          name: "Todas las etapas",
+          project_id: projects[0].id,
+        });
+      }
+
+      blocks.unshift({
+        id: 0,
+        name: "Todas las manzanas",
+        stage_id: 0,
+      });
+
       let optsel = {
         project: projects[0].id,
-        stage: projects[0].stage_id,
-        block: "",
+        stage: stages[0].id,
+        block: projects[0].stages[0].id,
       };
+
       setSelected(optsel);
       setData({ ...data, stages: projects[0].stages });
     }
     if (name === "stage_id") {
-      const blocks = await BlocksStore.getBlocksByStage(value);
-      let selectBlock = blocks.filter((block) => block.stage_id === value);
-      let optsel = {
-        project: selected.project,
-        stage: value,
-        block: selectBlock[0].id,
-      };
-      setSelected(optsel);
-      setData({ ...data, blocks: selectBlock });
+      let blocks = await BlocksStore.getBlocksByStage(value);
+      blocks.unshift({
+        id: 0,
+        name: "Todas las manzanas",
+        stage_id: 0,
+      });
+      try {
+        let optsel = {
+          project: selected.project,
+          stage: value,
+          block: blocks[0].id,
+        };
+        setSelected(optsel);
+        setData({ ...data, blocks: blocks });
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     if (name === "block_id") {
@@ -98,85 +109,85 @@ const Lots = observer(() => {
       };
       setSelected(optsel);
       setState({ ...state, block_id: optsel.block });
-      console.log(optsel);
-      console.log(state);
     }
 
     handleChange(e);
   };
 
+  const filterReports = async (e) => {
+    e.preventDefault();
+    
+    try {
+      let filters = {
+        project_id: selected.project,
+        stage_id: selected.stage,
+        block_id: selected.block,
+        dates: ReportStore.rangeDate,
+        status: ReportStore.checkboxes,
+      };
+
+      await ReportStore.filterByLots(filters);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     const init = async () => {
-      const projecs = await ProjectStore.loadProjects();
       try {
-        if (PropertyStore.editing) {
-          if (PropertyStore.property.block_id !== null) {
-            const blocks = await BlocksStore.getBlocks();
+        let projecs = await ProjectStore.loadProjects();
+        let blocks = await BlocksStore.getBlocks();
 
-            const getBLock = blocks.filter(
-              (block) => block.id === PropertyStore.property.block_id,
-            );
+        projecs.unshift({
+          id: 0,
+          name: "Todos los proyectos",
+          stages: [
+            {
+              id: 0,
+              name: "Todas las etapas",
+              project_id: 0,
+            },
+          ],
+        });
 
-            const projectId = getBLock[0].stage.project_id;
-            const getProjectSelect = projecs.filter(
-              (project) => project.id === projectId,
-            )[0];
+        let stages = projecs[0].stages;
 
-            const getBlocksProject = blocks.filter(
-              (blocks) => blocks.stage_id === getBLock[0].stage_id,
-            );
+        blocks.unshift({
+          id: 0,
+          name: "Todas las manzanas",
+          stage_id: 0,
+        });
 
-            const projectStage = {
-              projects: projecs,
-              stages: getProjectSelect.stages,
-              blocks: getBlocksProject,
-            };
+        const projectStage = {
+          projects: projecs,
+          stages: stages,
+          blocks: blocks,
+        };
 
-            const selectOpt = {
-              project: getProjectSelect.id,
-              stage: getBLock[0].stage_id,
-              block: PropertyStore.property.block_id,
-            };
-
-            //console.log(selectOpt)
-            setData(projectStage);
-            setSelected(selectOpt);
-          }
-        } else {
-          const stages = projecs[0].stages;
-          const block = await BlocksStore.getBlocksByStage(stages[0].id);
-          const projectStage = {
-            projects: projecs,
-            stages: stages,
-            blocks: block,
-          };
-
-          const selectOpt = {
-            project: projectStage.projects[0].id,
-            stage: stages[0]?.id,
-            block: parseInt(block[0]?.id),
-          };
-          
-          setState({ ...state, project_id: selectOpt.projecs });
-          setState({ ...state, stage_id: selectOpt.stage });
-          setState({ ...state, block_id: selectOpt.block });
-          setData(projectStage);
-          setSelected(selectOpt);
-        }
+        const selectOpt = {
+          project: projectStage.projects[0].id,
+          stage: stages[0]?.id,
+          block: parseInt(blocks[0]?.id),
+        };
+        setState({ ...state, project_id: selectOpt.projecs });
+        setState({ ...state, stage_id: selectOpt.stage });
+        setState({ ...state, block_id: selectOpt.block });
+        setData(projectStage);
+        setSelected(selectOpt);
       } catch (error) {
         console.log(error);
       }
     };
+
     init();
   }, []);
 
   return (
     <>
-      <Box  >
-        <Card size={{ xs: "100%", md: "70%" }} sx={{p:4, m: "0 auto" }}>
+      <Box>
+        <Card size={{ xs: "100%", md: "70%" }} sx={{ p: 4, m: "0 auto" }}>
           <Typography variant="h6" sx={{ mb: 2 }}>
-           Reportes de lotes
-            
+            Reportes de lotes
           </Typography>
 
           <Grid spacing={2}>
@@ -214,19 +225,15 @@ const Lots = observer(() => {
               </Grid>
 
               <Grid size={{ xs: 12, md: 3 }} sx={{ mt: 2 }}>
-              <Checkets />
-            
+                <Checkets data={ReportStore.checkboxes} />
               </Grid>
-               <Grid size={{ xs: 12, md: 2 }} sx={{ mt: 2 }}>
-           
-              <SearchByDate />
+              <Grid size={{ xs: 12, md: 2 }} sx={{ mt: 2 }}>
+                <SearchByDate action={filterReports} />
               </Grid>
-              
             </Grid>
-        
           </Grid>
         </Card>
-        <TableDatas list={[]} />
+        <TableDatas list={ReportStore.reports} />
       </Box>
     </>
   );

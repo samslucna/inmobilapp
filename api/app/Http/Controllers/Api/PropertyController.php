@@ -29,80 +29,106 @@ class PropertyController extends Controller
 
     public function propertiesContracts(Request $request)
     {
-    
-      // Construir consulta base
+
+
+
+        // Construir consulta base
         $query = DB::table('properties as p')
             ->join('blocks as b', 'p.block_id', '=', 'b.id')
             ->leftJoin('contracts as c', 'p.id', '=', 'c.property_id')
+            ->leftJoin('tickets as t', 'c.id', '=', 't.contract_id')
             ->select(
                 'p.id',
                 'p.name',
-                'p.description',
                 'b.name as manzana',
                 'b.stage_id',
                 'p.amount_init',
-                DB::raw("CASE WHEN c.property_id IS NOT NULL THEN 'VENDIDO' ELSE 'DISPONIBLE' END as status"),
+                'p.status',
+                // Subconsulta 1: Trae la suma total de los montos de los tickets
+                DB::raw("COALESCE(
+                (SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 0) as total_pagado"),
+
+                // Subconsulta 2: Calcula el saldo (amount_init - total_tickets)
+                DB::raw("p.amount_init - COALESCE(
+                (SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 
+                0
+            ) as saldo"),
+                //     DB::raw("COALESCE(
+                //     (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', tk.id, 'concepto', tk.concept, 'Monto', tk.amount, 'fecha', tk.date)) 
+                //      FROM tickets tk 
+                //      WHERE tk.contract_id = c.id), 
+                //     '[]'
+                // ) as tickets"),
+                //DB::raw("CASE WHEN c.property_id IS NOT NULL THEN 'vendido' ELSE 'disponible' END as status" ),
                 'c.date as fecha_contrato' // asumiendo que existe esta columna
             );
-            dd($query->get());
 
-                    // Aplicar filtros según parámetros recibidos
 
-        // Filtro 1: Lotes disponibles (sin contrato)
-        if ($request->has('disponibles') && filter_var($request->disponibles, FILTER_VALIDATE_BOOLEAN)) {
-            $query->whereNull('c.idlote');
-        }
+        //dd($query->get());
+        // 2. FILTRO POR ESTADO (disponible, vendido, apartado)
+        // Recibe el parámetro 'status' desde el request
+        $query->when($request->filled('status'), function ($q) use ($request) {
+            $status = $request->input('status');
+            //dd($status['disponible']);
 
-        // Filtro 2: Lotes vendidos (con contrato)
-        if ($request->has('vendidos') && filter_var($request->vendidos, FILTER_VALIDATE_BOOLEAN)) {
-            $query->whereNotNull('c.idlote');
-        }
+            if ($status['disponible'] && !$status['vendido'] && !$status['apartado']) {
+                // Solo disponibles
+                $q->whereNull('c.property_id');
+            } elseif (!$status['disponible'] && $status['vendido'] && !$status['apartado']) {
+                // Solo vendidos
+                $q->whereNotNull('c.property_id');
+            } elseif (!$status['disponible'] && !$status['vendido'] && $status['apartado']) {
+                // Solo apartados 
+                $q->whereNotNull('c.property_id');
+            }
+        });
+
+
 
         // Filtro 3: Por etapa específica
-        if ($request->has('etapa') && $request->etapa) {
-            $query->where('m.etapa', $request->etapa);
-        }
-
-        // Filtro 4: Múltiples etapas (array)
-        if ($request->has('etapas') && is_array($request->etapas)) {
-            $query->whereIn('m.etapa', $request->etapas);
+        if ($request->has('Etapa') && $request->stage_id) {
+            $query->where('b.stage_id', $request->stage_id);
         }
 
 
-                // Filtro 5: Rango de fechas del contrato (solo para lotes vendidos)
-        if ($request->has('fecha_desde') && $request->has('fecha_hasta')) {
-            $query->whereBetween('c.fecha_contrato', [$request->fecha_desde, $request->fecha_hasta]);
-        } elseif ($request->has('fecha_desde')) {
-            $query->whereDate('c.fecha_contrato', '>=', $request->fecha_desde);
-        } elseif ($request->has('fecha_hasta')) {
-            $query->whereDate('c.fecha_contrato', '<=', $request->fecha_hasta);
-        }
+
+
+        // Filtro 5: Rango de fechas del contrato (solo para lotes vendidos)
+        $query->when($request->input('dates')['date_init'] && $request->input('dates')['date_end'], function ($q) use ($request) {
+            //dd($request->input('dates')['date_init']);
+            $q->whereBetween('c.date', [
+                $request->input('dates')['date_init'],
+                $request->input('dates')['date_end']
+
+            ]);
+        });
 
         // Filtro 6: Por manzana específica
-        if ($request->has('manzana') && $request->manzana) {
-            $query->where('m.nombre', 'like', '%' . $request->manzana . '%');
+        if ($request->has('block_id') && $request->block_id) {
+            $query->where('b.id', $request->block_id);
         }
 
-        // Filtro 7: Por rango de precio
-        if ($request->has('precio_min') && $request->precio_min) {
-            $query->where('l.coste_lote', '>=', $request->precio_min);
-        }
-        if ($request->has('precio_max') && $request->precio_max) {
-            $query->where('l.coste_lote', '<=', $request->precio_max);
-        }
-    
+        //dd($query->get());
+        //// Filtro 7: Por rango de precio
+        //if ($request->has('precio_min') && $request->precio_min) {
+        //    $query->where('l.coste_lote', '>=', $request->precio_min);
+        //}
+        //if ($request->has('precio_max') && $request->precio_max) {
+        //    $query->where('l.coste_lote', '<=', $request->precio_max);
+        //}
+
         // Filtro 8: Búsqueda por nombre de lote
         if ($request->has('search') && $request->search) {
-            $query->where('l.name_lote', 'like', '%' . $request->search . '%');
+            $query->where('l.name', 'like', '%' . $request->search . '%');
         }
 
         // Ordenamiento
-        $ordenCampo = $request->get('ordenar_por', 'm.etapa');
+        $ordenCampo = $request->get('ordenar_por', 'b.stage_id'); // campo por defecto
         $ordenDireccion = $request->get('orden', 'asc');
         $query->orderBy($ordenCampo, $ordenDireccion);
 
         // Paginación (opcional)
-        $porPagina = $request->get('por_pagina', 15);
+        $porPagina = $request->get('por_pagina', 5);
         $lotes = $query->paginate($porPagina);
 
         if ($request->expectsJson()) {
@@ -112,7 +138,7 @@ class PropertyController extends Controller
                 'filtros_aplicados' => $request->all()
             ]);
         }
-    //properties = Property::with('contracts')->get();
+        //properties = Property::with('contracts')->get();
 
         //return response()->json($properties);
     }
