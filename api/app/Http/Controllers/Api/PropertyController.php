@@ -44,6 +44,7 @@ class PropertyController extends Controller
                 'b.stage_id',
                 'p.amount_init',
                 'p.status',
+
                 // Subconsulta 1: Trae la suma total de los montos de los tickets
                 DB::raw("COALESCE(
                 (SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 0) as total_pagado"),
@@ -53,13 +54,6 @@ class PropertyController extends Controller
                 (SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 
                 0
             ) as saldo"),
-                //     DB::raw("COALESCE(
-                //     (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', tk.id, 'concepto', tk.concept, 'Monto', tk.amount, 'fecha', tk.date)) 
-                //      FROM tickets tk 
-                //      WHERE tk.contract_id = c.id), 
-                //     '[]'
-                // ) as tickets"),
-                //DB::raw("CASE WHEN c.property_id IS NOT NULL THEN 'vendido' ELSE 'disponible' END as status" ),
                 'c.date as fecha_contrato' // asumiendo que existe esta columna
             );
 
@@ -71,15 +65,25 @@ class PropertyController extends Controller
             $status = $request->input('status');
             //dd($status['disponible']);
 
-            if ($status['disponible'] && !$status['vendido'] && !$status['apartado']) {
+            if ($status) {
                 // Solo disponibles
-                $q->whereNull('c.property_id');
-            } elseif (!$status['disponible'] && $status['vendido'] && !$status['apartado']) {
-                // Solo vendidos
-                $q->whereNotNull('c.property_id');
-            } elseif (!$status['disponible'] && !$status['vendido'] && $status['apartado']) {
-                // Solo apartados 
-                $q->whereNotNull('c.property_id');
+                //dd($status);
+
+                $seleccionados = array_filter($status);
+                $conteo = count($seleccionados);
+
+                if ($conteo === 1) {
+                    // Un solo estado seleccionado
+                    $estadoUnico = key($seleccionados);
+                    $q->where('p.status', $estadoUnico);
+                } elseif ($conteo === 2) {
+                    // Dos estados seleccionados
+                    $estados = array_keys($seleccionados);
+                    $q->whereIn('p.status', $estados);
+                } elseif ($conteo === 3 || $conteo === 0) {
+                    // Todos o ninguno seleccionado
+                    $q->whereIn('p.status', ['disponible', 'apartado', 'vendido']);
+                }
             }
         });
 
@@ -123,7 +127,7 @@ class PropertyController extends Controller
         }
 
         // Ordenamiento
-        $ordenCampo = $request->get('ordenar_por', 'b.stage_id'); // campo por defecto
+        $ordenCampo = $request->get('ordenar_por', 'p.id'); // campo por defecto
         $ordenDireccion = $request->get('orden', 'asc');
         $query->orderBy($ordenCampo, $ordenDireccion);
 

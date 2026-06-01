@@ -7,14 +7,25 @@ import Pagination from "@mui/material/Pagination";
 import { useState, Fragment } from "react";
 import changeFormat from "../../../helper/changeFormat";
 import ReportStore from "../../../store/ReportStore";
+import ModalDoc from "./ModalDoc";
 
 //import Show from "./Show";
 
 const TableDatas = observer(({ list }) => {
-  
   return (
     <div className="right sixteen wide five wide computer field">
-      <div className="ui buttons"></div>
+        <Typography mt={2} variant="h5" gutterBottom component="div">
+          Resultados
+        </Typography>
+      <div className="ui buttons">
+        <ModalDoc
+          data={ReportStore.filter}
+          url={"/api/properties/reportPropertiesPdf"}
+          color={"error"}
+          title={"Exportar PDF"}
+        />
+      </div>
+
       <table className="ui stackable small  table">
         <thead>
           <tr>
@@ -41,10 +52,17 @@ const TableDatas = observer(({ list }) => {
                     <td>{data.stage_id}</td>
                     <td>{changeFormat.numberToString(data.amount_init)}</td>
                     <td>{changeFormat.numberToString(data.total_pagado)}</td>
-                    <td>{changeFormat.numberToString(data.saldo)}</td>
-                    <td>{changeFormat.toDate(data.fecha_contrato)}</td> 
+                    <td>
+                      {data.total_pagado !== 0
+                        ? changeFormat.numberToString(data.saldo)
+                        : "$ 0.00"}
+                    </td>
+                    <td>
+                      {changeFormat.toDate(data.fecha_contrato) === "1969-12-31"
+                        ? "Sin contrato"
+                        : changeFormat.toDate(data.fecha_contrato)}
+                    </td>
                     <td>{data.status}</td>
-
                   </tr>
                 );
               })

@@ -147,7 +147,7 @@ export default function DashboardLayout() {
             component="div"
             sx={{ flexGrow: 1, color: "#333" }}
           >
-            ERP Motsakki
+            Motsakki-Tju ERP V.0.9
           </Typography>
           <IconButton
             onClick={handleClick}

@@ -153,16 +153,7 @@ class ReportStore {
     }
   };
 
-  loadReports = async () => {
-    try {
-      const data = await getAllBd("reports");
-      this.setPagination(data);
-      this.setReports(data.data);
-      return data.data;
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
 
   filterByLots = async (filters) => {
     
@@ -179,8 +170,9 @@ class ReportStore {
     }
   };
 
-  toExport = (url, nameDoc, data) => {
-    return setUrlExportPdf(url, nameDoc, data);
+  toExport = (url, data) => {
+    console.log(url,  data);
+    return setUrlExportPdf(url, data);
   };
 
   toExportExcel = async (url, namedoc, data) => {

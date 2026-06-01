@@ -7,6 +7,7 @@ use App\Models\Contract;
 use App\Models\Property;
 use App\Models\Ticket;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -57,13 +58,13 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
         $this->crearReciboEnganche($contract, $row);
 
         // Actualizar etapa
-        if (isset($row['status']) && !empty($row['status'])) {
-            if ($property && $property->status === 'disponible') {
-                $property->update(['status' => 'apartado']);
-            } else {
-                $property->update(['status' => 'disponible']);
-            }
-        }
+        //if (isset($row['status']) && !empty($row['status'])) {
+        //    if ($property && $property->status === 'disponible') {
+        //        $property->update(['status' => 'apartado']);
+        //    } else {
+        //        $property->update(['status' => 'disponible']);
+        //    }
+        //}
         // Registrar éxito
         $this->successCount++;
         $this->successRows[] = array_merge($row, ['contract_id' => $contract->id]);
@@ -97,8 +98,48 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
 
         $ticket->save();
 
+        $this->verificUpdateStatus($contract['id']);
+
+         // Registrar éxito
+         $this->successCount++;
+         $this->successRows[] = array_merge($row, ['contract_id' => $contract->id, 'ticket_id' => $ticket->id]);
+
         return $ticket;
     }
+
+     protected function verificUpdateStatus($contractId)
+    {
+        //dd($contractId);
+        // 1. Obtenemos el costo inicial y la suma de los tickets
+        $datos = DB::table('contracts as c')
+            ->join('properties as p', 'c.property_id', '=', 'p.id')
+            ->leftJoin('tickets as t', 'c.id', '=', 't.contract_id')
+            ->where('c.id', $contractId)
+            ->select(
+                'p.id as property_id',
+                'p.amount_init',
+                DB::raw('COALESCE(SUM(t.amount), 0) as total_tickets')
+            )
+            ->groupBy('p.id', 'p.amount_init')
+            ->first();
+
+        if ($datos) {
+            $saldo = $datos->amount_init - $datos->total_tickets;
+
+            // 2. Si el saldo es menor o igual a 0, actualizamos el status físico
+            if ($saldo <= 0) {
+                DB::table('properties')
+                    ->where('id', $datos->property_id)
+                    ->update(['status' => 'vendido']);
+            } else {
+                // Si eliminaron tickets y el saldo volvió a ser positivo, regresa a vendido
+                DB::table('properties')
+                    ->where('id', $datos->property_id)
+                    ->update(['status' => 'apartado']);
+            }
+        }
+    }
+
 
     /**
      * Generar número de recibo único

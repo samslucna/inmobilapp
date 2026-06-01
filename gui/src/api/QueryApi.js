@@ -116,6 +116,7 @@ export const setUrlExportXls = async (url, namedoc, data) => {
 
 export const setUrlExportPdf = async (url, data) => {
   let exp = await axios.get(url, {
+    params: data,
     headers: {
       "Content-Type": "application/pdf",
       Accept: "application/json",
