@@ -1,6 +1,6 @@
 import Swal from "sweetalert2";
 import InputBase from "@mui/material/InputBase";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography,Button } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { styled, alpha } from "@mui/material/styles";
 import Pagination from "@mui/material/Pagination";
@@ -9,7 +9,7 @@ import changeFormat from "../../../helper/changeFormat";
 import ReportStore from "../../../store/ReportStore";
 import ModalDoc from "./ModalDoc";
 
-//import Show from "./Show";
+
 
 const TableDatas = observer(({ list }) => {
   return (
@@ -24,6 +24,18 @@ const TableDatas = observer(({ list }) => {
           color={"error"}
           title={"Exportar PDF"}
         />
+         <Button
+              variant="contained"
+              color="success"
+              onClick={() =>
+                ReportStore.toExportExcel(
+                  "/api/properties/reportPropertiesXls",
+                  "Reporte de propiedades",
+                  ReportStore.filter,
+                )
+              }
+              sx={{ mb: 2 }}
+            >Excel</Button>
       </div>
 
       <table className="ui stackable small  table">

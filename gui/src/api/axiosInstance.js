@@ -3,6 +3,7 @@ import authStore from "../store/AuthStore";
 
 const instance = axios.create({
   baseURL: "http://localhost:8080/",
+  //baseURL: "http://178.156.202.87/",
   withCredentials:true,
   withXSRFToken:true,
 });

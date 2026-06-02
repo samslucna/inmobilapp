@@ -11,18 +11,19 @@ import {
   Stack,
 } from "@mui/material";
 import { Visibility, VisibilityOff, PersonAdd } from "@mui/icons-material";
-import ReportStore from "../../../store/ReportStore";
+import TicketStore from "../../store/TicketStore";
 
-export default function ModalDoc({ color, component, title, data, url }) {
-  const { toExport } = ReportStore;
+export default function ModalDoc({ color, component, title, data }) {
+  const { toExport } = TicketStore;
+
   const [open, setOpen] = useState(false);
   const [urlImp, setUrlImp] = useState("");
-
   const handleClickOpen = async () => {
     try {
       const pdfUrl = await toExport(
-        url ,
-        data
+        "/api/contracts/export/pdf/ticketsPDF?id=" + data.id,
+        data,
+        "Relacion de recibos de cliente",
       );
 
       setUrlImp(pdfUrl);
@@ -42,7 +43,8 @@ export default function ModalDoc({ color, component, title, data, url }) {
       // Reemplaza con tu endpoint de Laravel
 
       const pdfUrl = await toExport(
-        url,
+        "api/contracts/export/pdf/contractExportTicketsPDF?id=" + data.id,
+        "Relacion de recibos de cliente",
         data,
       );
     } catch (error) {

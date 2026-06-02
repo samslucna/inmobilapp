@@ -126,6 +126,8 @@ const Lots = observer(() => {
         status: ReportStore.checkboxes,
       };
 
+      ReportStore.setFilter(filters);
+
       await ReportStore.filterByLots(filters);
     } catch (error) {
       console.log(error);

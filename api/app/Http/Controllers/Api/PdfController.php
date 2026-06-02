@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Ticket;
-use Barryvdh\DomPDF\Facade\Pdf; 
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -13,66 +13,120 @@ use Illuminate\Support\Facades\DB;
 use Codedge\Fpdf\Fpdf\Fpdf;
 
 // 1. Extendemos FPDF para personalizar Encabezado y Pie de Página de forma limpia
-class CustomPDF extends Fpdf {
+class CustomPDF extends Fpdf
+{
     protected $filters;
     protected $userName;
 
-    public function __construct($filters, $userName) {
+    public function __construct($filters, $userName)
+    {
         parent::__construct('L', 'mm', 'A4'); // Configurado en Orientación Horizontal (Landscape) para las columnas
         $this->filters = $filters;
         $this->userName = $userName;
     }
 
     // Encabezado Automático
-    public function Header() {
-        // Nombre de la Empresa
-        $this->SetFont('Arial', 'B', 16);
-        $this->SetTextColor(43, 98, 176); // Azul Corporativo
-        $this->Cell(0, 8, utf8_decode('Sistema Morsakki ERP V: 0.9'), 0, 1, 'L');
-        
-        // Título del Reporte
-        $this->SetFont('Arial', 'B', 12);
+    public function Header()
+    {
+        if (file_exists(public_path('images/logo.jpeg'))) {
+            $this->Image(public_path('images/logo.jpeg'), 15, 10, 25, 0);
+        }
+
+        if (file_exists(public_path('images/logo_derecho.png'))) {
+            // El ancho de A4 Horizontal es 297mm. Margen derecho 15mm, restamos 30mm de ancho = 252mm
+            $this->Image(public_path('images/logo_derecho.png'), 252, 10, 30, 0);
+        }
+        $this->SetFont('Times', '', 10);
+        $this->Cell(0, 10, utf8_decode('Sistema Motsakki-Tju'), 0, 0, 'R');
+        // --- 2. TEXTOS CENTRALES (Empresa y Título) ---
+        $this->SetY(10); // Nos posicionamos verticalmente a la altura del inicio de los logos
+
+        // Nombre de la Empresa Centrado
+        $this->SetFont('Times', 'B', 14);
+        $this->SetTextColor(56, 161, 105); // Azul Corporativo
+        $this->Cell(0, 8, utf8_decode('Motsakki-Tju'), 0, 1, 'C');
+
+        // Subtítulo / Nombre del Reporte Centrado
+        $this->SetFont('Times', 'B', 10);
         $this->SetTextColor(74, 85, 104); // Gris Oscuro
-        $this->Cell(0, 6, utf8_decode('REPORTE DE LOTES'), 0, 1, 'L');
-        $this->Ln(2);
+        $this->Cell(0, 6, utf8_decode('REPORTE DE LOTES'), 0, 1, 'C');
+        $this->Ln(5); // Espacio de separación para los filtros
 
-        // Bloque de Filtros Aplicados
-        $this->SetFont('Arial', 'B', 9);
-        $this->SetFillColor(237, 242, 247); // Fondo gris claro
+        // --- 3. REJILLA DE FILTROS DINÁMICOS ---
+        // Configuración de estilos para la barra de filtros
+        $this->SetFont('Arial', '', 8.5);
+        $this->SetFillColor(252, 252, 252); // Fondo gris muy claro e institucional (#f7fafc)
+        $this->SetDrawColor(226, 232, 240); // Bordes suaves gris claro (#e2e8f0)
         $this->SetTextColor(45, 55, 72);
-        
-        // Texto de los filtros en una sola línea compacta
-        $filterText = "Filtros -> Estado: {$this->filters['status']} | Manzana: {$this->filters['block']} | Rango: {$this->filters['date_range']}";
-        $this->Cell(0, 7, utf8_decode($filterText), 0, 1, 'L', true);
-        $this->Ln(4);
 
-        // Encabezados de la Tabla de Datos
+        // Fila 1 de Filtros (Ancho total disponible entre márgenes = 267mm)
+        // Cada celda se divide proporcionalmente
+        $this->SetFont('Arial', 'B', 8.5);
+        $this->Cell(25, 6, 'Proyecto: ', 'TLB', 0, 'L', true);
+        $this->SetFont('Arial', '', 8.5);
+        $this->Cell(64, 6, utf8_decode($this->filters['proyecto']), 'TRB', 0, 'L', true);
+
+        $this->SetFont('Arial', 'B', 8.5);
+        $this->Cell(20, 6, 'Etapa: ', 'TLB', 0, 'L', true);
+        $this->SetFont('Arial', '', 8.5);
+        $this->Cell(64, 6, utf8_decode($this->filters['etapa']), 'TRB', 0, 'L', true);
+
+        $this->SetFont('Arial', 'B', 8.5);
+        $this->Cell(25, 6, 'Manzana: ', 'TLB', 0, 'L', true);
+        $this->SetFont('Arial', '', 8.5);
+        $this->Cell(69, 6, utf8_decode($this->filters['manzana']), 'TRB', 1, 'L', true);
+
+        // Fila 2 de Filtros (Fechas y Estado)
+        $this->SetFont('Arial', 'B', 8.5);
+        $this->Cell(25, 6, 'Desde: ', 'TLB', 0, 'L', true);
+        $this->SetFont('Arial', '', 8.5);
+        $this->Cell(35, 6, $this->filters['desde'], 'TRB', 0, 'L', true);
+
+        $this->SetFont('Arial', 'B', 8.5);
+        $this->Cell(15, 6, 'Hasta: ', 'TLB', 0, 'L', true);
+        $this->SetFont('Arial', '', 8.5);
+        $this->Cell(39, 6, $this->filters['hasta'], 'TRB', 0, 'L', true);
+
+        $this->SetFont('Arial', 'B', 8.5);
+        $this->Cell(25, 6, 'Estado: ', 'TLB', 0, 'L', true);
+
+        // Estilo especial dinámico para el texto del Estado destacado
+        $this->SetFont('Arial', 'B', 8.5);
+        $estado = strtolower($this->filters['status']);
+
+        if ($estado === 'vendido') $this->SetTextColor(229, 62, 62);     // Rojo
+        elseif ($estado === 'disponible') $this->SetTextColor(56, 161, 105);  // Verde
+        elseif ($estado === 'apartado') $this->SetTextColor(221, 107, 32); // Naranja
+        else $this->SetTextColor(49, 151, 149);                           // Azul/Verde para Disponible
+
+        $this->Cell(128, 6, utf8_decode(ucfirst($this->filters['status'])), 'TRB', 1, 'L', true);
+
+        $this->Ln(4); // Espacio antes de iniciar la tabla de datos
+
+
+        // --- 4. ENCABEZADOS DE LA TABLA DE DATOS ---
         $this->SetFont('Arial', 'B', 9);
-        $this->SetFillColor(43, 108, 176); // Fondo Azul para cabecera de tabla
+        $this->SetFillColor(56, 161, 105); // Fondo Azul para cabecera de tabla
         $this->SetTextColor(255, 255, 255); // Texto Blanco
-        
-        // Definición estricta de anchos de columna (Total A4 Horizontal disponible = 277mm)
+        $this->SetDrawColor(43, 108, 176);
+
         $this->Cell(15, 8, 'ID', 1, 0, 'C', true);
-        $this->Cell(35, 8, 'Lote', 1, 0, 'L', true);
-        $this->Cell(40, 8, 'Manzana', 1, 0, 'L', true);
+        $this->Cell(45, 8, 'Propiedad', 1, 0, 'L', true);
+        $this->Cell(45, 8, 'Manzana', 1, 0, 'L', true);
         $this->Cell(30, 8, 'Estado', 1, 0, 'C', true);
-        $this->Cell(37, 8, 'Precio $', 1, 0, 'R', true);
-        $this->Cell(37, 8, 'Pagado', 1, 0, 'R', true);
-        $this->Cell(37, 8, 'Saldo Actual', 1, 0, 'R', true);
-        $this->Cell(46, 8, 'Fecha Contrato', 1, 1, 'C', true); // El último parámetro '1' genera el salto de línea
+        $this->Cell(33, 8, 'Precio Lote', 1, 0, 'R', true);
+        $this->Cell(33, 8, 'Pagado ', 1, 0, 'R', true);
+        $this->Cell(33, 8, 'Saldo ', 1, 0, 'R', true);
+        $this->Cell(33, 8, 'Fecha Contrato', 1, 1, 'C', true);
     }
 
     // Pie de Página Automático
-    public function Footer() {
-        $this->SetY(-15); // Posicionar a 1.5 cm del final de la página
+    public function Footer()
+    {
+        $this->SetY(-15);
         $this->SetFont('Arial', 'I', 8);
         $this->SetTextColor(113, 128, 150);
-
-        // Izquierda: Nombre del usuario que generó el reporte
         $this->Cell(135, 10, utf8_decode('Generado por: ' . $this->userName), 0, 0, 'L');
-        
-        // Derecha: Numeración dinámica formato "Página X de Y"
-        // FPDF requiere usar '{nb}' como comodín para calcular el total general de páginas
         $this->Cell(0, 10, utf8_decode('Página ' . $this->PageNo() . ' de {nb}'), 0, 0, 'R');
     }
 }
@@ -111,11 +165,10 @@ class PdfController extends Controller
     public function reportPropertiesPdf(Request $request)
     {
 
-    //dd($request->input('status'));
-    // Recuperamos los filtros del request para usarlos tanto en la consulta como en el header del PDF
-   
-         
-// Construir consulta base
+        //dd($request->all());
+
+
+        // Construir consulta base
         $query = DB::table('properties as p')
             ->join('blocks as b', 'p.block_id', '=', 'b.id')
             ->leftJoin('contracts as c', 'p.id', '=', 'c.property_id')
@@ -169,11 +222,21 @@ class PdfController extends Controller
                 }
             }
         });
-        
-        
-        $rangoFechas = 'Cualquiera';
-  
-          $query->when($request->input('dates')['date_init'] && $request->input('dates')['date_end'], function ($q) use ($request) {
+
+
+        // Filtro 3: Por etapa específica
+        if ($request->has('stage_id') && $request->stage_id) {
+            $query->where('b.stage_id', $request->stage_id);
+        }
+
+        // Filtro 6: Por manzana específica
+        if ($request->has('block_id') && $request->block_id) {
+            $query->where('b.id', $request->block_id);
+        }
+
+
+
+        $query->when($request->input('dates')['date_init'] && $request->input('dates')['date_end'], function ($q) use ($request) {
             //dd($request->input('dates')['date_init']);
             $q->whereBetween('c.date', [
                 $request->input('dates')['date_init'],
@@ -182,48 +245,76 @@ class PdfController extends Controller
             ]);
         });
 
+
         // Obtenemos todos los registros correspondientes para el reporte (sin paginar en base de datos)
         $properties = $query->get();
 
-     
+
+
+
+        // Ejemplo de procesamiento en tu controlador antes de mandar a llamar al PDF:
         $filtersLabels = [
-            'status'     =>  'Todos',
-            'block'      => 'Todas',
-            'stage'      => 'Todas',
-            'project'    => 'todos',
-            'date_range' => $rangoFechas
+            'proyecto' => $request->input('project_id') > 0 ? 'Proyecto ' . $request->input('project_id') : 'Todos',
+            'etapa'    => $request->input('stage_id') > 0 ? 'Etapa ' . $request->input('stage_id') : 'Todas',
+            'manzana'  => $request->input('block_id') > 0 ? 'Manzana ' . $request->input('block_id') : 'Todas',
+            'desde'    => $request->input('dates')['date_init'], // Valor por defecto o real
+            'hasta'    => $request->input('dates')['date_end'],
+            'status'   => $request->input('status') ? implode(', ', array_keys(array_filter($request->input('status')))) : 'Todos',
         ];
 
         // Obtenemos el usuario autenticado (O un fallback si es testing)
-        $userName = 'Usuario';
+        $userName = auth()->user() ? auth()->user()->name : 'Usuario Desconocido';
 
         // Inicializamos nuestra clase personalizada
         $pdf = new CustomPDF($filtersLabels, $userName);
         $pdf->AliasNbPages('{nb}'); // Define el alias del total de páginas
         $pdf->AddPage(); // Esto gatilla de manera interna el método Header()
-        
+
         // Cuerpo de la Tabla - Tipografía para los registros
-        $pdf->SetFont('Arial', '', 9);
+        $pdf->SetFont('Arial', '', 8);
         $pdf->SetTextColor(45, 55, 72);
 
         //dd($properties);
+        $granTotalPrecioInicial = 0;
+        $granTotalTickets = 0;
+        $granTotalSaldo = 0;
+
         foreach ($properties as $property) {
+            $granTotalPrecioInicial += $property->amount_init;
+            $granTotalTickets       += $property->total_pagado;
+            $granTotalSaldo         += $property->saldo;
             // Validamos que el contenido no desborde la celda y respetamos los anchos definidos en Header()
             $pdf->Cell(15, 7, $property->id, 1, 0, 'C');
-            $pdf->Cell(35, 7, utf8_decode($property->name), 1, 0, 'L');
-            $pdf->Cell(40, 7, utf8_decode($property->manzana), 1, 0, 'L');
+            $pdf->Cell(45, 7, utf8_decode($property->name), 1, 0, 'L');
+            $pdf->Cell(45, 7, utf8_decode($property->manzana), 1, 0, 'L');
             $pdf->Cell(30, 7, ucfirst($property->status), 1, 0, 'C');
-            $pdf->Cell(37, 7, '$' . number_format($property->amount_init, 2), 1, 0, 'R');
-            $pdf->Cell(37, 7, '$' . number_format($property->total_pagado, 2), 1, 0, 'R');
-            $pdf->Cell(37, 7, '$' . number_format($property->saldo, 2), 1, 0, 'R');
-            $pdf->Cell(46, 7, $property->fecha_contrato ?: 'N/A', 1, 1, 'C');
+            $pdf->Cell(33, 7, '$' . number_format($property->amount_init, 2), 1, 0, 'R');
+            $pdf->Cell(33, 7, '$' . number_format($property->total_pagado, 2), 1, 0, 'R');
+            $pdf->Cell(33, 7, '$' . number_format($property->saldo, 2), 1, 0, 'R');
+            $pdf->Cell(33, 7, isset($property->fecha_contrato) ? $property->fecha_contrato : 'N/A', 1, 1, 'C');
         }
+
+
+        // FILA DE TOTALES GENERALES (Al salir del ciclo foreach)
+        $pdf->SetFont('Arial', 'B', 9); // Cambiamos la fuente a Negrita
+        $pdf->SetFillColor(237, 242, 247); // Fondo gris claro institucional (#edf2f7)
+        $pdf->SetTextColor(26, 32, 44); // Texto casi negro para contrastar
+
+
+        // Fusionamos las primeras 4 columnas (15 + 45 + 45 + 30 = 135mm) para poner la etiqueta "TOTALES"
+        $pdf->Cell(135, 8, 'TOTALES GENERALES ', 1, 0, 'R', true);
+
+        // Imprimimos las sumatorias formateadas con su respectivo ancho de columna
+        $pdf->Cell(33, 8, '$' . number_format($granTotalPrecioInicial, 2), 1, 0, 'R', true);
+        $pdf->Cell(33, 8, '$' . number_format($granTotalTickets, 2), 1, 0, 'R', true);
+        $pdf->Cell(33, 8, '$' . number_format($granTotalSaldo, 2), 1, 0, 'R', true);
+
+        // Dejamos la última celda vacía o con un guion bajo la columna de fecha de contrato
+        $pdf->Cell(33, 8, '', 1, 1, 'C', true);
 
         // Retornamos el PDF para abrirse directamente en el navegador del cliente
         return response($pdf->Output('S', 'Reporte_Propiedades.pdf'))
             ->header('Content-Type', 'application/pdf');
-    
-      
     }
 
     public function exportTicketPDF(Request $request)
@@ -232,25 +323,25 @@ class PdfController extends Controller
         $db  = Ticket::find($request->id);
         $contract = Contract::with("buyer")->with("property")->find($db->contract_id);
         $datetext = $this->dateText(Carbon::parse($db["datepay"])->timestamp);
- 
+
         $data = [
             'title' => 'COLONIA MONTE TLAPA',
-            'date' =>$datetext,
-            'amount' =>$db["amount"],
-            "lotstage"=> strtoupper($contract["property"]->block_id),
-            "place"=>"Tlapa de Comonfort, Guerrero",
-            "received"=> strtoupper($contract["buyer"]->name)." ".strtoupper($contract["buyer"]->lastnames),
-            "fortheamount"=>$this->RenderNumberToWords(strval($db["amount"])),
-            "concept"=>strval($db["concept"]),
-            "lotname"=> strtoupper($contract["property"]->name),
-            "lotm2"=> strtoupper($contract["property"]->m2),
-            "lotmz"=> strtoupper($contract["property"]->block_id),
-            "lotamount"=> $contract["property"]->amount_init,
-            "paytype"=> strtoupper($db["paytype"]),
-            "lotplazo"=>$contract["plazo"],
-            "adreessbuyer"=> strtoupper($contract["buyer"]->address),
-            "phonebuyer"=> strtoupper($contract["buyer"]->phone),
-            
+            'date' => $datetext,
+            'amount' => $db["amount"],
+            "lotstage" => strtoupper($contract["property"]->block_id),
+            "place" => "Tlapa de Comonfort, Guerrero",
+            "received" => strtoupper($contract["buyer"]->name) . " " . strtoupper($contract["buyer"]->lastnames),
+            "fortheamount" => $this->RenderNumberToWords(strval($db["amount"])),
+            "concept" => strval($db["concept"]),
+            "lotname" => strtoupper($contract["property"]->name),
+            "lotm2" => strtoupper($contract["property"]->m2),
+            "lotmz" => strtoupper($contract["property"]->block_id),
+            "lotamount" => $contract["property"]->amount_init,
+            "paytype" => strtoupper($db["paytype"]),
+            "lotplazo" => $contract["plazo"],
+            "adreessbuyer" => strtoupper($contract["buyer"]->address),
+            "phonebuyer" => strtoupper($contract["buyer"]->phone),
+
         ];
 
 

@@ -158,7 +158,7 @@ class ReportStore {
   filterByLots = async (filters) => {
     
     try {
-     
+  
       const data = await getFilteredBd("properties/filterProperties", filters);
       this.setPagination(data.data);
       this.setReports(data.data.data);
@@ -171,7 +171,7 @@ class ReportStore {
   };
 
   toExport = (url, data) => {
-    console.log(url,  data);
+    console.log(data);
     return setUrlExportPdf(url, data);
   };
 

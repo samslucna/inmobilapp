@@ -51,6 +51,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
   Route::get('/properties/search', [PropertyController::class, 'search']);
   Route::get('/properties/filterProperties', [PropertyController::class, 'propertiesContracts']);
   Route::get('/properties/reportPropertiesPdf', [PdfController::class, 'reportPropertiesPdf']);
+  Route::get('/properties/reportPropertiesXls', [XlsController::class, 'reportPropertiesXls']);
   Route::get('/properties/{id}/boundaries', [PropertyController::class, 'boundariesByProperty']);
   Route::apiResource('/properties', PropertyController::class);
 

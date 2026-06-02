@@ -29,11 +29,11 @@ const DataList = observer(() => {
       <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
           {AgentStore.hiddenForm ? (
-            <Grid size={12}>
+            <Grid xs={12} size={12} >
               <Form />
             </Grid>
           ) : (
-            <Grid size={12}>
+            <Grid size={{ xs: 12, md: 12 }}>
               <TableData datas={AgentStore.agents} />
             </Grid>
           )}

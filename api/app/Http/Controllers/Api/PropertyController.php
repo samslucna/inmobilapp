@@ -29,9 +29,6 @@ class PropertyController extends Controller
 
     public function propertiesContracts(Request $request)
     {
-
-
-
         // Construir consulta base
         $query = DB::table('properties as p')
             ->join('blocks as b', 'p.block_id', '=', 'b.id')
@@ -131,14 +128,14 @@ class PropertyController extends Controller
         $ordenDireccion = $request->get('orden', 'asc');
         $query->orderBy($ordenCampo, $ordenDireccion);
 
-        // Paginación (opcional)
-        $porPagina = $request->get('por_pagina', 5);
-        $lotes = $query->paginate($porPagina);
+
+
 
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'data' => $lotes,
+                'reports' => $query->get(),
+                'data' => $query->paginate(5),
                 'filtros_aplicados' => $request->all()
             ]);
         }
