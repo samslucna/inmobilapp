@@ -1,9 +1,9 @@
 import { createBrowserRouter } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./modules/login";
-import DashboardLayout from "./layouts/DashboardLayout";
+import DashboardLayout from "./layouts/Layout";
 import Dashboard from "./modules/dashboard";
-
+import { Navigate } from "react-router-dom";
 import CatClientes from './modules/clients'
 import CatProperties from './modules/Propertaries'
 import CatAgents from './modules/Agents'
@@ -19,11 +19,13 @@ import ReportesPage from "./modules/reports";
 import UsersPage from "./modules/users";
 import ReporteLotes from "./modules/reports/Lots";
 
+
 export const router = createBrowserRouter([
   {
     path: "/login",
     element: <LoginPage />,
   },
+
   {
     path: "/",
     element: (
@@ -31,22 +33,38 @@ export const router = createBrowserRouter([
         <DashboardLayout />
       </ProtectedRoute>
     ),
+
     children: [
-      { path: "dashboard", element:(<ProtectedRoute> <Dashboard /></ProtectedRoute>) },
-      { path: "proyectos", element:(<ProtectedRoute> <CatProjec /> </ProtectedRoute>)},
-      { path: "etapas", element:(<ProtectedRoute> <CatStage /> </ProtectedRoute>)},
-      { path: "manzanas", element:(<ProtectedRoute> <CatBlock /> </ProtectedRoute>)},
-      { path: "clientes", element:(<ProtectedRoute> <CatClientes /> </ProtectedRoute>)},
-      { path: "propietarios", element:(<ProtectedRoute> <CatProperties /></ProtectedRoute>) },
-      { path: "agentes", element: (<ProtectedRoute> <CatAgents /> </ProtectedRoute>)},
-      { path: "lotes", element: (<ProtectedRoute><CatLots /></ProtectedRoute>) },
-      { path: "roles", element: (<ProtectedRoute><CatRols /></ProtectedRoute>) },
-   
+      {
+        index: true,
+        element: <Navigate to="/dashboard" replace />
+      },
+
+      { path: "dashboard", element: <Dashboard /> },
+
+      { path: "proyectos", element: <CatProjec /> },
+
+      { path: "etapas", element: <CatStage /> },
+
+      { path: "manzanas", element: <CatBlock /> },
+
+      { path: "clientes", element: <CatClientes /> },
+
+      { path: "propietarios", element: <CatProperties /> },
+
+      { path: "agentes", element: <CatAgents /> },
+
+      { path: "lotes", element: <CatLots /> },
+
+      { path: "roles", element: <CatRols /> },
+
       { path: "usuarios", element: <UsersPage /> },
 
       { path: "contratos", element: <ContractsPage /> },
+
       { path: "recibos", element: <TicketsPage /> },
+
       { path: "reportelotes", element: <ReporteLotes /> },
-    ],
-  },
-], {basename: "/"});
+    ]
+  }
+]);

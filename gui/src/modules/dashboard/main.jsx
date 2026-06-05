@@ -6,57 +6,21 @@ import HomeIcon from "@mui/icons-material/Home"; // Ejemplo de icono
 import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import { Link } from "react-router-dom";
+import ToastStore from "../../store/ToastStore";
+import { useEffect } from "react";
+import { Toaster } from "react-hot-toast";
+import Dashboard from './Dashboard'
 
-export default function Dashboard() {
-  const cards = [
-        {
-      title: "Contratos",
-      link: "/contratos",
-      icon: () => <HistoryEduIcon fontSize="large" />,
-    },
-    {
-      title: "Inventario de lotes",
-      link: "/inventario",
-      icon: () => <AppRegistrationIcon fontSize="large" />,
-    },
-    {
-      title: "Finanzas",
-      link: "/finanzas",
-      icon: () => <AccountBalanceIcon fontSize="large" />,
-    },
-    {
-      title: "Reportes",
-      link: "/reportes",
-      icon: () => <SignalCellularAltIcon fontSize="large" />,
-    },
-    {
-      title: "Usuarios",
-      link: "/reportes",
-      icon: () => <GroupIcon fontSize="large" />,
-    },
-  ];
+export default function main() {
+ 
+
+
 
   return (
-    <Grid container spacing={3}>
-      {cards.map((c) => (
-     
-          <Button
-          key={c.title}
-          xs={12} sm={6} md={4}
-            variant="outlined"
-            startIcon={c.icon ? c.icon() : <HomeIcon fontSize="large" />}
-            component={Link}
-            to={c.link}
-            sx={{
-              textDecoration: "none",
-              backgroundColor: "#f5f5f5",
-              color: "#333",
-            }}
-          >
-            {c.title}
-          </Button>
-      
-      ))}
-    </Grid>
+    <>
+   
+      <Toaster />
+      <Dashboard />
+    </>
   );
 }

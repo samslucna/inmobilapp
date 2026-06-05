@@ -56,12 +56,18 @@ class AuthController extends Controller
             ], 401);
         }
 
-
+       // dd($request->user());
         return response()->json([
-            "user"=> $request->user(),
-            'token' => $request->user()->createToken("auth_token")->plainTextToken,
+            'data' => $request->user(),
+            'roles' => $request->user()->getRoleNames(),
+            'token' => $request->user()->createToken('auth_token')->plainTextToken,
+            'permissions' => $request->user()->getAllPermissions()
+                ->pluck('name'),
             'message' => 'Success'
+            , "token_type" => "Bearer"
         ]);
+
+
     }
 
 

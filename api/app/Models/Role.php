@@ -7,7 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Rol extends Authenticatable
+class Role extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
@@ -19,7 +19,7 @@ class Rol extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'description',
+        'guard_name',
     ];
 
 

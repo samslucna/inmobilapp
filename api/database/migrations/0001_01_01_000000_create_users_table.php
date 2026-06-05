@@ -22,21 +22,10 @@ return new class extends Migration
             $table->string('password');
             $table->unsignedBigInteger('rol_id')->nullable();
             $table->foreign('rol_id')
-                ->references('id')->on('rols')->onDelete('set null')->onUpdate('cascade');
+                ->references('id')->on('rol')->onDelete('set null')->onUpdate('cascade');
             $table->rememberToken();
             $table->timestamps();
         });
-
-        DB::table('users')->insert([
-            'name'=>'Samuel',
-            'email'=>'samslucna@gmail.com',
-            'password' =>Hash::make('s19'),
-            'status'=> 1,
-            'rol_id'=>1,
-            'created_at'=>now(),
-            'updated_at'=>now(),
-
-        ]);
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

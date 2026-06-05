@@ -4,13 +4,12 @@ namespace App\Http\Controllers\Api;
 
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\RolResource;
-use App\Models\Rol;
+use App\Http\Resources\PermissionResource;
+use App\Models\PermissionRole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
 
-class RolController extends Controller
+class PermissionRoleController extends Controller
 {
 
     /**
@@ -19,9 +18,9 @@ class RolController extends Controller
     public function index(Request $request)
     {
 
-        $Rol = Role::paginate(10);
+        $Permission = PermissionRole::paginate(5);
 
-        return new JsonResponse($Rol);
+        return new JsonResponse($Permission);
     }
 
 
@@ -34,24 +33,24 @@ class RolController extends Controller
     {
 
         //var_dump($request);
-        $Rol = Role::create(
+        $Permission = PermissionRole::create(
             [
-                "name" => $request->name,
-                "description" => $request->description,
+                "permision_id" => $request->permision_id,
+                "rol_id" => $request->rol_id,
             ]
         );
 
-        return response()->json(['data' => $Rol]);
+        return response()->json(['data' => $Permission]);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Role $Role)
+    public function show(PermissionRole $Permission)
     {
         //
 
-        return new RolResource($Rol);
+        return new PermissionResource($Permission);
     }
 
 
@@ -60,7 +59,7 @@ class RolController extends Controller
     {
         $query = $request->name;
         //dd($query);
-        $items = Role::where('name', 'LIKE', "%$query%")
+        $items = PermissionRole::where('name', 'LIKE', "%$query%")
             ->get();
         return response()->json($items);
     }
@@ -70,10 +69,9 @@ class RolController extends Controller
     public function update(Request $request)
     {
         // inserta los datos
-        Role::where('id', $request->id)->update([
-            "name" => $request->name,
-            //"description" => $request->description,
-       
+        PermissionRole::where('id', $request->id)->update([
+            "permision_id" => $request->permision_id,
+            "rol_id" => $request->rol_id,
         ]);
 
         // respesta de JSON
@@ -86,10 +84,10 @@ class RolController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request)
+    public function destroy($q)
     {
         // Eliminar
-        Role::where('id', $request->id)->delete();
+        PermissionRole::where('id', $q)->delete();
         // respesta de JSON
         $response['message'] = "Elimino exitosamente";
         $response['success'] = true;

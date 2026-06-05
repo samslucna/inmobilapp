@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use App\Http\Resources\UserResource;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -10,16 +11,41 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 
-class UserController extends Controller
+class UserController extends Controller implements HasMiddleware
 {
+ public static function middleware(): array
+    {
+        return [
+            new Middleware(
+                'permission:usuarios.read',
+                only: ['index', 'show']
+            ),
+
+            new Middleware(
+                'permission:usuarios.create',
+                only: ['store']
+            ),
+
+            new Middleware(
+                'permission:usuarios.update',
+                only: ['update']
+            ),
+
+            new Middleware(
+                'permission:usuarios.delete',
+                only: ['destroy']
+            ),
+        ];
+    }
 
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+
         $perPage = $request->input('per_page', 5);
-        $users = User::with('rol')->paginate($perPage);
+        $users = User::with('role')->paginate($perPage);
         //dd($users);
         return response()->json($users);
     }
@@ -40,7 +66,7 @@ class UserController extends Controller
             "name" => "required|string|max:255",
             "email" => "required|string|max:255|unique:users",
             "password" => 'required|string|min:8',
-            "rol" => "required|string|max:255",
+            "role" => "required|string|max:255",
             "active" => "required|boolean",
         ]);
         //dd($validator);
@@ -48,7 +74,7 @@ class UserController extends Controller
         $user = User::create([
             "name" => $request->name,
             "email" => $request->email,
-            "rol_id" => $request->rol,
+            "role_id" => $request->rol,
             "status" => $active,
             'password' => Hash::make($request->password)
         ]);

@@ -8,7 +8,9 @@ import Form from "./Form";
 import TableData from "./TableData";
 
 const UserList = observer(() => {
+  
   useEffect(() => {
+  
     userStore.loadUsers();
   }, []);
 

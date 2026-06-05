@@ -23,6 +23,7 @@ import { styled, alpha } from "@mui/material/styles";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import RolStore from '../../store/RolStore';
+import { useState } from "react";
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
@@ -67,6 +68,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const TableData = observer(({ datas }) => {
  
+ 
 
   const handleDelete = async (id) => {
     const resp = await Swal.fire({
@@ -97,6 +99,7 @@ const TableData = observer(({ datas }) => {
   };
 
   useEffect(() => {
+   
     RolStore.loadRols();
   }, []);
 
