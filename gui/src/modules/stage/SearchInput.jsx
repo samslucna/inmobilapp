@@ -6,6 +6,7 @@ import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonAdd from "@mui/icons-material/PersonAdd";
+import authStore from "../../store/AuthStore";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -50,6 +51,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function SearchInput() {
+  const {Can} = authStore;
   return (
     <Toolbar sx={{ mb: 2 }}>
       <Typography
@@ -61,6 +63,7 @@ export default function SearchInput() {
       {StageStore.hiddenForm ? null : (
         <>
           <Box display="flex" justifyContent="flex-start" mb={2}>
+            <Can permission={'etapas.create'}>
             <Button
               variant="contained"
               //startIcon={<PersonAdd />}
@@ -76,6 +79,7 @@ export default function SearchInput() {
             >
               + Nueva Etapa
             </Button>
+            </Can>
             {/* <Button
               variant="contained"
               sx={{ mb: 2 }}

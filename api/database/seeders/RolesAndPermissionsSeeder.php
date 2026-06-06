@@ -24,7 +24,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'agentes',
             'etapas',
             'manzanas',
-            'proyectos'
+            'proyectos',
+            'propietarios'
         ];
 
         $actions = [
@@ -55,13 +56,53 @@ class RolesAndPermissionsSeeder extends Seeder
             'guard_name' => 'web'
         ]);
 
+          // ========== ROL CAPTURISTA ==========
+        $capturistaRole = Role::firstOrCreate(
+            ['name' => 'Capturista', 'guard_name' => 'web'],
+            [
+                'name' => 'Capturista',
+                'guard_name' => 'web',
+            ]
+        );
+
+
+
         // Admin tendrá todos los permisos
         $adminRole->syncPermissions(Permission::all());
 
-        // Usuario solo lectura
+        // Usuario solo lectura 
         $readPermissions = Permission::where('name', 'like', '%.read')
             ->get();
 
         $userRole->syncPermissions($readPermissions);
+
+        // Asignar permisos específicos para Capturista
+        $capturistaPermissions = [
+            'reportes.read',
+            'reportes.export',     
+            'clientes.read',
+            'clientes.create',
+            'clientes.export',
+            "contratos.read",
+            "contratos.create",
+            "recibos.read",
+            "recibos.create",
+            "manzanas.read",
+            "manzanas.create",
+            "etapas.read",
+            "etapas.create",
+            "proyectos.read",
+            "proyectos.create",
+            "propietarios.read",
+            "propietarios.create",
+            "agentes.read",
+            "agentes.create",
+            "lotes.read",
+            "lotes.create",
+            "clientes.read",
+            "clientes.create",
+        ];
+        $capturistaRole->syncPermissions($capturistaPermissions);
+
     }
 }

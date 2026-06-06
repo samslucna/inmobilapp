@@ -10,8 +10,10 @@ import { useState } from "react";
 import Form from "./Form";
 import TableData from "./TableData";
 import TicketStore from "../../store/TicketStore";
+import authStore from "../../store/AuthStore";
 
 const DataList = observer(({ btnMn }) => {
+  const { Can } = authStore;
   const [fileName, setFileName] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -53,17 +55,19 @@ const DataList = observer(({ btnMn }) => {
     <>
       <Box display="flex" justifyContent="space-between">
         <Typography variant="h5" gutterBottom>
-          <Button
-            id="main"
-            sx={{ background: "#3d5b92", color: "white" }}
-            id="fade-button"
-            aria-controls={open ? "fade-menu" : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? "true" : undefined}
-            onClick={handleClick}
-          >
-            Mas
-          </Button>
+          <Can permission={"recibos.read"}>
+            <Button
+              id="main"
+              sx={{ background: "#3d5b92", color: "white" }}
+              id="fade-button"
+              aria-controls={open ? "fade-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? "true" : undefined}
+              onClick={handleClick}
+            >
+              Mas
+            </Button>
+          </Can>
           <Menu
             id="fade-menu"
             slotProps={{
@@ -76,9 +80,11 @@ const DataList = observer(({ btnMn }) => {
             open={open}
             onClose={handleClose}
           >
+            <Can permission={'recibos.create'}>
             <MenuItem id="import" onClick={handleClose}>
               Import
             </MenuItem>
+            </Can>
             <MenuItem id="seachbydate" onClick={handleClose}>
               Buscar por rango de fecha
             </MenuItem>

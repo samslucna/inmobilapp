@@ -8,7 +8,7 @@ import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonAdd from "@mui/icons-material/PersonAdd";
 import PropertaryStore from "../../store/PropertaryStore";
-
+import authStore from "../../store/AuthStore";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -53,6 +53,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function SearchInput() {
+  const { Can } = authStore;
   return (
     <Toolbar sx={{ mb: 2 }}>
       <Typography
@@ -64,24 +65,26 @@ export default function SearchInput() {
       {PropertaryStore.hiddenForm ? null : (
         <>
           <Box display="flex" justifyContent="flex-start" mb={2}>
-            <Button
-              variant="contained"
-              startIcon={<PersonAdd />}
-              onClick={() => {
-                PropertaryStore.setPropertary({
-                  id: null,
-                  name: "",
-                  email: "",
-                  phone: "",
-                  lastnames: "",
-                  dni: '',
-                });
-                PropertaryStore.setHiddenForm(true);
-              }}
-              sx={{ mb: 2 }}
-            >
-              Nuevo
-            </Button>
+            <Can permission={"propietarios.create"}>
+              <Button
+                variant="contained"
+                startIcon={<PersonAdd />}
+                onClick={() => {
+                  PropertaryStore.setPropertary({
+                    id: null,
+                    name: "",
+                    email: "",
+                    phone: "",
+                    lastnames: "",
+                    dni: "",
+                  });
+                  PropertaryStore.setHiddenForm(true);
+                }}
+                sx={{ mb: 2 }}
+              >
+                Nuevo
+              </Button>
+            </Can>
             {/* <Button
               variant="contained"
               sx={{ mb: 2 }}
@@ -106,7 +109,9 @@ export default function SearchInput() {
               <SearchIcon />
             </SearchIconWrapper>
             <StyledInputBase
-              onChange={(e) => PropertaryStore.searchByTable(e, "sellers/search")}
+              onChange={(e) =>
+                PropertaryStore.searchByTable(e, "sellers/search")
+              }
               name="q"
               placeholder="Buscar…"
               inputProps={{ "aria-label": "search" }}

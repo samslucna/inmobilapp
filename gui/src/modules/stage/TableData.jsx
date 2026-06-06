@@ -21,6 +21,7 @@ import { styled, alpha } from "@mui/material/styles";
 import Pagination from "@mui/material/Pagination";
 
 import Stack from "@mui/material/Stack";
+import authStore from "../../store/AuthStore";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -65,6 +66,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const TableData = observer(({ datas }) => {
+  const {Can}= authStore;
   const handleDelete = async (id) => {
     const resp = await Swal.fire({
       title: "¿Eliminar etapa?",
@@ -148,6 +150,7 @@ const TableData = observer(({ datas }) => {
 
               {/* Acciones del CRUD */}
               <TableCell align="right">
+                <Can permission={'etapas.update'}>
                 <Tooltip title="Editar">
                   <IconButton
                     sx={{ color: "blue" }}
@@ -156,6 +159,8 @@ const TableData = observer(({ datas }) => {
                     <Edit />
                   </IconButton>
                 </Tooltip>
+                </Can>
+                <Can permission={'etapas.delete'}>
                 <Tooltip title="Eliminar">
                   <IconButton
                     color="error"
@@ -164,6 +169,7 @@ const TableData = observer(({ datas }) => {
                     <Delete />
                   </IconButton>
                 </Tooltip>
+                 </Can>
               </TableCell>
             </TableRow>
           ))}

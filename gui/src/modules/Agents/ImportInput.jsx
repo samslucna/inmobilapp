@@ -5,6 +5,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { styled } from "@mui/material/styles";
 import AgentStore from "../../store/AgentStore";
 import Swal from "sweetalert2";
+import authStore from "../../store/AuthStore";
 
 // Estilo para ocultar el input real pero mantenerlo funcional
 const VisuallyHiddenInput = styled("input")({
@@ -20,6 +21,7 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 const ImportInput = () => {
+  const { Can } = authStore;
   const [fileName, setFileName] = useState("");
 
   const handleFileChange = (event) => {
@@ -54,8 +56,8 @@ const ImportInput = () => {
     }).then((result) => {
       try {
         AgentStore.importXlsAgents();
-        setFileName('')
-        AgentStore.setUrlImp("")
+        setFileName("");
+        AgentStore.setUrlImp("");
         if (result.dismiss === Swal.DismissReason.timer) {
           Swal.fire({
             title: "Importados",
@@ -86,45 +88,47 @@ const ImportInput = () => {
 
   return (
     <>
-      <Box display="flex" justifyContent="flex-end" mb={2}>
-        {fileName === "" ? (
-          <Button
-            component="label"
-            variant="contained"
-            sx={{ background: "green" }}
-            startIcon={<CloudUploadIcon />}
-          >
-            Cargar archivo Xls
-            <VisuallyHiddenInput
-              type="file"
-              onChange={handleFileChange}
-              // accept="image/*" // Opcional: para limitar el tipo de archivos
-            />
-          </Button>
-        ) : null}
-
-        {fileName && (
-          <>
-            <Typography variant="body2" mt={2} mb={2} color="textSecondary">
-              Seleccionado: <strong>{fileName}</strong>
-            </Typography>
-            <IconButton
-              sx={{ marginLeft: 2, color: "red" }}
-              onClick={(e) => deleteFileHandle(e)}
-            >
-              <ClearIcon />
-            </IconButton>
+      <Can permission={"agentes.create"}>
+        <Box display="flex" justifyContent="flex-end" mb={2}>
+          {fileName === "" ? (
             <Button
-              variant="small"
-              onClick={(e) => imporBtn(e)}
-              sx={{ marginLeft: 2, background: "gray" }}
-              endIcon={<CloudUploadIcon />}
+              component="label"
+              variant="contained"
+              sx={{ background: "green" }}
+              startIcon={<CloudUploadIcon />}
             >
-              Importar
+              Cargar archivo Xls
+              <VisuallyHiddenInput
+                type="file"
+                onChange={handleFileChange}
+                // accept="image/*" // Opcional: para limitar el tipo de archivos
+              />
             </Button>
-          </>
-        )}
-      </Box>
+          ) : null}
+
+          {fileName && (
+            <>
+              <Typography variant="body2" mt={2} mb={2} color="textSecondary">
+                Seleccionado: <strong>{fileName}</strong>
+              </Typography>
+              <IconButton
+                sx={{ marginLeft: 2, color: "red" }}
+                onClick={(e) => deleteFileHandle(e)}
+              >
+                <ClearIcon />
+              </IconButton>
+              <Button
+                variant="small"
+                onClick={(e) => imporBtn(e)}
+                sx={{ marginLeft: 2, background: "gray" }}
+                endIcon={<CloudUploadIcon />}
+              >
+                Importar
+              </Button>
+            </>
+          )}
+        </Box>
+      </Can>
     </>
   );
 };

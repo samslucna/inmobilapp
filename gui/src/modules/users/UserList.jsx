@@ -18,7 +18,6 @@ const UserList = observer(() => {
     <>
       <Box display="flex" justifyContent="space-between">
         <Typography variant="h5" gutterBottom>
-        
         </Typography>
         <SearchInput/>
       </Box>

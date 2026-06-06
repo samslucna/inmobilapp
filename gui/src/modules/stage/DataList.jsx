@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 import { Box, Typography } from "@mui/material";
 import StageStore from "../../store/StageStore";
 import Grid from "@mui/material/Grid";
-import ImportInput from "./ImportInput";
+
 import SearchInput from "./SearchInput";
 import Form from "./Form";
 import TableData from "./TableData";
@@ -21,7 +21,7 @@ const DataList = observer(() => {
         <Toaster />
         <Typography variant="h5" gutterBottom>
           
-          {StageStore.hiddenForm? null :<ImportInput />}
+         
           
         </Typography>
 

@@ -7,6 +7,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import PersonAdd from "@mui/icons-material/PersonAdd";
 import PropertyStore from "../../store/PropertyStore";
 import BoundaryStore from "../../store/BoundaryStore";
+import authStore from "../../store/AuthStore";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -51,6 +52,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function SearchInput() {
+  const {Can} = authStore;
   return (
     <Toolbar sx={{ mb: 2 }}>
       <Typography
@@ -62,6 +64,7 @@ export default function SearchInput() {
       {PropertyStore.hiddenForm ? null : (
         <>
           <Box display="flex" justifyContent="flex-start" mb={2}>
+            <Can permission={'lotes.create'}>
             <Button
               variant="contained"
             
@@ -87,6 +90,7 @@ export default function SearchInput() {
             >
               + Lote
             </Button>
+            </Can>
           </Box>
           <Search sx={{ background: "#f5f5f5", mb: 4 }}>
             <SearchIconWrapper>

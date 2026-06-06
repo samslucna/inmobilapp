@@ -7,6 +7,7 @@ import ContractStore from "../../store/ContractStore";
 import { useImportExcel } from "../../hooks/useImportExcel";
 import { Toaster } from "react-hot-toast";
 import ToastStore from "../../store/ToastStore";
+import authStore from "../../store/AuthStore";
 
 // Estilo para ocultar el input real pero mantenerlo funcional
 const VisuallyHiddenInput = styled("input")({
@@ -22,6 +23,7 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 const ImportInput = () => {
+  const {Can}=authStore;
     const { importExcel } = useImportExcel();
  
     const [fileName, setFileName] = useState("");
@@ -85,6 +87,7 @@ const ImportInput = () => {
   return (
     <>
     <Toaster />
+    <Can permission ={'contratos.create'}>
       <Box display="flex" justifyContent="flex-end" mb={2}>
         {fileName === "" ? (
           <Button
@@ -123,7 +126,7 @@ const ImportInput = () => {
             </Button>
           </>
         )}
-      </Box>
+      </Box></Can>
     </>
   );
 };

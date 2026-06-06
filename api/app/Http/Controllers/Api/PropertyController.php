@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-
+use Illuminate\Routing\Controllers\Middleware;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PropertyResource;
 use App\Models\Boundary;
@@ -16,7 +16,33 @@ use Illuminate\Support\Facades\Response;
 class PropertyController extends Controller
 {
 
-    /**
+ public static function middleware(): array
+    {
+        return [
+            new Middleware(
+                'permission:usuarios.read',
+                only: ['index', 'show']
+            ),
+
+            new Middleware(
+                'permission:usuarios.create',
+                only: ['store']
+            ),
+
+            new Middleware(
+                'permission:usuarios.update',
+                only: ['update']
+            ),
+
+            new Middleware(
+                'permission:usuarios.delete',
+                only: ['destroy']
+            ),
+        ];
+    }
+
+
+/**
      * Display a listing of the resource.
      */
     public function index(Request $request)

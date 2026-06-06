@@ -1,5 +1,8 @@
 import { Grid, Paper, Typography } from "@mui/material";
 import StatCard from "./StatCard";
+import { useEffect } from "react";
+import ToastStore from "../../store/ToastStore";
+import { Toaster } from "react-hot-toast";
 import PaymentsDailyChart from "./components/charts/PaymentsDailyChart";
 
 import PaymentsMonthlyChart from "./components/charts/PaymentsMonthlyChart";
@@ -53,6 +56,15 @@ export default function Dashboard() {
 
     ventasPorManzana: [],
   };
+    useEffect(()=>{
+      const welcomeUser = ()=>{
+        const user = JSON.parse(localStorage.getItem('user'))
+      
+      ToastStore.showSuccess("Bienvenido " + user.name);
+      }
+   
+      welcomeUser()
+    },[])
   return (
     <>
    
@@ -62,11 +74,11 @@ export default function Dashboard() {
           </Grid>
 
           <Grid size={{ xs: 12, md: 3 }}>
-            <StatCard title="Disponibles" value="78" />
+            <StatCard title="Lotes Pendientes" value="78" />
           </Grid>
 
           <Grid size={{ xs: 12, md: 3 }}>
-            <StatCard title="Pagos al Corriente" value="350" />
+            <StatCard title="Lotes Disponibles" value="350" />
           </Grid>
 
           <Grid size={{ xs: 12, md: 3 }}>

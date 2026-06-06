@@ -8,17 +8,18 @@ import SearchInput from "./SearchInput";
 
 import Form from "./Form";
 import TableData from "./TableData";
+import authStore from "../../store/AuthStore";
 
 const DataList = observer(() => {
   
-
+const {Can} = authStore;
 
 
   return (
     <>
       <Box display="flex" justifyContent="space-between">
         <Typography variant="h5" gutterBottom>
-          {PropertyStore.hiddenForm ? null : <ImportInput />}
+          {PropertyStore.hiddenForm ? null : <Can permission={'lotes.create'}><ImportInput /></Can>}
         </Typography>
 
         <SearchInput />

@@ -23,7 +23,7 @@ import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import BoundaryStore from "../../store/BoundaryStore";
 import changeFormat from "../../helper/changeFormat";
-
+import authStore from "../../store/AuthStore";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -68,6 +68,9 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const TableData = observer(({ datas }) => {
+  
+  const {Can}=authStore;
+  
   const handleDelete = async (id) => {
     const resp = await Swal.fire({
       title: "¿Eliminar usuario?",
@@ -98,7 +101,6 @@ const TableData = observer(({ datas }) => {
   };
 
   const goEdit = async (property) => {
-    
     BoundaryStore.setBoundaries(property.boundaries);
     const data = {
       ...property,
@@ -151,27 +153,33 @@ const TableData = observer(({ datas }) => {
               <TableCell>{property.m2}</TableCell>
               <TableCell>{property.block_id}</TableCell>
 
-              <TableCell>{changeFormat.numberToString(property.amount_init)}</TableCell>
+              <TableCell>
+                {changeFormat.numberToString(property.amount_init)}
+              </TableCell>
               <TableCell>{property.status}</TableCell>
 
               {/* Acciones del CRUD */}
               <TableCell align="right">
-                <Tooltip title="Editar">
-                  <IconButton
-                    sx={{ color: "blue" }}
-                    onClick={() => goEdit(property)}
-                  >
-                    <Edit />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Eliminar">
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDelete(property.id)}
-                  >
-                    <Delete />
-                  </IconButton>
-                </Tooltip>
+                <Can permission={"lotes.update"}>
+                  <Tooltip title="Editar">
+                    <IconButton
+                      sx={{ color: "blue" }}
+                      onClick={() => goEdit(property)}
+                    >
+                      <Edit />
+                    </IconButton>
+                  </Tooltip>
+                </Can>
+                <Can permission={"lotes.delete"}>
+                  <Tooltip title="Eliminar">
+                    <IconButton
+                      color="error"
+                      onClick={() => handleDelete(property.id)}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </Tooltip>
+                </Can>
               </TableCell>
             </TableRow>
           ))}

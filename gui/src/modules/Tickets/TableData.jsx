@@ -15,6 +15,7 @@ import PropertaryStore from "../../store/PropertaryStore";
 import changeFormat from "../../helper/changeFormat";
 import ContractStore from "../../store/ContractStore";
 import ModalDocIcon from "./ModalDocIcon";
+import authStore from "../../store/AuthStore";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -59,6 +60,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const TableData = observer(({ datasTable }) => {
+  const { Can } = authStore;
   const [list, setList] = useState([]);
   const [mn, setMn] = useState("");
   const [edit, setEdit] = useState(null);
@@ -141,7 +143,7 @@ const TableData = observer(({ datasTable }) => {
                   <th>Fecha</th>
                   <th>Concepto($)</th>
                   <th>Monto($)</th>
-                  
+
                   <th>Accion</th>
                 </tr>
               </thead>
@@ -156,22 +158,24 @@ const TableData = observer(({ datasTable }) => {
                           <td>{data.concept}</td>
 
                           <td>{changeFormat.numberToString(data.amount)}</td>
-                          
 
                           <td>
                             <div
                               key={"edit" + data.id}
                               className="ui mini basic icon buttons"
                             >
-                              <button id="delete" className="ui  button">
-                                <i
-                                  id={"del" + data.id}
-                                  onClick={(e) => {
-                                    handleDelete(data.id);
-                                  }}
-                                  className="trash red icon"
-                                ></i>
-                              </button>
+                              <Can permission={"recibos.update"}>
+                                <button id="delete" className="ui  button">
+                                  <i
+                                    id={"del" + data.id}
+                                    onClick={(e) => {
+                                      handleDelete(data.id);
+                                    }}
+                                    className="trash red icon"
+                                  ></i>
+                                </button>
+                              </Can>
+                              <Can permission={"recibos.update"}>
                               <button className="ui  button">
                                 <i
                                   id={"edit" + data.id}
@@ -181,11 +185,12 @@ const TableData = observer(({ datasTable }) => {
                                   className="edit blue icon"
                                 ></i>
                               </button>
+                              </Can>
                               <ModalDocIcon
                                 data={data}
                                 url={"/api/tickets/export/pdf/ticket?id="}
                                 color={"eye blue icon"}
-                                title={"Recibo #"+data.id}
+                                title={"Recibo #" + data.id}
                               />
                             </div>
                           </td>

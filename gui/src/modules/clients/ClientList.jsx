@@ -8,8 +8,10 @@ import SearchInput from "./SearchInput";
 
 import Form from "./Form";
 import TableData from "./TableData";
+import authStore from "../../store/AuthStore";
 
 const ClientList = observer(() => {
+  const {Can} = authStore;
   useEffect(() => {
     ClientStore.loadClients();
   }, []);
@@ -19,7 +21,7 @@ const ClientList = observer(() => {
       <Box display="flex" justifyContent="space-between">
         <Typography variant="h5" gutterBottom>
           
-          {ClientStore.hiddenForm? null :<ImportInput />}
+          {ClientStore.hiddenForm? null :<Can permission={'clientes.create'}> <ImportInput /></Can>}
           
         </Typography>
 

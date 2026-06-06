@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 
 import { Box, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid";
-import ImportInput from "./ImportInput";
+
 import SearchInput from "./SearchInput";
 
 import Form from "./Form";
@@ -20,7 +20,7 @@ const DataList = observer(() => {
       <Box display="flex" justifyContent="space-between">
         <Typography variant="h5" gutterBottom>
           
-          {ProjectStore.hiddenForm? null :<ImportInput />}
+        
           
         </Typography>
 

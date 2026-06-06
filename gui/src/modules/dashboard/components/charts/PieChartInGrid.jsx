@@ -5,21 +5,21 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LegendPayl
 const data = [
   {
     name: 'Etapa 1',
-    Vendido: 4000,
-    Pendiente: 2400,
-    Disponible: 2400,
+    Vendidos: 4000,
+    Pendientes: 2400,
+    Disponibles: 2400,
   },
   {
      name: 'Etapa 2',
-    Vendido: 4000,
-    Pendiente: 2400,
-    Disponible: 2400,
+    Vendidos: 4000,
+    Pendientes: 2400,
+    Disponibles: 2400,
   },
   {
       name: 'Etapa 3',
-    Vendido: 4000,
-    Pendiente: 2400,
-    Disponible: 2400,
+    Vendidos: 4000,
+    Pendientes: 2400,
+    Disponibles: 2400,
   },
   
 ];

@@ -26,9 +26,14 @@ class AuthStore {
     // Revisar token en localStorage primero
     const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
+   
 
-    this.setPermissions(savedUser.permissions);
-    this.setRoles(savedUser.roles);
+    if (savedUser !== null) {
+      const user = JSON.parse(savedUser);
+      this.setPermissions(user.permissions);
+      this.setRoles(user.roles);
+    }
+
     // Revisar token en cookie secundariamente
     const cookieToken = document.cookie
       .split("; ")
@@ -79,7 +84,8 @@ class AuthStore {
     return user?.roles?.includes(role) || false;
   };
 
-  can = ({ permission, children }) => {
+  Can = ({ permission, children }) => {
+    
     if (!authStore.permissions.includes(permission)) {
       return null;
     }

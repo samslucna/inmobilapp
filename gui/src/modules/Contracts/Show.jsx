@@ -11,8 +11,10 @@ import ticketValidate from "../../validator/ticketValidate";
 import Swal from "sweetalert2";
 import FormTicket from "./FormTicket";
 import TableTickets from "./TableTickets";
+import authStore from "../../store/AuthStore";
 
 const Show = ({ btnView, list, setList }) => {
+  const { Can } = authStore;
   const { contract, loadContracts } = ContractStore;
   const { state, errors, setState, handleChange, handleSubmit, handleBlur } =
     useSaveSub(TicketStore.ticket, ticketValidate, TicketStore.addTicket);
@@ -155,25 +157,26 @@ const Show = ({ btnView, list, setList }) => {
               </div>
               <div className="row">
                 <div className="sixteen wide mobile three wide computer column">
-                  <div
-                    className="ui green attached button"
-                    id="nwticket"
-                    onClick={(e) => {
-                      setState({
-                        id: null,
-                        concept: "Mensualidad",
-                        contract_id: null,
-                        paytype: "Efectivo",
-                        ref: "",
-                        date: "",
-                        amount: "$ 0.00",
-                      });
-                      btnMn(e);
-                    }}
-                  >
-                    +Recibo
-                  </div>
-
+                  <Can permission={"recibos.create"}>
+                    <div
+                      className="ui green attached button"
+                      id="nwticket"
+                      onClick={(e) => {
+                        setState({
+                          id: null,
+                          concept: "Mensualidad",
+                          contract_id: null,
+                          paytype: "Efectivo",
+                          ref: "",
+                          date: "",
+                          amount: "$ 0.00",
+                        });
+                        btnMn(e);
+                      }}
+                    >
+                      +Recibo
+                    </div>
+                  
                   <div
                     className="ui primary attached button"
                     id="tickets"
@@ -183,6 +186,7 @@ const Show = ({ btnView, list, setList }) => {
                   >
                     Recibos
                   </div>
+                  </Can>
                   <div
                     className="ui black attached button"
                     id="exit"

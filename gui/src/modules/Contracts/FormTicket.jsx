@@ -19,8 +19,10 @@ import TicketStore from "../../store/TicketStore";
 import ticketValidate from "../../validator/ticketValidate";
 import changeFormat from "../../helper/changeFormat";
 import Swal from "sweetalert2";
+import authStore from "../../store/AuthStore";
 
 export default function FormTicket({ setMn }) {
+  const {Can} =authStore;
   const { contract, loadContracts } = ContractStore;
   const { state, errors, setState, handleChange, handleSubmit, handleBlur } =
     useSaveSub(TicketStore.ticket, ticketValidate, TicketStore.addTicket);

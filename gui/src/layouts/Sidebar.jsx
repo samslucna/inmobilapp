@@ -22,6 +22,7 @@ import BarChart from "@mui/icons-material/BarChart";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import { Link } from "react-router-dom";
+import authStore from "../store/AuthStore";
 
 
 // Supongamos que este es tu arreglo de entrada
@@ -29,9 +30,10 @@ const menuData = [
    {
       text: "Finanzas",
       link: "#!",
+      permission: "reportes.read",
       submenu: [
-        { text: "Contratos", link: "/contratos" ,icon: <HistoryEduIcon fontSize="small" /> }, // Crud Contratos
-        { text: "Recibos de Ingresos", link: "/recibos", icon: <PaymentsIcon variant="small"  /> }, // Captura los recibos
+        { text: "Contratos",permission: "reportes.read", link: "/contratos" ,icon: <HistoryEduIcon fontSize="small" /> }, // Crud Contratos
+        { text: "Recibos de Ingresos", link: "/recibos", permission: "reportes.read", icon: <PaymentsIcon variant="small"  /> }, // Captura los recibos
         //{ text: "Estado de Cuenta", link: "/usuarios",icon: <RequestQuoteIcon variant="small" /> }, //Para los estados de cuenta de los clientes?
       ],
       icon: <MonetizationOnIcon variant="outline" />,
@@ -40,22 +42,24 @@ const menuData = [
     {
       text: "Catalogos",
       link: "#!",
+      permission: "reportes.read",
       submenu: [
-        { text: "Clientes", link: "clientes" , icon: <PeopleAltIcon variant="small" /> },
-        { text: "Propietarios", link: "propietarios",icon: <PermIdentityIcon variant="small" /> },
-        { text: "Agentes", link: "agentes",icon: <AccountBoxIcon variant="small" /> },
-        { text: "Proyectos", link: "proyectos",icon: <AccountTreeTwoToneIcon variant="small" /> },
-        { text: "Lotes", link: "lotes",icon: <BorderAll variant="small" /> },
-        { text: "Usuarios", link: "usuarios", icon: <AccountCircleIcon variant="small" /> },
-        { text: "Roles", link: "roles",icon: <SupervisedUserCircleIcon variant="small" /> },
+        { text: "Clientes", link: "clientes" ,permission: "reportes.read", icon: <PeopleAltIcon variant="small" /> },
+        { text: "Propietarios", permission: "reportes.read", link: "propietarios",icon: <PermIdentityIcon variant="small" /> },
+        { text: "Agentes", link: "agentes",permission: "reportes.read", icon: <AccountBoxIcon variant="small" /> },
+        { text: "Proyectos", link: "proyectos", permission: "reportes.read",icon: <AccountTreeTwoToneIcon variant="small" /> },
+        { text: "Lotes", link: "lotes",permission: "reportes.read", icon: <BorderAll variant="small" /> },
+        { text: "Usuarios", link: "usuarios", permission: "reportes.create", icon: <AccountCircleIcon variant="small" /> },
+        { text: "Roles", link: "roles", permission: "reportes.create",icon: <SupervisedUserCircleIcon variant="small" /> },
       ],
       icon: <ListAltIcon />,
     },
      {
        text: "Reportes",
        link: "#!",
+       permission: "reportes.read",
        submenu: [
-         { text: "Lotes", link: "/reportelotes",icon: <BorderAll variant="small" /> },
+         { text: "Lotes", link: "/reportelotes",permission: "reportes.read",icon: <BorderAll variant="small" /> },
          //{ text: "Recibos", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
          //{ text: "Ingresos", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
          //{ text: "Ventas", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
@@ -66,6 +70,7 @@ const menuData = [
   ];
 export default function Sidebar({ openSidebar }) {
 
+  const {Can} = authStore;
 
   const menuItems = [
     { text: "Dashboard", link: "/dashboard", submenu: [], icon: <Dashboard /> },
@@ -121,12 +126,12 @@ export default function Sidebar({ openSidebar }) {
     <Drawer
       variant="permanent"
       sx={{
-        width: openSidebar ? 240 : 70,
+        width: openSidebar ? 240 : 0,
 
         flexShrink: 0,
 
         "& .MuiDrawer-paper": {
-          width: openSidebar ? 240 : 70,
+          width: openSidebar ? 240 : 0,
 
           overflowX: "hidden",
           transition: "0.3s",
@@ -135,15 +140,18 @@ export default function Sidebar({ openSidebar }) {
       }}
     >
       <List sx={{ width: "100%", maxWidth: 300 }}>
-        <ListItemButton component={Link} to="/dashboard">
+        <ListItemButton component={Link} key={0} to="/dashboard">
           <Dashboard />
           <ListItemText primary={"Panel de Control"} />
         </ListItemButton>
         {menuData.map((item, index) => (
-          <React.Fragment key={index}>
+          <React.Fragment key={index+1}>
+           
             {/* Elemento Principal */}
+            <Can permission={item.permission}>
             <ListItemButton
               onClick={() => (item.submenu ? handleToggle(item.text) : null)}
+
             >
               {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
               <ListItemText primary={item.text} />
@@ -155,12 +163,14 @@ export default function Sidebar({ openSidebar }) {
                 )
               ) : null}
             </ListItemButton>
+            </Can>
 
             {/* Submenú desplegable (si existe) */}
             {item.submenu && (
               <Collapse in={open[item.text]} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {item.submenu.map((sub, subIndex) => (
+                    <Can permission={sub.permission} key={subIndex}>
                     <ListItemButton
                       key={subIndex}
                       sx={{ pl: 4 }}
@@ -170,10 +180,12 @@ export default function Sidebar({ openSidebar }) {
                       {sub.icon}
                       <ListItemText primary={sub.text} />
                     </ListItemButton>
+                    </Can>
                   ))}
                 </List>
               </Collapse>
             )}
+
           </React.Fragment>
         ))}
       </List>

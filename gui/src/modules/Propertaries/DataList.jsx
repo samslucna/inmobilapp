@@ -8,8 +8,10 @@ import SearchInput from "./SearchInput";
 
 import Form from "./Form";
 import TableData from "./TableData";
+import authStore from "../../store/AuthStore";
 
 const DataList = observer(() => {
+  const {Can} =authStore;
   useEffect(() => {
     PropertaryStore.loadPropertaries();
   }, []);
@@ -19,7 +21,7 @@ const DataList = observer(() => {
       <Box display="flex" justifyContent="space-between">
         <Typography variant="h5" gutterBottom>
           
-          {PropertaryStore.hiddenForm? null :<ImportInput />}
+          {PropertaryStore.hiddenForm? null :<Can permission={'propietarios.create'}> <ImportInput /></Can>}
           
         </Typography>
 

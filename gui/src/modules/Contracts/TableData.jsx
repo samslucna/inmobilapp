@@ -1,6 +1,6 @@
 import Swal from "sweetalert2";
 import InputBase from "@mui/material/InputBase";
-import { Box,Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { styled, alpha } from "@mui/material/styles";
 import Pagination from "@mui/material/Pagination";
@@ -14,6 +14,7 @@ import PropertyStore from "../../store/PropertyStore";
 import PropertaryStore from "../../store/PropertaryStore";
 import changeFormat from "../../helper/changeFormat";
 import Show from "./Show";
+import authStore from "../../store/AuthStore";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -58,6 +59,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const TableData = observer(({ datasTable }) => {
+  const {Can} = authStore;
   const [list, setList] = useState([]);
   const [mn, setMn] = useState("");
 
@@ -97,7 +99,7 @@ const TableData = observer(({ datasTable }) => {
     PropertaryStore.setPropertary(contract.seller);
     ContractStore.setEditing(true);
     ContractStore.setEditId(contract.id);
-   
+
     ContractStore.setContract(contract);
 
     ContractStore.setHiddenForm(true);
@@ -140,28 +142,32 @@ const TableData = observer(({ datasTable }) => {
                               key={"edit" + data.id}
                               className="ui mini basic icon buttons"
                             >
-                              <button id="delete" className="ui  button">
-                                <i
-                                  id={"del" + data.id}
-                                  onClick={(e) => {
-                                    //removeTicket(e, data.id);
-                                    //btnView(e);
-                                  }}
-                                  className="trash red icon"
-                                ></i>
-                              </button>
-                              <button className="ui  button">
-                                <i
-                                  id={"edit" + data.id}
-                                  className="edit blue icon"
-                                ></i>
-                              </button>
-                              <button className="ui  button">
-                                <i
-                                  id={"view" + data.id}
-                                  className="eye blue icon"
-                                ></i>
-                              </button>
+                              <Can permission={"recibos.delete"}>
+                                <button id="delete" className="ui  button">
+                                  <i
+                                    id={"del" + data.id}
+                                    onClick={(e) => {
+                                      //removeTicket(e, data.id);
+                                      //btnView(e);
+                                    }}
+                                    className="trash red icon"
+                                  ></i>
+                                </button>
+                                <button className="ui  button">
+                                  <i
+                                    id={"edit" + data.id}
+                                    className="edit blue icon"
+                                  ></i>
+                                </button>
+                              </Can>
+                              <Can permission={"recibos.update"}>
+                                <button className="ui  button">
+                                  <i
+                                    id={"view" + data.id}
+                                    className="eye blue icon"
+                                  ></i>
+                                </button>
+                              </Can>
                             </div>
                           </td>
                         </tr>
@@ -222,6 +228,7 @@ const TableData = observer(({ datasTable }) => {
                                 key={"edit" + data.id}
                                 className="ui mini basic icon buttons"
                               >
+                                <Can permission ={'contratos.delete'}>
                                 <button id="delete" className="ui  button">
                                   <i
                                     id={"del" + data.id}
@@ -231,6 +238,8 @@ const TableData = observer(({ datasTable }) => {
                                     className="trash red icon"
                                   ></i>
                                 </button>
+                                </Can>
+                                <Can permission ={'contratos.create'}>
                                 <button className="ui  button">
                                   <i
                                     id={"edit" + data.id}
@@ -239,7 +248,8 @@ const TableData = observer(({ datasTable }) => {
                                     }}
                                     className="edit blue icon"
                                   ></i>
-                                </button>
+                                </button></Can>
+                                <Can permission={'contratos.read'}>
                                 <button className="ui  button">
                                   <i
                                     id={"view"}
@@ -249,6 +259,7 @@ const TableData = observer(({ datasTable }) => {
                                     className="eye blue icon"
                                   ></i>
                                 </button>
+                                </Can>
                               </div>
                             </td>
                           </tr>

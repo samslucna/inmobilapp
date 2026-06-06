@@ -21,6 +21,7 @@ import { styled, alpha } from "@mui/material/styles";
 import Pagination from "@mui/material/Pagination";
 
 import Stack from "@mui/material/Stack";
+import authStore from "../../store/AuthStore";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -65,6 +66,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const TableData = observer(({ datas }) => {
+  const { Can } = authStore;
   const handleDelete = async (id) => {
     const resp = await Swal.fire({
       title: "¿Eliminar usuario?",
@@ -136,22 +138,26 @@ const TableData = observer(({ datas }) => {
 
               {/* Acciones del CRUD */}
               <TableCell align="right">
-                <Tooltip title="Editar">
-                  <IconButton
-                    sx={{ color: "blue" }}
-                    onClick={() => ClientStore.goEdit(client)}
-                  >
-                    <Edit />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Eliminar">
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDelete(client.id)}
-                  >
-                    <Delete />
-                  </IconButton>
-                </Tooltip>
+                <Can permission={"clientes.update"}>
+                  <Tooltip title="Editar">
+                    <IconButton
+                      sx={{ color: "blue" }}
+                      onClick={() => ClientStore.goEdit(client)}
+                    >
+                      <Edit />
+                    </IconButton>
+                  </Tooltip>
+                </Can>
+                <Can permission={"clientes.delete"}>
+                  <Tooltip title="Eliminar">
+                    <IconButton
+                      color="error"
+                      onClick={() => handleDelete(client.id)}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </Tooltip>
+                </Can>
               </TableCell>
             </TableRow>
           ))}

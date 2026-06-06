@@ -6,6 +6,7 @@ import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 
 import ContractStore from "../../store/ContractStore";
+import authStore from "../../store/AuthStore";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -50,6 +51,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function SearchInput() {
+  const {Can} = authStore;
   return (
     <Toolbar sx={{ mb: 2 }}>
       <Typography
@@ -61,6 +63,7 @@ export default function SearchInput() {
       {ContractStore.hiddenForm ? null : (
         <>
           <Box display="flex" justifyContent="flex-start" mb={2}>
+            <Can permission ={'contratos.create'}>
             <Button
               variant="contained"
               onClick={() => {
@@ -83,6 +86,7 @@ export default function SearchInput() {
             >
               +Contrato
             </Button>
+            </Can>
           </Box>
           <Search sx={{ background: "#f5f5f5", mb: 4 }}>
             <SearchIconWrapper>

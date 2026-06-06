@@ -13,8 +13,10 @@ import Show from "./Show";
 import TicketStore from "../../store/TicketStore";
 import ModalDoc from "./ModalDoc";
 import ModalDocIcon from "./ModalDocIcon";
+import authStore from "../../store/AuthStore";
 
 const TableTickets = observer(({ contract, setMn }) => {
+  const {Can} = authStore;
   const [list, setList] = useState(contract.tickets);
 
   const handleDelete = async (id) => {
@@ -57,26 +59,34 @@ const TableTickets = observer(({ contract, setMn }) => {
 
   return (
     <div className="right sixteen wide five wide computer field">
+      
+      
       <div className="ui buttons">
+        <Can permission={'recibos.read'}>
         <ModalDoc
           data={ContractStore.contract}
           url={"/api/contracts/export/pdf/ticketsPDF?id="}
           color={"error"}
           title={"Lista de Recibos"}
         />
+        </Can>
+        <Can permission={'contratos.read'}>
         <ModalDoc
           data={ContractStore.contract}
           url={"/api/contracts/export/pdf/contractExportPDF?id="}
           color={"secondary"}
           title={"Contrato promesa"}
         />
+
         <ModalDoc
           data={ContractStore.contract}
           url={"/api/contracts/export/pdf/contractExportPDF?id="}
           color={"primary"}
           title={"Contrato Final"}
         />
+        </Can>
       </div>
+      
       <table className="ui stackable small  table">
         <thead>
           <tr>
@@ -105,6 +115,7 @@ const TableTickets = observer(({ contract, setMn }) => {
                         key={"edit" + data.id}
                         className="ui mini basic icon buttons"
                       >
+                        <Can permission={'recibos.delete'}>
                         <button id="delete" className="ui  button">
                           <i
                             id={"del" + data.id}
@@ -114,6 +125,8 @@ const TableTickets = observer(({ contract, setMn }) => {
                             className="trash red icon"
                           ></i>
                         </button>
+                        </Can>
+                        <Can permission={'recibos.update'}>
                         <button className="ui  button">
                           <i
                             id={"del" + data.id}
@@ -124,6 +137,7 @@ const TableTickets = observer(({ contract, setMn }) => {
                             className="edit blue icon"
                           ></i>
                         </button>
+                        </Can>
                         <ModalDocIcon
                           data={data}
                           url={"/api/tickets/export/pdf/ticket?id="}

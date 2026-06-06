@@ -6,6 +6,7 @@ import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 
 import TicketStore from "../../store/TicketStore";
+import authStore from "../../store/AuthStore";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -50,12 +51,14 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function SearchInput() {
+  const {Can} = authStore;
   return (
     <Toolbar sx={{ mb: 2 }}>
   
       {TicketStore.hiddenForm ? null : (
         <>
           <Box display="flex" justifyContent="flex-start" mb={2}>
+            <Can permission={'recibos.create'}>
             <Button
               variant="contained"
               onClick={() => {
@@ -65,6 +68,7 @@ export default function SearchInput() {
             >
               +Recibo
             </Button>
+            </Can>
           </Box>
           <Search sx={{ background: "#f5f5f5", mb: 4 }}>
             <SearchIconWrapper>

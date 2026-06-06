@@ -8,6 +8,7 @@ import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonAdd from "@mui/icons-material/PersonAdd";
 import { Link } from "react-router-dom";
+import authStore from "../../store/AuthStore";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -52,6 +53,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function SearchInput() {
+  const { Can } = authStore;
   return (
     <Toolbar sx={{ mb: 2 }}>
       <Typography
@@ -62,26 +64,27 @@ export default function SearchInput() {
       ></Typography>
       {userStore.hiddenForm ? null : (
         <>
-          <Box display="flex" justifyContent="flex-start" mb={2}>
-            <Button
-              variant="contained"
-              startIcon={<PersonAdd />}
-              onClick={() => {
-                userStore.setUser({
-                  id: null,
-                  name: "",
-                  email: "",
-                  password: "",
-                  rol: "",
-                  active: false,
-                });
-                userStore.setHiddenForm(true);
-              }}
-              sx={{ mb: 2 }}
-            >
-              Nuevo Usuario
-            </Button>
-            {/* <Button
+          <Can permission={"usuarios.create"}>
+            <Box display="flex" justifyContent="flex-start" mb={2}>
+              <Button
+                variant="contained"
+                startIcon={<PersonAdd />}
+                onClick={() => {
+                  userStore.setUser({
+                    id: null,
+                    name: "",
+                    email: "",
+                    password: "",
+                    rol: "",
+                    active: false,
+                  });
+                  userStore.setHiddenForm(true);
+                }}
+                sx={{ mb: 2 }}
+              >
+                Nuevo Usuario
+              </Button>
+              {/* <Button
               variant="contained"
               sx={{ mb: 2 }}
               color="success"
@@ -99,7 +102,8 @@ export default function SearchInput() {
             >
               PDF
             </Button> */}
-          </Box>
+            </Box>
+          </Can>
           <Search sx={{ background: "#f5f5f5", mb: 4 }}>
             <SearchIconWrapper>
               <SearchIcon />
