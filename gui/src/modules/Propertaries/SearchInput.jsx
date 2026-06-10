@@ -65,7 +65,7 @@ export default function SearchInput() {
       {PropertaryStore.hiddenForm ? null : (
         <>
           <Box display="flex" justifyContent="flex-start" mb={2}>
-            <Can permission={"propietarios.create"}>
+            <Can permission={"usuarios.create"}>
               <Button
                 variant="contained"
                 startIcon={<PersonAdd />}

@@ -164,7 +164,7 @@ const TableData = observer(({ datasTable }) => {
                               key={"edit" + data.id}
                               className="ui mini basic icon buttons"
                             >
-                              <Can permission={"recibos.update"}>
+                              <Can permission={"recibos.delete"}>
                                 <button id="delete" className="ui  button">
                                   <i
                                     id={"del" + data.id}

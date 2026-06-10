@@ -20,12 +20,26 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->unsignedBigInteger('rol_id')->nullable();
-            $table->foreign('rol_id')
-                ->references('id')->on('rol')->onDelete('set null')->onUpdate('cascade');
+            $table->unsignedBigInteger('role_id')->nullable();
+            $table->foreign('role_id')
+                ->references('id')->on('roles')->onDelete('set null')->onUpdate('cascade');
             $table->rememberToken();
             $table->timestamps();
         });
+
+        
+      //DB::table('users')->insert([
+      //    'name' => 'Sam',
+      //    'email' => 'sam@gmail.com',
+      //    'password' => Hash::make('s19'),
+      //    'status' => 1,
+      //    'role_id' => 1,
+      //    'created_at' => now(),
+      //    'updated_at' => now(),
+
+      //]);
+
+
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

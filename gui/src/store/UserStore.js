@@ -67,9 +67,8 @@ class UserStore {
     try {
       const data = await getAllBd("users");
 
-      const savedUser = JSON.parse(localStorage.getItem("user"));
-
-      let users = data.data.filter((u) => u.id !== savedUser["id"]);
+      let users = data.data;
+      
       delete data.data;
       this.setPagination(data);
       this.setUsers(users);
@@ -87,7 +86,7 @@ class UserStore {
         this.setEditId(null);
         this.setUser({ ...this.user, id: null });
         this.loadUsers();
-         this.setHiddenForm(false);
+        this.setHiddenForm(false);
       } else {
         const newUser = await createBd("users", data);
         this.setEditId(null);
@@ -111,9 +110,9 @@ class UserStore {
     delete user.rol_id;
     user.active = user.status !== 0 ? true : false;
     delete user.status;
-    delete user.created_at
-    delete user.updated_at
-    
+    delete user.created_at;
+    delete user.updated_at;
+
     this.setEditing(true);
     this.setEditId(user.id);
     this.setUser(user);

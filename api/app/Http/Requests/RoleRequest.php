@@ -23,7 +23,8 @@ class RoleRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string'],
-            'description' => ['nullable', 'string'],
+            'guard_name' => ['nullable', 'string'],
+            'permissions'=>['nullable']
         ];
     }
 }

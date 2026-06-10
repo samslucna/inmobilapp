@@ -151,7 +151,7 @@ const TableData = observer(({ datas }) => {
                 </Box>
               </TableCell>
               <TableCell>{property.m2}</TableCell>
-              <TableCell>{property.block_id}</TableCell>
+              <TableCell>{property?.block?.name}</TableCell>
 
               <TableCell>
                 {changeFormat.numberToString(property.amount_init)}

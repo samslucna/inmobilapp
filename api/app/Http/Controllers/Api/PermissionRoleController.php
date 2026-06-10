@@ -36,7 +36,7 @@ class PermissionRoleController extends Controller
         $Permission = PermissionRole::create(
             [
                 "permision_id" => $request->permision_id,
-                "rol_id" => $request->rol_id,
+                "role_id" => $request->rol_id,
             ]
         );
 
@@ -71,7 +71,7 @@ class PermissionRoleController extends Controller
         // inserta los datos
         PermissionRole::where('id', $request->id)->update([
             "permision_id" => $request->permision_id,
-            "rol_id" => $request->rol_id,
+            "role_id" => $request->rol_id,
         ]);
 
         // respesta de JSON

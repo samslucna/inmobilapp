@@ -69,7 +69,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const TableData = observer(({ datas }) => {
  const {Can}=authStore;
- 
+
 
   const handleDelete = async (id) => {
     const resp = await Swal.fire({
@@ -141,7 +141,7 @@ const TableData = observer(({ datas }) => {
               </TableCell>
 
               {/* Columna de Rol */}
-              <TableCell>{user.rol?.name}</TableCell>
+              <TableCell>{user?.role?.name}</TableCell>
 
               {/* Columna de Estado con Chip */}
               <TableCell>

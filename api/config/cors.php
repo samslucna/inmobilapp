@@ -19,7 +19,7 @@ return [
         'sanctum/csrf-cookie', 
         'login', 
         'logout',],
-    'allowed_methods' => ['POST,GET,OPTIONS,PUT,DELETE'],
+    'allowed_methods' => ['POST,GET,OPTIONS,PUT,PATCH,DELETE'],
 
     'allowed_origins' => ['http://localhost:3000*','http://localhost:3000/login*,'],
 

@@ -168,7 +168,7 @@ class PropertyStore {
             address: "",
             amount_init: 0.0,
             amount_end: 0.0,
-            status: "Disponible",
+            status: "disponible",
             boundaries: [],
           });
           this.setHiddenForm(false);

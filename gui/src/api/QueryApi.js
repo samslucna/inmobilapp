@@ -34,6 +34,33 @@ export const updateBd = async (table, id, user) => {
   const { data } = await axios.put(`api/${table}/${id}`, user);
   return data;
 };
+//export const updateBdRol = async (table, role) => {
+//  const { data } = await axios.get(`api/${table}`, { params: role});
+//  return data;
+//};
+
+// En QueryApi.js
+export const updateBdRol = async (endpoint, data) => {
+    try {
+        console.log('📡 API - Enviando a:', endpoint);
+        console.log('📡 API - Datos:', data);
+        
+        const response = await axios.put(`/api/${endpoint}`, data, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+            }
+        });
+        
+        console.log('📡 API - Respuesta:', response.data);
+        
+        return response.data;
+    } catch (error) {
+        console.error('📡 API - Error:', error.response?.data || error);
+        throw error;
+    }
+};
 
 export const deleteBd = async (table, id) => {
   await axios.delete(`api/${table}/${id}`);

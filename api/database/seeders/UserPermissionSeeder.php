@@ -25,6 +25,7 @@ class UserPermissionSeeder extends Seeder
         // Permisos completos para admin en todos los módulos
         $modules = [
             'usuarios',
+            'propietarios',
             'recibos',
             'lotes',
             'reportes',
@@ -44,7 +45,6 @@ class UserPermissionSeeder extends Seeder
                 $permissionName = "{$module}.{$action}";
                 // Crear permiso si no existe
                 ModelsPermission::firstOrCreate(
-                    ['name' => $permissionName, 'guard_name' => 'web'],
                     [
                         'name' => $permissionName,
                         'guard_name' => 'web',
@@ -55,7 +55,6 @@ class UserPermissionSeeder extends Seeder
 
         // Crear Rol Administrador (todos los permisos)
         $adminRole = ModelsRole::firstOrCreate(
-            ['name' => 'Administrador', 'guard_name' => 'web'],
             [
                 'name' => 'Administrador',
                 'guard_name' => 'web',
@@ -70,12 +69,12 @@ class UserPermissionSeeder extends Seeder
 
         // Crear usuario Administrador
         $adminUser = User::firstOrCreate(
-            ['email' => 'sam@gmail.com'],
+           
             [
                 'name' => 'Samuel',
                 'email' => 'sam@gmail.com',
                 'password' => bcrypt('s19'),
-                'rol_id' => $adminRole->id,
+                'role_id' => $adminRole->id,
             ]
         );
 
@@ -87,7 +86,7 @@ class UserPermissionSeeder extends Seeder
 
         // ========== ROL CAPTURISTA ==========
         $capturistaRole = ModelsRole::firstOrCreate(
-            ['name' => 'Capturista', 'guard_name' => 'web'],
+          
             [
                 'name' => 'Capturista',
                 'guard_name' => 'web',
@@ -105,12 +104,12 @@ class UserPermissionSeeder extends Seeder
 
         // Crear usuario Capturista
         $capturistaUser = User::firstOrCreate(
-            ['email' => 'joaquin@gmail.com'],
+           
             [
                 'name' => 'Joaquin',
                 'email' => 'joaquin@gmail.com',
                 'password' => bcrypt('motsakki2026'),
-                'rol_id' => $capturistaRole->id,
+                'role_id' => $capturistaRole->id,
             ]
         );
 
@@ -118,7 +117,6 @@ class UserPermissionSeeder extends Seeder
 
         // ========== ROL CONSULTOR (Solo lectura) ==========
         $consultorRole = ModelsRole::firstOrCreate(
-            ['name' => 'Consultor', 'guard_name' => 'web'],
             [
                 'name' => 'Consultor',
                 'guard_name' => 'web',
@@ -135,7 +133,6 @@ class UserPermissionSeeder extends Seeder
 
         // ========== ROL CONTADOR (Recibos completos) ==========
         $contadorRole = ModelsRole::firstOrCreate(
-            ['name' => 'Contador', 'guard_name' => 'web'],
             [
                 'name' => 'Contador',
                 'guard_name' => 'web',

@@ -1,12 +1,9 @@
 import { styled, alpha } from "@mui/material/styles";
 import Toolbar from "@mui/material/Toolbar";
 import { Box, Button } from "@mui/material";
-import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
-import SearchIcon from "@mui/icons-material/Search";
 
 import TicketStore from "../../store/TicketStore";
-import ModalDoc from "./ModalDoc";
 import changeFormat from "../../helper/changeFormat";
 
 const Search = styled("div")(({ theme }) => ({

@@ -48,7 +48,7 @@ class PropertyController extends Controller
     public function index(Request $request)
     {
 
-        $property = Property::with('boundaries')->paginate(5);
+        $property = Property::with('block')->with('boundaries')->paginate(5);
 
         return new JsonResponse($property);
     }

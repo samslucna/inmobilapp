@@ -1,31 +1,8 @@
 import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LegendPayload } from 'recharts';
 
-// #region Sample data
-const data = [
-  {
-    name: 'Etapa 1',
-    Vendidos: 4000,
-    Pendientes: 2400,
-    Disponibles: 2400,
-  },
-  {
-     name: 'Etapa 2',
-    Vendidos: 4000,
-    Pendientes: 2400,
-    Disponibles: 2400,
-  },
-  {
-      name: 'Etapa 3',
-    Vendidos: 4000,
-    Pendientes: 2400,
-    Disponibles: 2400,
-  },
-  
-];
-
 // #endregion
-const MixBarChart = () => {
+const MixBarChart = ({data}) => {
   const [focusedDataKey, setFocusedDataKey] = useState(null);
   const [locked, setLocked] = useState(false);
 
@@ -68,13 +45,14 @@ const MixBarChart = () => {
       }}
     >
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="name" />
+      <XAxis dataKey="etapa_nombre" />
       <YAxis width="auto" niceTicks="snap125" />
       <Tooltip />
       <Legend onMouseEnter={onLegendMouseEnter} onMouseOut={onLegendMouseOut} onClick={onLegendClick} />
-      <Bar dataKey="Vendidos" stackId="a" fill={focusedDataKey == null || focusedDataKey === 'pv' ? '#eb4343' : '#eee'} />
-      <Bar dataKey="Pendientes" stackId="a" fill={focusedDataKey == null || focusedDataKey === 'amt' ? '#df8d21' : '#eee'} />
-      <Bar dataKey="Disponibles" fill={focusedDataKey == null || focusedDataKey === 'uv' ? '#17d136' : '#eee'} />
+      
+      <Bar dataKey="apartados" stackId="a" fill={focusedDataKey == null || focusedDataKey === 'amt' ? '#df8d21' : '#eee'} />
+      <Bar dataKey="vendidos" stackId="a" fill={focusedDataKey == null || focusedDataKey === 'pv' ? '#eb4343' : '#eee'} />
+      <Bar dataKey="disponibles" fill={focusedDataKey == null || focusedDataKey === 'uv' ? '#17d136' : '#eee'} />
     
     </BarChart>
   );

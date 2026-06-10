@@ -7,11 +7,12 @@ use App\Http\Controllers\Api\BlockController;
 use App\Http\Controllers\Api\BoundaryController;
 use App\Http\Controllers\Api\BuyerController;
 use App\Http\Controllers\Api\ContractController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\PdfController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\PropertyController;
-use App\Http\Controllers\Api\RolController;
+use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\SellerController;
 use App\Http\Controllers\Api\StageController;
 use App\Http\Controllers\Api\TicketController;
@@ -55,10 +56,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
   Route::get('/properties/{id}/boundaries', [PropertyController::class, 'boundariesByProperty']);
   Route::apiResource('/properties', PropertyController::class);
 
-  Route::get('/rols/search', [RolController::class, 'search']);
-  Route::apiResource('/rols', RolController::class);
+  Route::get('/roles/search', [RoleController::class, 'search']);
+  Route::get('/roles', [RoleController::class, 'index']);
+  Route::put('/roles/update', [RoleController::class, 'updateRole']);
 
-   Route::get('/boundaries/search', [BoundaryController::class, 'search']);
+  Route::get('/boundaries/search', [BoundaryController::class, 'search']);
   Route::apiResource('/boundaries', BoundaryController::class);
 
   Route::get('/projects/search', [ProjectController::class, 'search']);
@@ -72,9 +74,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
   Route::get('/blocks/search', [BlockController::class, 'search']);
   Route::apiResource('/blocks', BlockController::class);
+  Route::apiResource('/dashboard', DashboardController::class);
 
-  Route::get('/permission/search', [PermissionController::class, 'search']);
-  Route::apiResource('/permission', PermissionController::class);
+
 
 
   Route::get('/buyers/search', [BuyerController::class, 'search']);

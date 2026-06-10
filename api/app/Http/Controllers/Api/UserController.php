@@ -46,7 +46,7 @@ class UserController extends Controller implements HasMiddleware
 
         $perPage = $request->input('per_page', 5);
         $users = User::with('role')->paginate($perPage);
-        //dd($users);
+      
         return response()->json($users);
     }
 
@@ -66,7 +66,7 @@ class UserController extends Controller implements HasMiddleware
             "name" => "required|string|max:255",
             "email" => "required|string|max:255|unique:users",
             "password" => 'required|string|min:8',
-            "role" => "required|string|max:255",
+            "role_id" => "required|string|max:255",
             "active" => "required|boolean",
         ]);
         //dd($validator);
@@ -74,7 +74,7 @@ class UserController extends Controller implements HasMiddleware
         $user = User::create([
             "name" => $request->name,
             "email" => $request->email,
-            "role_id" => $request->rol,
+            "role_id" => $request->role_id,
             "status" => $active,
             'password' => Hash::make($request->password)
         ]);
@@ -121,7 +121,7 @@ class UserController extends Controller implements HasMiddleware
             "name" => "required|string|max:255",
             "email" => "required|string|max:255|unique:users",
             "password" => 'required|string|min:8',
-            "rol" => "required|string|max:255",
+            "role_id" => "required|string|max:255",
             "active" => "required|boolean",
         ]);
         $active = $request->active ? 1 : 0;
@@ -129,7 +129,7 @@ class UserController extends Controller implements HasMiddleware
         $upd = User::where('id', $request->id)->update([
             "name" => $request->name,
             "email" => $request->email,
-            "rol_id" => $request->rol,
+            "role_id" => $request->role_id,
             "status" => $active,
             'password' => Hash::make($request->password)
         ]);

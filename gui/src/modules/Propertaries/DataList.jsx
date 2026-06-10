@@ -21,7 +21,7 @@ const DataList = observer(() => {
       <Box display="flex" justifyContent="space-between">
         <Typography variant="h5" gutterBottom>
           
-          {PropertaryStore.hiddenForm? null :<Can permission={'propietarios.create'}> <ImportInput /></Can>}
+          {PropertaryStore.hiddenForm? null :<Can permission={'usuarios.create'}> <ImportInput /></Can>}
           
         </Typography>
 

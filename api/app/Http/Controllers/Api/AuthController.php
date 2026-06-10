@@ -56,7 +56,8 @@ class AuthController extends Controller
             ], 401);
         }
 
-       // dd($request->user());
+
+       //dd($request->user());
         return response()->json([
             'data' => $request->user(),
             'roles' => $request->user()->getRoleNames(),

@@ -1,7 +1,8 @@
 import { Grid, Paper, Typography } from "@mui/material";
 import StatCard from "./StatCard";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ToastStore from "../../store/ToastStore";
+import DashboardStore from "../../store/DashboardStore";
 import { Toaster } from "react-hot-toast";
 import PaymentsDailyChart from "./components/charts/PaymentsDailyChart";
 
@@ -40,6 +41,13 @@ const data = [
 ];
 
 export default function Dashboard() {
+  const [stats, setStats] = useState({
+    Totales: 0,
+    TotalDisponibles: 0,
+    TotalApartados: 0,
+    TotalVendidos: 0,
+  });
+
   const dataPayment = {
     cards: {
       vendidas: 320,
@@ -56,64 +64,56 @@ export default function Dashboard() {
 
     ventasPorManzana: [],
   };
-    useEffect(()=>{
-      const welcomeUser = ()=>{
-        const user = JSON.parse(localStorage.getItem('user'))
-      
+  useEffect(() => {
+    const welcomeUser = async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const datas = await DashboardStore.loadDashboard();
+      setStats(datas[0]);
       ToastStore.showSuccess("Bienvenido " + user.name);
-      }
-   
-      welcomeUser()
-    },[])
+    };
+
+    welcomeUser();
+  }, []);
+
   return (
     <>
-   
-        <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 3 }}>
-            <StatCard title="Lotes Vendidos" value="125" />
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 3 }}>
-            <StatCard title="Lotes Pendientes" value="78" />
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 3 }}>
-            <StatCard title="Lotes Disponibles" value="350" />
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 3 }}>
-            <StatCard title="Pagos Atrasados" value="15" />
-          </Grid>
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, md: 3 }}>
+          <StatCard value={stats.Totales} title="Total lotes" />
         </Grid>
 
-        <Grid container spacing={3}>
-          <Grid size={{ xs: 12, lg: 6 }} sx={{mt:3}}>
-           {/*  <PaymentsDailyChart
+        <Grid size={{ xs: 12, md: 3 }}>
+          <StatCard title="Lotes Apartados" value={stats.TotalApartados} />
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 3 }}>
+          <StatCard title="Lotes Vendidos" value={stats.TotalVendidos} />
+        </Grid>
+        <Grid size={{ xs: 12, md: 3 }}>
+          <StatCard title="Lotes Disponibles" value={stats.TotalDisponibles} />
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, lg: 6 }} sx={{ mt: 3 }}>
+          {/*  <PaymentsDailyChart
               data={[
                 { dia: "1", cantidad: 4 },
                 { dia: "2", cantidad: 8 },
                 { dia: "3", cantidad: 5 },
               ]}
             /> */}
-             <PieChartInGrid />
-          </Grid>
-
-          <Grid size={{ xs: 12, lg: 6 }} sx={{mt:3}}>
-            <PaymentsMonthlyChart
-              data={[
-                { mes: "Ene", cantidad: 120 },
-                { mes: "Feb", cantidad: 130 },
-                { mes: "Mar", cantidad: 115 },
-              ]}
-            />
-          </Grid>
-
-          <Grid size={{ xs: 12, lg: 12 }} >
-        
-          </Grid>
-
+          <PieChartInGrid data={stats['stagesproperties']} />
         </Grid>
-      
+
+        <Grid size={{ xs: 12, lg: 6 }} sx={{ mt: 3 }}>
+          <PaymentsMonthlyChart
+            data={stats.paymonth}
+          />
+        </Grid>
+
+        <Grid size={{ xs: 12, lg: 12 }}></Grid>
+      </Grid>
     </>
   );
 }

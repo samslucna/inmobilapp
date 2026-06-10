@@ -1,18 +1,41 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
-
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\RolResource;
-use App\Models\Rol;
+use App\Http\Resources\RoleResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 
-class RolController extends Controller
+class RolController extends Controller implements HasMiddleware
 {
 
+ public static function middleware(): array
+    {
+        return [
+            new Middleware(
+                'permission:usuarios.read',
+                only: ['index', 'show']
+            ),
+
+            new Middleware(
+                'permission:usuarios.create',
+                only: ['store']
+            ),
+
+            new Middleware(
+                'permission:usuarios.update',
+                only: ['update']
+            ),
+
+            new Middleware(
+                'permission:usuarios.delete',
+                only: ['destroy']
+            ),
+        ];
+    }
     /**
      * Display a listing of the resource.
      */
@@ -20,7 +43,7 @@ class RolController extends Controller
     {
 
         $Rol = Role::paginate(10);
-
+        dd($Rol);
         return new JsonResponse($Rol);
     }
 
@@ -37,7 +60,7 @@ class RolController extends Controller
         $Rol = Role::create(
             [
                 "name" => $request->name,
-                "description" => $request->description,
+                "guard_name" => $request->guard_name,
             ]
         );
 
@@ -51,7 +74,7 @@ class RolController extends Controller
     {
         //
 
-        return new RolResource($Rol);
+        return new RoleResource($Role);
     }
 
 
@@ -72,7 +95,7 @@ class RolController extends Controller
         // inserta los datos
         Role::where('id', $request->id)->update([
             "name" => $request->name,
-            //"description" => $request->description,
+            "guard_name" => $request->guard_name,
        
         ]);
 
