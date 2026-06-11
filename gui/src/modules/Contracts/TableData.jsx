@@ -59,7 +59,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const TableData = observer(({ datasTable }) => {
-  const {Can} = authStore;
+  const { Can } = authStore;
   const [list, setList] = useState([]);
   const [mn, setMn] = useState("");
 
@@ -142,7 +142,7 @@ const TableData = observer(({ datasTable }) => {
                               key={"edit" + data.id}
                               className="ui mini basic icon buttons"
                             >
-                              <Can permission={"recibos.delete"}>
+                              <Can permission={"constratos.delete"}>
                                 <button id="delete" className="ui  button">
                                   <i
                                     id={"del" + data.id}
@@ -153,6 +153,8 @@ const TableData = observer(({ datasTable }) => {
                                     className="trash red icon"
                                   ></i>
                                 </button>
+                              </Can>
+                              <Can permission={"contratos.update"}>
                                 <button className="ui  button">
                                   <i
                                     id={"edit" + data.id}
@@ -160,7 +162,7 @@ const TableData = observer(({ datasTable }) => {
                                   ></i>
                                 </button>
                               </Can>
-                              <Can permission={"recibos.update"}>
+                              <Can permission={"contratos.read"}>
                                 <button className="ui  button">
                                   <i
                                     id={"view" + data.id}
@@ -228,37 +230,38 @@ const TableData = observer(({ datasTable }) => {
                                 key={"edit" + data.id}
                                 className="ui mini basic icon buttons"
                               >
-                                <Can permission ={'contratos.delete'}>
-                                <button id="delete" className="ui  button">
-                                  <i
-                                    id={"del" + data.id}
-                                    onClick={(e) => {
-                                      handleDelete(data.id);
-                                    }}
-                                    className="trash red icon"
-                                  ></i>
-                                </button>
+                                <Can permission={"contratos.delete"}>
+                                  <button id="delete" className="ui  button">
+                                    <i
+                                      id={"del" + data.id}
+                                      onClick={(e) => {
+                                        handleDelete(data.id);
+                                      }}
+                                      className="trash red icon"
+                                    ></i>
+                                  </button>
                                 </Can>
-                                <Can permission ={'contratos.create'}>
-                                <button className="ui  button">
-                                  <i
-                                    id={"edit" + data.id}
-                                    onClick={(e) => {
-                                      goEdit(data);
-                                    }}
-                                    className="edit blue icon"
-                                  ></i>
-                                </button></Can>
-                                <Can permission={'contratos.read'}>
-                                <button className="ui  button">
-                                  <i
-                                    id={"view"}
-                                    onClick={(e) => {
-                                      btnView(e, data);
-                                    }}
-                                    className="eye blue icon"
-                                  ></i>
-                                </button>
+                                <Can permission={"contratos.update"}>
+                                  <button className="ui  button">
+                                    <i
+                                      id={"edit" + data.id}
+                                      onClick={(e) => {
+                                        goEdit(data);
+                                      }}
+                                      className="edit blue icon"
+                                    ></i>
+                                  </button>
+                                </Can>
+                                <Can permission={"contratos.read"}>
+                                  <button className="ui  button">
+                                    <i
+                                      id={"view"}
+                                      onClick={(e) => {
+                                        btnView(e, data);
+                                      }}
+                                      className="eye blue icon"
+                                    ></i>
+                                  </button>
                                 </Can>
                               </div>
                             </td>

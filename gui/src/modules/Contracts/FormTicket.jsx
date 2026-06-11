@@ -22,7 +22,7 @@ import Swal from "sweetalert2";
 import authStore from "../../store/AuthStore";
 
 export default function FormTicket({ setMn }) {
-  const {Can} =authStore;
+  const { Can } = authStore;
   const { contract, loadContracts } = ContractStore;
   const { state, errors, setState, handleChange, handleSubmit, handleBlur } =
     useSaveSub(TicketStore.ticket, ticketValidate, TicketStore.addTicket);
@@ -118,102 +118,104 @@ export default function FormTicket({ setMn }) {
   return (
     <>
       <form className="ui form">
-        <div className="right sixteen wide mobile five wide computer field">
-          <div className="field">
-            <h4 className="ui dividing header">Nuevo recibo:</h4>
-            <label>Fecha:</label>
-            <input
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={state.date}
-              type="date"
-              name="date"
-              placeholder="0.00"
-            />
-          </div>
+        <Can permission={"recibos.create"}>
+          <div className="right sixteen wide mobile five wide computer field">
+            <div className="field">
+              <h4 className="ui dividing header">Nuevo recibo:</h4>
+              <label>Fecha:</label>
+              <input
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={state.date}
+                type="date"
+                name="date"
+                placeholder="0.00"
+              />
+            </div>
             {errors.date && (
-            <span class="ui pointing red basic label">{errors.date}</span>
-          )}
-          <div className="field">
-            <label>Concepto:</label>
-            <input
-              className="ui fluid dropdown"
-              onChange={handleChange}
-              value={state.concept}
-              name="concept"
-            />
-          </div>
-          {errors.name && (
-            <span class="ui pointing red basic label">{errors.name}</span>
-          )}
-          <div className="field">
-            <label>Forma de pago:</label>
+              <span class="ui pointing red basic label">{errors.date}</span>
+            )}
+            <div className="field">
+              <label>Concepto:</label>
+              <input
+                className="ui fluid dropdown"
+                onChange={handleChange}
+                value={state.concept}
+                name="concept"
+              />
+            </div>
+            {errors.name && (
+              <span class="ui pointing red basic label">{errors.name}</span>
+            )}
+            <div className="field">
+              <label>Forma de pago:</label>
 
-            <select
-              class="ui dropdown"
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={state.paytype}
-              name="paytype"
-            >
-              <option value="">Opciones</option>
-              <option value="Efectivo">Efectivo</option>
-              <option value="Transferencia">Transferencia</option>
-              <option value="Tarjeta">Tarjeta</option>
-            </select>
-          </div>
-          {errors.paytype && (
-            <span class="ui pointing red basic label">{errors.paytype}</span>
-          )}
-          <div className="field">
-            <label>Por la cantidad ($):</label>
-            <div className="fields">
+              <select
+                class="ui dropdown"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={state.paytype}
+                name="paytype"
+              >
+                <option value="">Opciones</option>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Tarjeta">Tarjeta</option>
+              </select>
+            </div>
+            {errors.paytype && (
+              <span class="ui pointing red basic label">{errors.paytype}</span>
+            )}
+            <div className="field">
+              <label>Por la cantidad ($):</label>
+              <div className="fields">
+                <div className="sixteen wide field">
+                  <input
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={state.amount}
+                    type="text"
+                    name="amount"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+              {errors.amount && (
+                <span class="ui pointing red basic label">{errors.amount}</span>
+              )}
+              <label>Referencia:</label>
               <div className="sixteen wide field">
                 <input
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  value={state.amount}
+                  value={state.ref}
                   type="text"
-                  name="amount"
-                  placeholder="0.00"
+                  name="ref"
+                  placeholder="Referencia de pago"
                 />
               </div>
-            </div>
-            {errors.amount && (
-              <span class="ui pointing red basic label">{errors.amount}</span>
-            )}
-            <label>Referencia:</label>
-            <div className="sixteen wide field">
-              <input
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={state.ref}
-                type="text"
-                name="ref"
-                placeholder="Referencia de pago"
-              />
-            </div>
 
-            <div
-              className="ui green button"
-              onClick={(e) => {
-                saveTicket(e);
-              }}
-            >
-              Guardar recibo
-            </div>
-            <div
-              className="ui black button"
-              id={"cancel"}
-              onClick={(e) => {
-                TicketStore.setEditing(false);
-                setMn("tickets");
-              }}
-            >
-              Cancelar
+              <div
+                className="ui green button"
+                onClick={(e) => {
+                  saveTicket(e);
+                }}
+              >
+                Guardar recibo
+              </div>
+              <div
+                className="ui black button"
+                id={"cancel"}
+                onClick={(e) => {
+                  TicketStore.setEditing(false);
+                  setMn("tickets");
+                }}
+              >
+                Cancelar
+              </div>
             </div>
           </div>
-        </div>
+        </Can>
       </form>
     </>
   );

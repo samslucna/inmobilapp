@@ -24,53 +24,97 @@ import PaymentsIcon from "@mui/icons-material/Payments";
 import { Link } from "react-router-dom";
 import authStore from "../store/AuthStore";
 
-
 // Supongamos que este es tu arreglo de entrada
 const menuData = [
-   {
-      text: "Finanzas",
-      link: "#!",
-      permission: "reportes.read",
-      submenu: [
-        { text: "Contratos",permission: "reportes.read", link: "/contratos" ,icon: <HistoryEduIcon fontSize="small" /> }, // Crud Contratos
-        { text: "Recibos de Ingresos", link: "/recibos", permission: "reportes.read", icon: <PaymentsIcon variant="small"  /> }, // Captura los recibos
-        //{ text: "Estado de Cuenta", link: "/usuarios",icon: <RequestQuoteIcon variant="small" /> }, //Para los estados de cuenta de los clientes?
-      ],
-      icon: <MonetizationOnIcon variant="outline" />,
-    },
- 
-    {
-      text: "Catalogos",
-      link: "#!",
-      permission: "reportes.read",
-      submenu: [
-        { text: "Clientes", link: "clientes" ,permission: "reportes.read", icon: <PeopleAltIcon variant="small" /> },
-        { text: "Propietarios", permission: "reportes.read", link: "propietarios",icon: <PermIdentityIcon variant="small" /> },
-        { text: "Agentes", link: "agentes",permission: "reportes.read", icon: <AccountBoxIcon variant="small" /> },
-        { text: "Proyectos", link: "proyectos", permission: "reportes.read",icon: <AccountTreeTwoToneIcon variant="small" /> },
-        { text: "Lotes", link: "lotes",permission: "reportes.read", icon: <BorderAll variant="small" /> },
-        { text: "Usuarios", link: "usuarios", permission: "reportes.create", icon: <AccountCircleIcon variant="small" /> },
-        { text: "Roles", link: "roles", permission: "reportes.create",icon: <SupervisedUserCircleIcon variant="small" /> },
-      ],
-      icon: <ListAltIcon />,
-    },
-     {
-       text: "Reportes",
-       link: "#!",
-       permission: "reportes.read",
-       submenu: [
-         { text: "Lotes", link: "/reportelotes",permission: "reportes.read",icon: <BorderAll variant="small" /> },
-         //{ text: "Recibos", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
-         //{ text: "Ingresos", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
-         //{ text: "Ventas", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
+  {
+    text: "Finanzas",
+    link: "#!",
+    submenu: [
+      {
+        text: "Contratos",
+        permission: "contratos.read",
+        link: "/contratos",
+        icon: <HistoryEduIcon fontSize="small" />,
+      }, // Crud Contratos
+      {
+        text: "Recibos de Ingresos",
+        link: "/recibos",
+        permission: "recibos.read",
+        icon: <PaymentsIcon variant="small" />,
+      }, // Captura los recibos
+      //{ text: "Estado de Cuenta", link: "/usuarios",icon: <RequestQuoteIcon variant="small" /> }, //Para los estados de cuenta de los clientes?
+    ],
+    icon: <MonetizationOnIcon variant="outline" />,
+  },
 
-       ],
-       icon: <BarChart />,
-     },
-  ];
+  {
+    text: "Catalogos",
+    link: "#!",
+    submenu: [
+      {
+        text: "Clientes",
+        link: "clientes",
+        permission: "clientes.read",
+        icon: <PeopleAltIcon variant="small" />,
+      },
+      {
+        text: "Propietarios",
+        permission: "propietarios.read",
+        link: "propietarios",
+        icon: <PermIdentityIcon variant="small" />,
+      },
+      {
+        text: "Agentes",
+        link: "agentes",
+        permission: "agentes.read",
+        icon: <AccountBoxIcon variant="small" />,
+      },
+      {
+        text: "Proyectos",
+        link: "proyectos",
+        permission: "proyectos.read",
+        icon: <AccountTreeTwoToneIcon variant="small" />,
+      },
+      {
+        text: "Lotes",
+        link: "lotes",
+        permission: "lotes.read",
+        icon: <BorderAll variant="small" />,
+      },
+      {
+        text: "Usuarios",
+        link: "usuarios",
+        permission: "usuarios.create",
+        icon: <AccountCircleIcon variant="small" />,
+      },
+      {
+        text: "Roles",
+        link: "roles",
+        permission: "roles.create",
+        icon: <SupervisedUserCircleIcon variant="small" />,
+      },
+    ],
+    icon: <ListAltIcon />,
+  },
+  {
+    text: "Reportes",
+    link: "#!",
+    submenu: [
+      {
+        text: "Lotes",
+        link: "/reportelotes",
+        permission: "reportes.read",
+        icon: <BorderAll variant="small" />,
+      },
+      //{ text: "Recibos", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
+      //{ text: "Ingresos", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
+      //{ text: "Ventas", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
+    ],
+    icon: <BarChart />,
+  },
+];
 export default function Sidebar({ openSidebar }) {
-
-  const {Can} = authStore;
+  const { Can } = authStore;
 
   const menuItems = [
     { text: "Dashboard", link: "/dashboard", submenu: [], icon: <Dashboard /> },
@@ -111,16 +155,14 @@ export default function Sidebar({ openSidebar }) {
     },
   ];
 
-     const [open, setOpen] = useState({});
-   
-     const handleToggle = (text) => {
-       setOpen((prev) => ({
-         ...prev,
-         [text]: !prev[text],
-       }));
-     };
-   
-  
+  const [open, setOpen] = useState({});
+
+  const handleToggle = (text) => {
+    setOpen((prev) => ({
+      ...prev,
+      [text]: !prev[text],
+    }));
+  };
 
   return (
     <Drawer
@@ -145,25 +187,23 @@ export default function Sidebar({ openSidebar }) {
           <ListItemText primary={"Panel de Control"} />
         </ListItemButton>
         {menuData.map((item, index) => (
-          <React.Fragment key={index+1}>
-           
+          <React.Fragment key={index + 1}>
             {/* Elemento Principal */}
-            <Can permission={item.permission}>
-            <ListItemButton
-              onClick={() => (item.submenu ? handleToggle(item.text) : null)}
-
-            >
-              {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
-              <ListItemText primary={item.text} />
-              {item.submenu ? (
-                open[item.text] ? (
-                  <ExpandLess />
-                ) : (
-                  <ExpandMore />
-                )
-              ) : null}
-            </ListItemButton>
-            </Can>
+          
+              <ListItemButton
+                onClick={() => (item.submenu ? handleToggle(item.text) : null)}
+              >
+                {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
+                <ListItemText primary={item.text} />
+                {item.submenu ? (
+                  open[item.text] ? (
+                    <ExpandLess />
+                  ) : (
+                    <ExpandMore />
+                  )
+                ) : null}
+              </ListItemButton>
+        
 
             {/* Submenú desplegable (si existe) */}
             {item.submenu && (
@@ -171,21 +211,20 @@ export default function Sidebar({ openSidebar }) {
                 <List component="div" disablePadding>
                   {item.submenu.map((sub, subIndex) => (
                     <Can permission={sub.permission} key={subIndex}>
-                    <ListItemButton
-                      key={subIndex}
-                      sx={{ pl: 4 }}
-                      variant={Link}
-                      to={sub.link}
-                    >
-                      {sub.icon}
-                      <ListItemText primary={sub.text} />
-                    </ListItemButton>
+                      <ListItemButton
+                        key={subIndex}
+                        sx={{ pl: 4 }}
+                        variant={Link}
+                        to={sub.link}
+                      >
+                        {sub.icon}
+                        <ListItemText primary={sub.text} />
+                      </ListItemButton>
                     </Can>
                   ))}
                 </List>
               </Collapse>
             )}
-
           </React.Fragment>
         ))}
       </List>

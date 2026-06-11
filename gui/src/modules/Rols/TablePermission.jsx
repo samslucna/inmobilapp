@@ -9,11 +9,11 @@ import {
   Avatar,
   Box,
   Typography,
-  Grid,
   Alert,
   CircularProgress
 } from "@mui/material";
 import { observer } from "mobx-react-lite";
+import { Add } from "@mui/icons-material";
 import RolStore from "../../store/RolStore";
 import Checkets from "./Components/Ckeckets";
 
@@ -31,8 +31,17 @@ const TablePermission = observer(({ permission }) => {
 
   if (!permission || permission.length === 0) {
     return (
-      <Alert severity="info" sx={{ m: 2 }}>
-        No hay permisos configurados para este rol.
+      <Alert 
+        severity="info" 
+        icon={<Add />}
+        sx={{ m: 2 }}
+      >
+        <Typography variant="body1">
+          No hay módulos configurados para este rol.
+        </Typography>
+        <Typography variant="caption" color="textSecondary">
+          Agrega módulos usando el botón "Agregar módulo" en la columna izquierda.
+        </Typography>
       </Alert>
     );
   }
@@ -50,8 +59,8 @@ const TablePermission = observer(({ permission }) => {
           <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
             <TableRow>
               <TableCell width="5%">#</TableCell>
-              <TableCell width="25%">Módulo</TableCell>
-              <TableCell width="70%">Permisos</TableCell>
+              <TableCell width="30%">Módulo</TableCell>
+              <TableCell width="65%">Permisos</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

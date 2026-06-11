@@ -187,171 +187,88 @@ class RoleController extends Controller implements hasMiddleware
         return $permissions;
     }
 
-
-
-
-    public function updateRoles(Request $request)
+    // En RoleController.php - Agregar endpoint para obtener módulos
+    public function getAvailableModules()
     {
-        $request->validate([
-            'id' => 'required|exists:roles,id',
-            'name' => 'required|string|unique:roles,name,' . $request->id,
-            'permissions' => 'nullable|array'
+        // Puedes obtener los módulos desde una configuración o desde la BD
+        $modules = [
+            ['id' => 1, 'name' => 'usuarios', 'description' => 'Gestión de usuarios'],
+            ['id' => 2, 'name' => 'recibos', 'description' => 'Gestión de recibos'],
+            ['id' => 3, 'name' => 'lotes', 'description' => 'Administración de lotes'],
+            ['id' => 4, 'name' => 'limites', 'description' => 'Configuración de límites'],
+            ['id' => 5, 'name' => 'reportes', 'description' => 'Generación de reportes'],
+            ['id' => 6, 'name' => 'contratos', 'description' => 'Gestión de contratos'],
+            ['id' => 7, 'name' => 'clientes', 'description' => 'Administración de clientes'],
+            ['id' => 8, 'name' => 'agentes', 'description' => 'Gestión de agentes'],
+            ['id' => 9, 'name' => 'etapas', 'description' => 'Configuración de etapas'],
+            ['id' => 10, 'name' => 'manzanas', 'description' => 'Administración de manzanas'],
+            ['id' => 11, 'name' => 'proyectos', 'description' => 'Gestión de proyectos'],
+            ['id' => 12, 'name' => 'propietarios', 'description' => 'Gestión de propietarios'],
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $modules
         ]);
+    }
 
-        \Log::info('=== INICIO ACTUALIZACIÓN ROL ===');
-        \Log::info('Datos recibidos:', [
-            'role_id' => $request->id,
-            'role_name' => $request->name,
-            'permissions_count' => count($request->permissions ?? []),
-            'permissions_structure' => $request->permissions
-        ]);
 
-        DB::beginTransaction();
 
+    public function updateRole(Request $request)
+    {
         try {
             $role = Role::findOrFail($request->id);
 
-            // Actualizar nombre del rol
-            $role->update([
-                'name' => $request->name,
-                'guard_name' => 'web'
-            ]);
+            // Actualizar nombre
+            $role->name = $request->name;
+            $role->save();
 
-            \Log::info('Rol actualizado:', ['role' => $role->toArray()]);
-
-            // Construir array de nombres de permisos
-            $permissionNames = [];
-
-            // Verificar si vienen permisos en el request
-            if ($request->has('permissions') && is_array($request->permissions)) {
-                foreach ($request->permissions as $module) {
-                    // Verificar que el módulo tenga la estructura esperada
-                    if (!isset($module['module'])) {
-                        \Log::warning('Módulo sin nombre:', $module);
-                        continue;
-                    }
-
-                    $moduleName = $module['module'];
-
-                    // Verificar cada acción
-                    if (isset($module['create']) && filter_var($module['create'], FILTER_VALIDATE_BOOLEAN)) {
-                        $permissionNames[] = "{$moduleName}.create";
-                    }
-
-                    if (isset($module['read']) && filter_var($module['read'], FILTER_VALIDATE_BOOLEAN)) {
-                        $permissionNames[] = "{$moduleName}.read";
-                    }
-
-                    if (isset($module['update']) && filter_var($module['update'], FILTER_VALIDATE_BOOLEAN)) {
-                        $permissionNames[] = "{$moduleName}.update";
-                    }
-
-                    if (isset($module['delete']) && filter_var($module['delete'], FILTER_VALIDATE_BOOLEAN)) {
-                        $permissionNames[] = "{$moduleName}.delete";
-                    }
-                }
+            // Si no hay permisos, limpiar todos
+            if (empty($request->permissions)) {
+                $role->syncPermissions([]);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Permisos limpiados',
+                    'data' => ['id' => $role->id, 'name' => $role->name, 'permissions' => []]
+                ]);
             }
 
-            \Log::info('Permisos a sincronizar:', $permissionNames);
+            // Construir lista de permisos
+            $permissionList = [];
+            foreach ($request->permissions as $module) {
+                $moduleName = $module['module'];
 
-            // Primero, asegurar que los permisos existen en la base de datos
-            foreach ($permissionNames as $permName) {
+                if (!empty($module['create'])) $permissionList[] = "{$moduleName}.create";
+                if (!empty($module['read'])) $permissionList[] = "{$moduleName}.read";
+                if (!empty($module['update'])) $permissionList[] = "{$moduleName}.update";
+                if (!empty($module['delete'])) $permissionList[] = "{$moduleName}.delete";
+            }
+
+            // Crear permisos si no existen
+            foreach ($permissionList as $permName) {
                 \Spatie\Permission\Models\Permission::firstOrCreate([
                     'name' => $permName,
                     'guard_name' => 'web'
                 ]);
             }
 
-            // Sincronizar permisos
-            $role->syncPermissions($permissionNames);
-
-            // Verificar que se guardaron
-            $finalPermissions = $role->permissions->pluck('name')->toArray();
-            \Log::info('Permisos finales después de sync:', $finalPermissions);
-
-            DB::commit();
+            // Asignar permisos
+            $role->syncPermissions($permissionList);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Rol y permisos actualizados correctamente.',
+                'message' => 'Rol actualizado',
                 'data' => [
                     'id' => $role->id,
                     'name' => $role->name,
-                    'permissions' => $finalPermissions,
-                    'permissions_by_module' => $this->permissionsToModules($role)
+                    'permissions' => $role->getPermissionNames()
                 ]
-            ], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            \Log::error('Error al actualizar rol:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
             ]);
-
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al actualizar el rol: ' . $e->getMessage()
+                'message' => $e->getMessage()
             ], 500);
         }
     }
-
-    public function updateRole(Request $request)
-{
-    try {
-        $role = Role::findOrFail($request->id);
-        
-        // Actualizar nombre
-        $role->name = $request->name;
-        $role->save();
-        
-        // Si no hay permisos, limpiar todos
-        if (empty($request->permissions)) {
-            $role->syncPermissions([]);
-            return response()->json([
-                'success' => true,
-                'message' => 'Permisos limpiados',
-                'data' => ['id' => $role->id, 'name' => $role->name, 'permissions' => []]
-            ]);
-        }
-        
-        // Construir lista de permisos
-        $permissionList = [];
-        foreach ($request->permissions as $module) {
-            $moduleName = $module['module'];
-            
-            if (!empty($module['create'])) $permissionList[] = "{$moduleName}.create";
-            if (!empty($module['read'])) $permissionList[] = "{$moduleName}.read";
-            if (!empty($module['update'])) $permissionList[] = "{$moduleName}.update";
-            if (!empty($module['delete'])) $permissionList[] = "{$moduleName}.delete";
-        }
-        
-        // Crear permisos si no existen
-        foreach ($permissionList as $permName) {
-            \Spatie\Permission\Models\Permission::firstOrCreate([
-                'name' => $permName,
-                'guard_name' => 'web'
-            ]);
-        }
-        
-        // Asignar permisos
-        $role->syncPermissions($permissionList);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Rol actualizado',
-            'data' => [
-                'id' => $role->id,
-                'name' => $role->name,
-                'permissions' => $role->getPermissionNames()
-            ]
-        ]);
-        
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage()
-        ], 500);
-    }
-}
 }

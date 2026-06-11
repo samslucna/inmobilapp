@@ -47,6 +47,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
   Route::get('/logout', [AuthController::class, 'logout']);
   Route::get('/users/search', [UserController::class, 'search']);
   Route::apiResource('/users', UserController::class);
+  Route::put('users/{id}/toggle-status', [UserController::class, 'toggleStatus']);
+  Route::get('users/by-role/{roleId}', [UserController::class, 'getByRole']);
 
 
   Route::get('/properties/search', [PropertyController::class, 'search']);

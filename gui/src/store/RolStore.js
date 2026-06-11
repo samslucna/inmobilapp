@@ -310,17 +310,24 @@ class RolStore {
     }
   };
   // 🔑 MÉTODO CORREGIDO: Guardar rol (crear o actualizar)
+  // En RolStore.js - Mejorar el método addRol
   addRol = async (data) => {
     this.setSaving(true);
 
     try {
+      let response;
+
       // Para actualización (tiene ID)
-      if (data.id !== null && data.id !== undefined) {
-        const response = await updateBdRol("roles/update", data);
+      if (data.id && data.id !== null) {
+        response = await updateBdRol("roles/update", {
+          id: data.id,
+          name: data.name,
+          permissions: data.permissions,
+        });
 
         if (response && response.success) {
           Swal.fire({
-            title: "Guardado",
+            title: "Actualizado",
             text: "El rol se actualizó correctamente",
             icon: "success",
             timer: 1500,
@@ -333,9 +340,9 @@ class RolStore {
               name: "",
               guard_name: "web",
             });
+            this.setPermissions([]);
             this.setHiddenForm(false);
             this.setEditing(false);
-            this.setPermissions([]);
           });
 
           await this.loadRols();
@@ -345,7 +352,7 @@ class RolStore {
       // Para creación (sin ID)
       else {
         const result = await Swal.fire({
-          title: "¿Desea guardar los cambios?",
+          title: "¿Desea guardar el rol?",
           text: "Esta acción registrará un nuevo Rol.",
           icon: "warning",
           showCancelButton: true,
@@ -356,7 +363,10 @@ class RolStore {
         });
 
         if (result.isConfirmed) {
-          const response = await updateBd("roles", data);
+          response = await createBd("roles", {
+            name: data.name,
+            permissions: data.permissions,
+          });
 
           Swal.fire({
             title: "Registrado",
@@ -372,6 +382,7 @@ class RolStore {
               name: "",
               guard_name: "web",
             });
+            this.setPermissions([]);
             this.setHiddenForm(false);
             this.setEditing(false);
           });
