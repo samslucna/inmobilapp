@@ -31,6 +31,8 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Style\Color;
+use Illuminate\Support\Facades\Log;
+use App\Jobs\ImportTicketsJob;
 
 class XlsController extends Controller
 {
@@ -158,8 +160,8 @@ class XlsController extends Controller
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->setCellValue('A1', 'Motsakki-Tju ');
         $sheet->getStyle('A1')->getFont()->setName('Arial')->setSize(14)->setBold(true);
-        
 
+ 
         // Título del Reporte
         $sheet->mergeCells('A2:H2');
         $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -488,23 +490,70 @@ class XlsController extends Controller
 
     public function importTickets(Request $request)
     {
-        //dd($request);
-        // Validate the uploaded file
+
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls',
+            'file' => 'required|mimes:xlsx,xls,csv|max:102400',
         ]);
 
-        // Get the uploaded file
-        $file = $request->file('file');
+        try {
+            $import = new TicketsImport();
 
-        // Process the Excel file
-        Excel::import(new TicketsImport, $file);
+            // Configurar límites
+            set_time_limit(300);
+            ini_set('memory_limit', '2G');
 
-        $response['message'] = "Importacion satisfactoria";
-        $response['success'] = true;
+            // Importar con el chunk configurado
+            Excel::import($import, $request->file('file'));
 
-        return $response;
+            $summary = $import->getSummary();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Importación completada',
+                'data' => $summary
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error en importación: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al importar: ' . $e->getMessage()
+            ], 500);
+        }
     }
+
+     /**
+     * Importación con Job en background para 1000+ registros
+     */
+    public function importBackground(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:102400',
+        ]);
+
+        try {
+            $filePath = $request->file('file')->store('imports/tickets');
+            
+            // Despachar Job
+            dispatch(new ImportTicketsJob($filePath));
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'La importación se está procesando en segundo plano',
+                'file' => $filePath
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al iniciar importación: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
     public function exportTickets()
     {
         //

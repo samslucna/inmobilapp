@@ -27,9 +27,15 @@ class DashboardController extends Controller
                 DB::raw("COUNT(CASE WHEN status = 'vendido' THEN 1 END) AS TotalVendidos"),
             );
 
-        $paymonth = DB::table('tickets')->selectRaw("DATE_FORMAT(date, '%Y-%m') AS mes, COUNT(id) AS cantidad")
-            ->groupByRaw("DATE_FORMAT(date, '%Y-%m')")
-            ->orderBy('mes', 'ASC');
+        $paymonth = DB::table('tickets')
+        ->selectRaw("
+            YEAR(date) AS anio, 
+            MONTH(date) AS mes_numero, 
+            COUNT(amount) AS cantidad
+        ")
+        ->groupByRaw("YEAR(date), MONTH(date)")
+        ->orderBy('anio', 'ASC')
+        ->orderBy('mes_numero', 'ASC'); // Ejecuta la consulta y obtiene la colección
 
         $stageandblock = DB::table('properties AS p')
             ->join('blocks AS b', 'p.block_id', '=', 'b.id')
@@ -46,11 +52,12 @@ class DashboardController extends Controller
             ->orderBy('s.name', 'ASC')->get();
 
 
-        //dd($stageandblock);
+        
 
         $dashboard = $query->get();
         $dashboard[0]->paymonth = $paymonth->get();
         $dashboard[0]->stagesproperties = $stageandblock;
+        //dd($dashboard);
 
 
         return new JsonResponse($dashboard);

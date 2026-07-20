@@ -34,7 +34,7 @@ export default function SearchViewContract({btnMn}) {
         case "srchContract":
           setDatas([]);
           let contracts = await seachQueryData("contracts", value);
-          setDatas(contracts);
+          setDatas(contracts.data);
           break;
         default:
           setDatas([]);
@@ -74,11 +74,11 @@ export default function SearchViewContract({btnMn}) {
         </Button>
    
       </ButtonGroup>
-        <div class="ui centered grid">
-          <div class=" row">
+        <div className="ui centered grid">
+          <div className=" row">
            
-            <div class="column">
-              <div class="ui category search">
+            <div className="column">
+              <div className="ui category search">
                 <Autocomplete
                   sx={{ marginBottom: 2 }}
                   key={"contracts"}
@@ -117,15 +117,15 @@ export default function SearchViewContract({btnMn}) {
                   )}
                 />
               </div>
-              <div class="ui right dropdown  srchticket item">
-                <div class="menu ">
+              <div className="ui right dropdown  srchticket item">
+                <div className="menu ">
                   {queryTable !== []
                     ? queryTable.map((data) => {
                         return (
                           <div
                             key={"cr" + data.id}
                             id={"cr" + data.id}
-                            class="item"
+                            className="item"
                           >
                             {data.id + " - " + data.buyer.cliente}
                           </div>
@@ -137,18 +137,18 @@ export default function SearchViewContract({btnMn}) {
             </div>
           </div>
 
-          <div class=" row">
-            <div class="sixteen wide column">
-              <div class="ui centered fluid card">
-                <div class="content">
-                  <form class="ui form">
-                    <h3 class="ui dividing header">Capturar Recibo</h3>
-                    <div class="field">
-                      <div class="two fields">
-                        <div class="field">
-                          <div class="two fields">
+          <div className=" row">
+            <div className="sixteen wide column">
+              <div className="ui centered fluid card">
+                <div className="content">
+                  <form className="ui form">
+                    <h3 className="ui dividing header">Capturar Recibo</h3>
+                    <div className="field">
+                      <div className="two fields">
+                        <div className="field">
+                          <div className="two fields">
                             <div className="field">
-                              <h4 class="ui dividing header">
+                              <h4 className="ui dividing header">
                                 Datos del cliente:
                               </h4>
                               {ContractStore.contract?.buyer != undefined ? (
@@ -165,7 +165,7 @@ export default function SearchViewContract({btnMn}) {
                               ) : null}
                             </div>
                             <div className="field">
-                              <h4 class="ui dividing header">
+                              <h4 className="ui dividing header">
                                 Datos del Lote:
                               </h4>
                               {ContractStore.contract?.buyer != undefined ? (
@@ -182,12 +182,12 @@ export default function SearchViewContract({btnMn}) {
                               ) : null}
                             </div>
                             <div className="field">
-                              <h4 class="ui dividing header">
+                              <h4 className="ui dividing header">
                                 Resumen de Cuenta:
                               </h4>
                               {ContractStore.contract?.buyer != undefined ? (
                                 <div>
-                                  <div class="two fields">
+                                  <div className="two fields">
                                     <div className="field">
                                       <label>Costo: </label>
                                       <p>
@@ -231,8 +231,8 @@ export default function SearchViewContract({btnMn}) {
                         </div>
 
                         <div className="two wide field"></div>
-                        <div class="field">
-                          <h4 class="ui dividing header">Recibos:</h4>
+                        <div className="field">
+                          <h4 className="ui dividing header">Recibos:</h4>
                           <div className="field">
                      
                             <ModalDoc
@@ -264,10 +264,10 @@ export default function SearchViewContract({btnMn}) {
                   {/*Aqui ver ticket */}
                 </div>
 
-                <div class="extra content">
-                  <span class="right floated">Joined in 2013</span>
+                <div className="extra content">
+                  <span className="right floated">Joined in 2013</span>
                   <span>
-                    <i class="user icon"></i>
+                    <i className="user icon"></i>
                     75 Friends
                   </span>
                 </div>

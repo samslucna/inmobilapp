@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
+            $table->integer('number');
             $table->string('concept');
             $table->double('amount',14,5);
             $table->date('date');
@@ -20,6 +21,7 @@ return new class extends Migration
             $table->unsignedBigInteger('contract_id')->nullable();
             $table->foreign('contract_id')
                 ->references('id')->on('contracts')->onDelete('set null')->onUpdate('cascade');
+            $table->string('ref');
             $table->timestamps();
         });
     }   

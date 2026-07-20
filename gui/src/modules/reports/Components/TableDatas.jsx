@@ -54,9 +54,9 @@ const TableDatas = observer(({ list }) => {
         </thead>
         <tbody>
           {list !== [] && list !== undefined
-            ? list.map((data) => {
+            ? list.map((data,i) => {
                 return (
-                  <tr key={"r" + data.id}>
+                  <tr key={i}>
                     <td>{data.id}</td>
                     <td>{data.name}</td>
 

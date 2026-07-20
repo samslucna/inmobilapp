@@ -90,7 +90,7 @@ const menuData = [
       {
         text: "Roles",
         link: "roles",
-        permission: "roles.create",
+        permission: "usuarios.create",
         icon: <SupervisedUserCircleIcon variant="small" />,
       },
     ],
@@ -106,7 +106,7 @@ const menuData = [
         permission: "reportes.read",
         icon: <BorderAll variant="small" />,
       },
-      //{ text: "Recibos", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
+      { text: "Agentes",permission: "reportes.read", link: "/reporteagentes",icon: <PeopleAltIcon variant="small" /> },
       //{ text: "Ingresos", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
       //{ text: "Ventas", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
     ],

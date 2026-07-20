@@ -74,6 +74,7 @@ class AgentStore {
 
       this.setPagination(data);
       this.setAgents(data.data);
+      return data;
     } catch (error) {
       console.log(error);
     }

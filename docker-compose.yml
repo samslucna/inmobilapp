@@ -16,6 +16,7 @@ services:
       - MARIADB_ROOT_PASSWORD=toor
       - MARIADB_PASSWORD=toor
       - MARIADB_DATABASE=InmobilApDB
+      
     networks:
       - Apnet
 
@@ -39,6 +40,13 @@ services:
     volumes:
       - ./api:/var/www/
       - ./api/public/:/var/www/html/
+      
+    environment:
+      - PHP_MEMORY_LIMIT=2G
+      - PHP_MAX_EXECUTION_TIME=3600
+      - PHP_MAX_INPUT_TIME=3600
+      - PHP_POST_MAX_SIZE=2G
+      - PHP_UPLOAD_MAX_FILESIZE=2G
     ports:
       - 8080:80
     networks:

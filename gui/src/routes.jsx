@@ -18,6 +18,7 @@ import FinanzasPage from "./modules/finances";
 import ReportesPage from "./modules/reports";
 import UsersPage from "./modules/users";
 import ReporteLotes from "./modules/reports/Lots";
+import ReporteAgentes from "./modules/reports/Agents";
 
 
 export const router = createBrowserRouter([
@@ -65,6 +66,7 @@ export const router = createBrowserRouter([
       { path: "recibos", element: <TicketsPage /> },
 
       { path: "reportelotes", element: <ReporteLotes /> },
+      { path: "reporteagentes", element: <ReporteAgentes /> },
     ]
   }
 ]);

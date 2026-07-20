@@ -73,7 +73,9 @@ export default function LoginPage() {
       
       res.data.permissions = res.permissions; // Asegúrate de que el rol tenga permisos
 
-      await login(res.token, res.data);
+      console.log(res)
+
+      await login(res.access_token, res.data);
       navigate('/dashboard');
       
 

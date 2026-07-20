@@ -4,7 +4,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>test</title>
+    <title>Recibo de prueba</title>
 
     <style>
         /* spacing */
@@ -69,7 +69,7 @@
 <body>
 
     <p class="title">{{ strtoupper($data['title']) }}</p>
-    <p class="subtitle">SEGUNDA ETAPA</p>
+    <p class="subtitle">{{$data['etapa']}}</p>
     <p class="subtitle">{{ strtoupper($data['place']) }}</p>
 
 
@@ -232,7 +232,7 @@
 
 
 
-                <p class="sutext">{{ strtoupper($data['adreessbuyer']) }}</p>
+                <p class="sutext">{{ strtoupper($data['addressbuyer']) }}</p>
 
             </td>
 

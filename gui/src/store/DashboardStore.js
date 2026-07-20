@@ -37,8 +37,7 @@ class DashboardStore {
   async loadDashboard() {
     const response = await getAllBd("dashboard");
 
-    const getMonths = this.formatMonth(response[0].paymonth);
-    response[0].paymonth = getMonths;
+    
     this.setDatas(response);
 
     return response;

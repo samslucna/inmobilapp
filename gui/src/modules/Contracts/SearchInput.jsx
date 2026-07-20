@@ -53,7 +53,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function SearchInput() {
   const {Can} = authStore;
   return (
-    <Toolbar sx={{ mb: 2 }}>
+    <Toolbar >
       <Typography
         variant="h6"
         noWrap
@@ -62,32 +62,6 @@ export default function SearchInput() {
       ></Typography>
       {ContractStore.hiddenForm ? null : (
         <>
-          <Box display="flex" justifyContent="flex-start" mb={2}>
-            <Can permission ={'contratos.create'}>
-            <Button
-              variant="contained"
-              onClick={() => {
-                ContractStore.setContract({
-                  id: null,
-                  buyer_id: "",
-                  seller_id: "",
-                  agent_id: "",
-                  property_id: "",
-                  plazo: "",
-                  paytype: "",
-                  ref: "",
-                  date: "",
-                  advance: "$ 0.00",
-                });
-
-                ContractStore.setHiddenForm(true);
-              }}
-              sx={{ mb: 2 }}
-            >
-              +Contrato
-            </Button>
-            </Can>
-          </Box>
           <Search sx={{ background: "#f5f5f5", mb: 4 }}>
             <SearchIconWrapper>
               <SearchIcon />

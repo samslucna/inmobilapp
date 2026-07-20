@@ -5,6 +5,7 @@ import {
   TextField,
   DialogActions,
   Alert,
+  Autocomplete,
   Typography,
   Grid,
 } from "@mui/material";
@@ -20,11 +21,14 @@ import useSaveSub from "../../hooks/useSaveSub";
 import ProjectStore from "../../store/ProjectStore";
 import StageStore from "../../store/StageStore";
 import { observer } from "mobx-react-lite";
-import TableDatas from "./Components/TableDatas";
+import TableDatasAgent from "./Components/TableDatasAgent";
 import Checkets from "./Components/Ckeckets";
 import SearchByDate from "./SearchByDate";
+import AgentStore from "../../store/AgentStore";
+import ContractStore from "../../store/ContractStore";
 
 const Agents = observer(() => {
+  const { agent, setAgent, agents, setAgents, seachQueryData } = AgentStore;
   const [data, setData] = useState({
     projects: [],
     stages: [],
@@ -36,107 +40,73 @@ const Agents = observer(() => {
     stage: "",
     block: "",
   });
-  
-  const { state, errors, setState, handleChange, handleSubmit, handleBlur } =
-    useSaveSub(ReportStore.report, propertyValidate, ReportStore.addReport);
 
-  const { id, block_id, project_id, stage_id, dates, status } = state;
-
-  const saveProperty = async (e) => {
-    setState(data);
-    handleSubmit(e);
-  };
-
-  const onChangeSelector = async (e) => {
-    const { name, value } = e.target;
-
-    if (name === "project_id") {
-      let projects = data.projects;
-
-      projects = projects.filter((project) => project.id === value);
-
-      let stages = projects[0].stages;
-      let blocks = await BlocksStore.getBlocksByStage(stages[0].id);
-
-      if (stages[0].name !== "Todas las etapas") {
-        stages.unshift({
-          id: 0,
-          name: "Todas las etapas",
-          project_id: projects[0].id,
-        });
-      }
-
-      blocks.unshift({
-        id: 0,
-        name: "Todas las manzanas",
-        stage_id: 0,
-      });
-
-      let optsel = {
-        project: projects[0].id,
-        stage: stages[0].id,
-        block: projects[0].stages[0].id,
-      };
-
-      setSelected(optsel);
-      setData({ ...data, stages: projects[0].stages });
-    }
-    if (name === "stage_id") {
-      let blocks = await BlocksStore.getBlocksByStage(value);
-      blocks.unshift({
-        id: 0,
-        name: "Todas las manzanas",
-        stage_id: 0,
-      });
-      try {
-        let optsel = {
-          project: selected.project,
-          stage: value,
-          block: blocks[0].id,
-        };
-        setSelected(optsel);
-        setData({ ...data, blocks: blocks });
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    if (name === "block_id") {
-      let optsel = {
-        project: selected.project,
-        stage: selected.stage,
-        block: value,
-      };
-      setSelected(optsel);
-      setState({ ...state, block_id: optsel.block });
-    }
-
-    handleChange(e);
-  };
+  const [searchEdit, setSearchEdit] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [contracts, setContracts] = useState([]);
 
   const filterReports = async (e) => {
     e.preventDefault();
-    
     try {
+      setLoading(true);
       let filters = {
-        project_id: selected.project,
-        stage_id: selected.stage,
-        block_id: selected.block,
-        dates: ReportStore.rangeDate,
-        status: ReportStore.checkboxes,
+        search: "",
+        status: "",
+        paytype: "",
+        date_from: "",
+        date_to: "",
+        agent_id: agent ? agent?.id : "",
+        project_id: agent ? agent?.id : "",
+        stage_id: agent ? agent?.id : "",
+        block_id: agent ? agent?.id : "",
+        dates: ReportStore.rangeDate ? ReportStore.rangeDate : "",
+        status: ReportStore.checkboxes ? ReportStore.checkboxes : "",
       };
 
-      ReportStore.setFilter(filters);
+      ReportStore.setFilters(filters);
+      const res = await ReportStore.filterByAgents(filters);
 
-      await ReportStore.filterByLots(filters);
+      ReportStore.setPagination(res);
+      ReportStore.setReports(res.data);
+      setLoading(false);
     } catch (error) {
       console.log(error);
+      setLoading(false);
+    }
+  };
+
+  const searchBy = async (e, result) => {
+    e.preventDefault();
+    const { name, value } = e.target || result;
+
+    setSearchEdit(name);
+
+    let error = "";
+
+    if (value !== "" && value !== undefined) {
+      switch (name) {
+        case "srchagent":
+          setAgents([]);
+          const agentes = await seachQueryData("agents", value);
+          if (!value) error = "Seleccione un agente";
+          setAgents(agentes);
+          break;
+      }
     }
   };
 
   useEffect(() => {
     const init = async () => {
       try {
+        let agents = await AgentStore.loadAgents();
+
+        agents.data.unshift({
+          id: 0,
+          name: "Todos",
+          lastnames: "los agentes",
+        });
+
+        setAgent(agents.data[0]);
         let projecs = await ProjectStore.loadProjects();
         let blocks = await BlocksStore.getBlocks();
 
@@ -171,9 +141,7 @@ const Agents = observer(() => {
           stage: stages[0]?.id,
           block: parseInt(blocks[0]?.id),
         };
-        setState({ ...state, project_id: selectOpt.projecs });
-        setState({ ...state, stage_id: selectOpt.stage });
-        setState({ ...state, block_id: selectOpt.block });
+    
         setData(projectStage);
         setSelected(selectOpt);
       } catch (error) {
@@ -189,44 +157,50 @@ const Agents = observer(() => {
       <Box>
         <Card size={{ xs: "100%", md: "70%" }} sx={{ p: 4, m: "0 auto" }}>
           <Typography variant="h6" sx={{ mb: 2 }}>
-            Reportes de lotes
+            Reportes de Agentes
           </Typography>
 
           <Grid spacing={2}>
             <Grid container size={{ xs: 12, md: 12 }}>
-              <Grid size={{ xs: 12, md: 2 }}>
-                <Selector
-                  datas={data.projects}
-                  label={"Proyecto"}
-                  name={"project_id"}
-                  value={selected.project}
-                  onChange={onChangeSelector}
-                  blur={handleBlur}
-                />
-              </Grid>
-              <Grid container size={{ xs: 12, md: 2 }}>
-                <Selector
-                  key={"stages"}
-                  datas={data.stages}
-                  label={"Etapa"}
-                  name={"stage_id"}
-                  value={selected.stage}
-                  onChange={onChangeSelector}
-                  blur={handleBlur}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, md: 1 }}>
-                <Selector
-                  datas={data.blocks}
-                  label={"Manzana"}
-                  name={"block_id"}
-                  value={selected.block}
-                  onChange={onChangeSelector}
-                  blur={handleBlur}
+              <Grid size={{ xs: 12, md: 3 }}>
+                <Autocomplete
+                  sx={{ marginBottom: 2 }}
+                  key={"agente"}
+                  options={agents}
+                  value={agent}
+                  getOptionLabel={(option) => {
+                    try {
+                      return (
+                        option?.id +
+                        ".- " +
+                        option?.name +
+                        " " +
+                        option?.lastnames
+                      );
+                    } catch (error) {
+                      console.log(error);
+                    }
+                  }}
+                  onChange={(e, newValue) => {
+                    if (e.currentTarget !== undefined) {
+                      // Muestra el valor seleccionado
+
+                      setAgent(newValue);
+                    }
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      onChange={searchBy}
+                      name={"srchclient"}
+                      label="Agente"
+                      fullWidth
+                    />
+                  )}
                 />
               </Grid>
 
-              <Grid size={{ xs: 12, md: 3 }} sx={{ mt: 2 }}>
+              <Grid size={{ xs: 12, md: 4 }} sx={{ mt: 2 }}>
                 <Checkets data={ReportStore.checkboxes} />
               </Grid>
               <Grid size={{ xs: 12, md: 2 }} sx={{ mt: 2 }}>
@@ -235,7 +209,7 @@ const Agents = observer(() => {
             </Grid>
           </Grid>
         </Card>
-        <TableDatas list={ReportStore.reports} />
+        <TableDatasAgent list={ReportStore.reports} loading={loading} />
       </Box>
     </>
   );

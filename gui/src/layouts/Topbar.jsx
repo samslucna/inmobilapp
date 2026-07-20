@@ -25,7 +25,7 @@ import authStore from "../store/AuthStore";
 export default function Topbar({ setOpenSidebar, openSidebar }) {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [openM, setOpenM] =useState(false)
+  const [openM, setOpenM] = useState(false);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -44,24 +44,6 @@ export default function Topbar({ setOpenSidebar, openSidebar }) {
       }}
     >
       <Toolbar>
-        <IconButton
-          color="inherit"
-          onClick={() => setOpenSidebar(!openSidebar)}
-        >
-          {openSidebar ? <MenuOpenIcon /> : <MenuIcon />}
-        </IconButton>
-        <Typography
-          variant="h6"
-          sx={{
-            fontFamily: "monospace",
-            fontWeight: 600,
-            mr: 4,
-          }}
-          onClick={() => setOpenSidebar(!openSidebar)}
-        >
-          Motsakki-Tju ERP
-        </Typography>
-
         <Box
           sx={{
             display: "flex",
@@ -69,13 +51,36 @@ export default function Topbar({ setOpenSidebar, openSidebar }) {
             backgroundColor: "#ffffff",
             borderRadius: 2,
             px: 2,
-            width: 350,
           }}
-        ></Box>
+        >
+          <Typography
+            variant="h6"
+            sx={{
+              fontFamily: "monospace",
+              fontWeight: 400,
+              color: "black",
+              mr: 2,
+            }}
+            onClick={() => setOpenSidebar(!openSidebar)}
+          >
+            <IconButton
+              color="inherit"
+              onClick={() => setOpenSidebar(!openSidebar)}
+            >
+              {openSidebar ? <MenuOpenIcon /> : <MenuIcon />}
+            </IconButton>
+            Motsakki-Matju ERP
+          </Typography>
+        </Box>
 
         <Box sx={{ flexGrow: 1 }} />
 
-         <Button sx={{ width: 32, height: 32 ,background:'#b82424',color:'white' }} onClick={() => authStore.logout()}>Salir</Button>
+        <Button
+          sx={{ width: 32, height: 32, background: "#b82424", color: "white" }}
+          onClick={() => authStore.logout()}
+        >
+          Salir
+        </Button>
       </Toolbar>
     </AppBar>
   );

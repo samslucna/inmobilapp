@@ -12,10 +12,10 @@ import Fade from "@mui/material/Fade";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import ClearIcon from "@mui/icons-material/Clear";
 import { styled } from "@mui/material/styles";
-import PropertyStore from "../../store/PropertyStore";
 import { useImportExcel } from "../../hooks/useImportExcel";
 import { Toaster } from "react-hot-toast";
 import ToastStore from "../../store/ToastStore";
+import TicketStore from "../../store/TicketStore";
 
 // Estilo para ocultar el input real pero mantenerlo funcional
 const VisuallyHiddenInput = styled("input")({
@@ -47,13 +47,13 @@ const ImportInput = ({ btnMnSearch, btnMn }) => {
 
   const imporBtn = async (e) => {
     try {
-      await importExcel(fileName, PropertyStore.importXlsProperties);
+      await importExcel(fileName, TicketStore.importXlsTickets);
       deleteFileHandle(e);
     } catch (error) {
       console.log(error);
     }
   };
-
+ 
   const validateAndSetFile = (file) => {
     const validTypes = [
       "application/vnd.ms-excel",
@@ -80,7 +80,7 @@ const ImportInput = ({ btnMnSearch, btnMn }) => {
 
     setFileName(file.name);
     // Aquí puedes procesar el archivo
-    PropertyStore.setUrlImp(file);
+    TicketStore.setUrlImp(file);
     ToastStore.showSuccess(`Archivo seleccionado: ${file.name}`);
     return true;
   };
@@ -89,7 +89,7 @@ const ImportInput = ({ btnMnSearch, btnMn }) => {
     e.preventDefault();
     if (fileName !== "") {
       setFileName("");
-      PropertyStore.setUrlImp("");
+      TicketStore.setUrlImp("");
     }
   };
 

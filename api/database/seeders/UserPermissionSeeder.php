@@ -25,6 +25,8 @@ class UserPermissionSeeder extends Seeder
         // Permisos completos para admin en todos los módulos
         $modules = [
             'usuarios',
+            'audit',
+            'dashboard',
             'propietarios',
             'recibos',
             'lotes',

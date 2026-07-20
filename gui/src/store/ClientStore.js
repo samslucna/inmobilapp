@@ -76,6 +76,7 @@ class ClientStore {
 
       this.setPagination(data);
       this.setClients(data.data);
+      
     } catch (error) {
       console.log(error);
     }

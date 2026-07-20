@@ -12,6 +12,8 @@ import StageInventoryChart from "./components/charts/StageInventoryChart";
 
 import BlockInventoryChart from "./components/charts/BlockInventoryChart";
 import PieChartInGrid from "./components/charts/PieChartInGrid";
+import AuditLogsPage from "./AuditLogPage";
+import authStore from "../../store/AuthStore";
 
 const data = [
   {
@@ -41,6 +43,7 @@ const data = [
 ];
 
 export default function Dashboard() {
+  const { Can } = authStore;
   const [stats, setStats] = useState({
     Totales: 0,
     TotalDisponibles: 0,
@@ -107,12 +110,14 @@ export default function Dashboard() {
         </Grid>
 
         <Grid size={{ xs: 12, lg: 6 }} sx={{ mt: 3 }}>
-          <PaymentsMonthlyChart
-            data={stats.paymonth}
-          />
+          <PaymentsMonthlyChart data={stats.paymonth !== undefined ? stats.paymonth: []} />
         </Grid>
 
-        <Grid size={{ xs: 12, lg: 12 }}></Grid>
+        <Grid size={{ xs: 12, lg: 12 }}>
+          <Can permission={"audit.read"}>
+            <AuditLogsPage />
+          </Can>
+        </Grid>
       </Grid>
     </>
   );

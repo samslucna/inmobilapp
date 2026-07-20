@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import { styled, alpha } from "@mui/material/styles";
 import Pagination from "@mui/material/Pagination";
 import { useState, Fragment, useEffect } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, CircularProgress, Paper, Grid } from "@mui/material";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import Button from "@mui/material/Button";
 import TicketStore from "../../store/TicketStore";
@@ -12,10 +12,12 @@ import AgentStore from "../../store/AgentStore";
 import ClientStore from "../../store/ClientStore";
 import PropertyStore from "../../store/PropertyStore";
 import PropertaryStore from "../../store/PropertaryStore";
+import DataTablePagination from "./DataTablePagination";
 import changeFormat from "../../helper/changeFormat";
 import ContractStore from "../../store/ContractStore";
 import ModalDocIcon from "./ModalDocIcon";
 import authStore from "../../store/AuthStore";
+import usePagination from "../../hooks/usePagination";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -59,11 +61,24 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-const TableData = observer(({ datasTable }) => {
+const TableData = observer(({ datasTable, loading: externalLoading }) => {
   const { Can } = authStore;
   const [list, setList] = useState([]);
   const [mn, setMn] = useState("");
   const [edit, setEdit] = useState(null);
+  const [filters, setFilters] = useState({
+    search: "",
+    status: "",
+    paytype: "",
+    date_from: "",
+    date_to: "",
+  });
+  const [selectedContract, setSelectedContract] = useState(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [orderBy, setOrderBy] = useState("id");
+  const [order, setOrder] = useState("desc"); 
+  const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(null);
 
   const handleDelete = async (id) => {
     const resp = await Swal.fire({
@@ -93,10 +108,9 @@ const TableData = observer(({ datasTable }) => {
 
   const handleChange = (e, value) => {
     TicketStore.handlePaginationChange(value);
-  };
+  }; 
 
   const goEdit = async (ticket) => {
-    console.log(ticket.contract_id);
     const contract = await ContractStore.showContract(
       "contracts",
       ticket.contract_id,
@@ -120,16 +134,27 @@ const TableData = observer(({ datasTable }) => {
     //setInptUpd(true);
   };
 
-  //  useEffect(()=>{
-  //
-  //    const updateContract = async ()=>{
-  //
-  //      const contract = await ContractStore.showContract('constracts',edit)
-  //
-  //    }
-  //    updateContract()
-  //
-  //  },[goEdit])
+  const {
+    page,
+    rowsPerPage,
+    totalCount,
+    totalPages,
+    from,
+    to,
+    handlePageChange,
+    handleRowsPerPageChange,
+  } = usePagination(TicketStore, TicketStore.loadTickets);
+
+  const isLoading = externalLoading || loading;
+
+  if (isLoading && (!datasTable || datasTable.length === 0)) {
+    return (
+      <Paper sx={{ p: 3, textAlign: "center" }}>
+        <CircularProgress size={40} />
+        <Typography sx={{ mt: 2 }}>Cargando recibos...</Typography>
+      </Paper>
+    );
+  }
 
   return (
     <Fragment>
@@ -176,15 +201,15 @@ const TableData = observer(({ datasTable }) => {
                                 </button>
                               </Can>
                               <Can permission={"recibos.update"}>
-                              <button className="ui  button">
-                                <i
-                                  id={"edit" + data.id}
-                                  onClick={(e) => {
-                                    goEdit(data);
-                                  }}
-                                  className="edit blue icon"
-                                ></i>
-                              </button>
+                                <button className="ui  button">
+                                  <i
+                                    id={"edit" + data.id}
+                                    onClick={(e) => {
+                                      goEdit(data);
+                                    }}
+                                    className="edit blue icon"
+                                  ></i>
+                                </button>
                               </Can>
                               <ModalDocIcon
                                 data={data}
@@ -201,15 +226,34 @@ const TableData = observer(({ datasTable }) => {
               </tbody>
               <tfoot>
                 <tr align="center">
-                  <td colSpan={6}>
+                  <td colSpan={5}>
                     <div className="ui divider"></div>
-                    <div className="ui icon buttons">
-                      <Pagination
-                        count={TicketStore.pagination.last_page}
-                        page={TicketStore.pagination.currentPage}
-                        onChange={handleChange}
-                      />
-                    </div>
+                    {/* Paginación desktop */}
+                    <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
+                      <Grid
+                        container
+                        alignItems="center"
+                        justifyContent="space-between"
+                      >
+                        <Grid item>
+                          <Typography variant="body2" color="textSecondary">
+                            Mostrando {from} - {to} de {totalCount} registros
+                          </Typography>
+                        </Grid>
+                        <Grid item>
+                          <DataTablePagination
+                            totalCount={totalCount}
+                            page={page}
+                            rowsPerPage={rowsPerPage}
+                            onPageChange={handlePageChange}
+                            onRowsPerPageChange={handleRowsPerPageChange}
+                            from={from}
+                            to={to}
+                            isLoading={ContractStore.loading}
+                          />
+                        </Grid>
+                      </Grid>
+                    </Box>
                   </td>
                 </tr>
               </tfoot>

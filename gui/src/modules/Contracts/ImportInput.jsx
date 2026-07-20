@@ -96,7 +96,7 @@ const ImportInput = () => {
             sx={{ background: "green" }}
             startIcon={<CloudUploadIcon />}
           >
-            subir Xls
+            Importar
             <VisuallyHiddenInput
               type="file"
               onChange={handleFileChange}

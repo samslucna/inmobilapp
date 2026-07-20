@@ -21,7 +21,7 @@ return [
         'logout',],
     'allowed_methods' => ['POST,GET,OPTIONS,PUT,PATCH,DELETE'],
 
-    'allowed_origins' => ['http://localhost:3000*','http://localhost:3000/login*,'],
+    'allowed_origins' => ['http://localhost:3000*','http://localhost:3000/login*','http://localhost:3000/contratos*'],
 
     'allowed_origins_patterns' => [],
 

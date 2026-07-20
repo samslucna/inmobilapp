@@ -28,7 +28,7 @@ class TicketRequest extends FormRequest
             "paytype"=> ['nullable', 'string'],
              "status" => ['required', 'string'],
             "ref" => ['nullable', 'string'],
-            "contract_id" => ['required', 'string']
+            "contract_id" => ['required', 'integer']
         ];
     }
 }

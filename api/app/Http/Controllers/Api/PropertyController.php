@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PropertyResource;
 use App\Models\Boundary;
 use App\Models\Property;
+use App\Services\AuditLogService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Response;
 class PropertyController extends Controller
 {
 
- public static function middleware(): array
+    public static function middleware(): array
     {
         return [
             new Middleware(
@@ -42,15 +43,49 @@ class PropertyController extends Controller
     }
 
 
-/**
+    /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
+        try {
+            $perPage = $request->input('per_page', 10);
+            $page = $request->input('page', 1);
+            $search = $request->input('search', '');
+            $status = $request->input('status', '');
+            $paytype = $request->input('paytype', '');
+            $dateFrom = $request->input('date_from', '');
+            $dateTo = $request->input('date_to', '');
 
-        $property = Property::with('block')->with('boundaries')->paginate(5);
+            $query = Property::with('block')->with('boundaries');
 
-        return new JsonResponse($property);
+            // Aplicar filtros
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('id', 'LIKE', "%{$search}%");
+                });
+            }
+
+
+
+            $properties = $query->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+
+            return response()->json([
+                'success' => true,
+                'data' => $properties->items(),
+                'current_page' => $properties->currentPage(),
+                'last_page' => $properties->lastPage(),
+                'per_page' => $properties->perPage(),
+                'total' => $properties->total(),
+                'from' => $properties->firstItem(),
+                'to' => $properties->lastItem(),
+            ]);
+        } catch (\Exception $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()  
+            ]);
+        }
     }
 
     public function propertiesContracts(Request $request)
@@ -213,6 +248,24 @@ class PropertyController extends Controller
                 }
             }
         }
+
+        // Registrar auditoría
+        AuditLogService::log(
+            description: auth()->user()->name . " creó un nuevo contrato",
+            event: 'created',
+            logName: 'contratos',
+            properties: [
+                "name" => $request->name,
+                "description" => $request->description,
+                "m2" => $request->m2,
+                "address" => $request->address,
+                "block_id" => $request->block_id,
+                "amount_init" => $request->amount_init,
+                "amount_end" => $request->amount_end,
+                "status" => $request->status,
+            ],
+            subject: $property
+        );
 
         return response()->json(['data' => $property]);
     }

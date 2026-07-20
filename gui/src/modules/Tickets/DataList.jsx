@@ -106,7 +106,7 @@ const DataList = observer(({ btnMn }) => {
             </Grid>
           ) : (
             <Grid size={12}>
-              <TableData datasTable={TicketStore.tickets} />
+              <TableData datasTable={TicketStore.tickets} loading ={TicketStore.loading} />
             </Grid>
           )}
         </Grid>
