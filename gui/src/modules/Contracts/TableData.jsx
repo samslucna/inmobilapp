@@ -332,7 +332,7 @@ const MobileContractRow = ({
         <Tooltip title="Generar PDF">
           <ModalMuiIconContract
             data={contract}
-            url={"/api/export/pdf/contractExportPDF"}
+            url={"/api/contracts/export/pdf/contractExportPDF?id="}
             color={"error"}
           />
         </Tooltip>
@@ -976,7 +976,7 @@ const ContractTable = observer(
         <Paper sx={{ borderRadius: 2, boxShadow: 3, overflow: "hidden" }}>
           {/* Filtros */}
           <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-            <ImportInput />
+            {/* <ImportInput /> */}
             <SearchInput />
           </Box>
 

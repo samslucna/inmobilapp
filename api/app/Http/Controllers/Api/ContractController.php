@@ -34,7 +34,6 @@ class ContractController extends Controller
 
             $query = Contract::query()
                 ->with(['agent', 'buyer', 'seller', 'property', 'tickets']);
-
                 
             // Aplicar filtros
             if (!empty($search)) {
@@ -52,12 +51,6 @@ class ContractController extends Controller
                 $query->where('agent_id', $agentId);
             }
 
-            
-
-
-            
-
-        //dd($query->get());
 
             // Paginación
             $contracts = $query->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);

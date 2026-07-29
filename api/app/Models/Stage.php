@@ -30,5 +30,10 @@ class Stage extends Model
         return $this->belongsTo(Project::class);
     }
 
+    public function blocks()
+    {
+        return $this->hasMany(Block::class);
+    }
+
  
 }

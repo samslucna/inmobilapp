@@ -55,7 +55,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // USUARIOS
     // ------------------------------------------------------------------------
     Route::prefix('users')->group(function () {
-        Route::get('/search', [UserController::class, 'search']);
+        Route::post('/search', [UserController::class, 'search']);
         Route::get('/by-role/{roleId}', [UserController::class, 'getByRole']);
         Route::put('/{id}/toggle-status', [UserController::class, 'toggleStatus']);
     });
@@ -65,7 +65,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // ROLES Y PERMISOS
     // ------------------------------------------------------------------------
     Route::prefix('roles')->group(function () {
-        Route::get('/search', [RoleController::class, 'search']);
+        Route::post('/search', [RoleController::class, 'search']);
         Route::get('/', [RoleController::class, 'index']);
         Route::put('/update', [RoleController::class, 'updateRole']);
     });
@@ -78,7 +78,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // PROPIEDADES
     // ------------------------------------------------------------------------
     Route::prefix('properties')->group(function () {
-        Route::get('/search', [PropertyController::class, 'search']);
+        Route::post('/search', [PropertyController::class, 'search']);
         Route::get('/filterProperties', [PropertyController::class, 'propertiesContracts']);
         Route::post('/reportPropertiesPdf', [PdfController::class, 'reportPropertiesPdf']);
         Route::post('/reportAgents', [PdfController::class, 'reportAgents']);
@@ -93,7 +93,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // LINDEROS (BOUNDARIES)
     // ------------------------------------------------------------------------
     Route::prefix('boundaries')->group(function () {
-        Route::get('/search', [BoundaryController::class, 'search']);
+        Route::post('/search', [BoundaryController::class, 'search']);
     });
     Route::apiResource('/boundaries', BoundaryController::class);
 
@@ -101,7 +101,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // PROYECTOS
     // ------------------------------------------------------------------------
     Route::prefix('projects')->group(function () {
-        Route::get('/search', [ProjectController::class, 'search']);
+        Route::post('/search', [ProjectController::class, 'search']);
         Route::get('/{id}/stages', [StageController::class, 'stagesByProject']);
     });
     Route::apiResource('/projects', ProjectController::class);
@@ -110,7 +110,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // ETAPAS
     // ------------------------------------------------------------------------
     Route::prefix('stages')->group(function () {
-        Route::get('/search', [StageController::class, 'search']);
+        Route::post('/search', [StageController::class, 'search']);
         Route::get('/{id}/blocks', [BlockController::class, 'blockByStage']);
     });
     Route::apiResource('/stages', StageController::class);
@@ -119,7 +119,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // MANZANAS (BLOCKS)
     // ------------------------------------------------------------------------
     Route::prefix('blocks')->group(function () {
-        Route::get('/search', [BlockController::class, 'search']);
+        Route::post('/search', [BlockController::class, 'search']);
     });
     Route::apiResource('/blocks', BlockController::class);
 
@@ -127,7 +127,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // COMPRADORES (BUYERS)
     // ------------------------------------------------------------------------
     Route::prefix('buyers')->group(function () {
-        Route::get('/search', [BuyerController::class, 'search']);
+        Route::post('/search', [BuyerController::class, 'search']);
         Route::get('/export/xls', [XlsController::class, 'exportBuyers']);
         Route::post('/import', [XlsController::class, 'importBuyers']);
     });
@@ -137,7 +137,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // VENDEDORES (SELLERS)
     // ------------------------------------------------------------------------
     Route::prefix('sellers')->group(function () {
-        Route::get('/search', [SellerController::class, 'search']);
+        Route::post('/search', [SellerController::class, 'search']);
         Route::get('/export/xls', [XlsController::class, 'exportSellers']);
         Route::post('/import', [XlsController::class, 'importSellers']);
     });
@@ -147,7 +147,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // AGENTES
     // ------------------------------------------------------------------------
     Route::prefix('agents')->group(function () {
-        Route::get('/search', [AgentController::class, 'search']);
+        Route::post('/search', [AgentController::class, 'search']);
         Route::get('/export/xls', [XlsController::class, 'exportAgents']);
         Route::post('/import', [XlsController::class, 'importAgents']);
     });

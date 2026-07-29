@@ -111,7 +111,7 @@ export default function SearchInput() {
               <SearchIcon />
             </SearchIconWrapper>
             <StyledInputBase
-              onChange={(e) => BlocksStore.searchByTable(e, "blocks/search")}
+              onChange={(e) => BlocksStore.searchByTable(e, "blocks")}
               name="q"
               placeholder="Buscar…"
               inputProps={{ "aria-label": "search" }}

@@ -16,8 +16,10 @@ class StageController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 5);
-        $Stage = Stage::paginate($perPage);
+        $perPage = $request->input('per_page', 50);
+        $search =$request->input('search','');
+
+        $Stage = Stage::with('blocks')->paginate($perPage);
         //dd($Stage);
         return response()->json($Stage);
     }

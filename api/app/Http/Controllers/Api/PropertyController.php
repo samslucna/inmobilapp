@@ -295,7 +295,9 @@ class PropertyController extends Controller
      */
     public function update(Request $request)
     {
-        // inserta los datos
+    
+    //dd($request->all());
+    // inserta los datos
         Property::where('id', $request->id)->update([
             "name" => $request->name,
             "description" => $request->description,

@@ -102,14 +102,13 @@ export const deleteBd = async (table, id) => {
 
 export const searchBd = async (table, query) => {
   try {
-    const { data } = await axios.post(`api/${table}/search?q=${query}`);
+    const { data } = await axios.post(`api/${table}/search`, { q: query });
 
     return data;
   } catch (error) {
     console.log("Error al obtener los datos de la api" + error);
   }
 };
-
 
 export const searchBdFilter = async (table, filters) => {
   try {

@@ -50,17 +50,12 @@ const Agents = observer(() => {
     try {
       setLoading(true);
       let filters = {
-        search: "",
-        status: "",
-        paytype: "",
         date_from: "",
         date_to: "",
         agent_id: agent ? agent?.id : "",
-        project_id: agent ? agent?.id : "",
-        stage_id: agent ? agent?.id : "",
-        block_id: agent ? agent?.id : "",
-        dates: ReportStore.rangeDate ? ReportStore.rangeDate : "",
-        status: ReportStore.checkboxes ? ReportStore.checkboxes : "",
+        project_id: selected.project ? selected.project : 0,
+        stage_id: selected.stage ? selected.stage : 0,
+        block_id: selected.block ? selected.block : 0 ,
       };
 
       ReportStore.setFilters(filters);
@@ -92,6 +87,71 @@ const Agents = observer(() => {
           setAgents(agentes);
           break;
       }
+    }
+  };
+
+  const onChangeSelector = async (e) => {
+    const { name, value } = e.target;
+
+    if (name === "project_id") {
+      let projects = data.projects;
+
+      projects = projects.filter((project) => project.id === value);
+
+      let stages = projects[0].stages;
+      let blocks = await BlocksStore.getBlocksByStage(stages[0].id);
+
+      if (stages[0].name !== "Todas las etapas") {
+        stages.unshift({
+          id: 0,
+          name: "Todas las etapas",
+          project_id: projects[0].id,
+        });
+      }
+
+      blocks.unshift({
+        id: 0,
+        name: "Todas las manzanas",
+        stage_id: 0,
+      });
+
+      let optsel = {
+        project: projects[0].id,
+        stage: stages[0].id,
+        block: projects[0].stages[0].id,
+      };
+
+      setSelected(optsel);
+      setData({ ...data, stages: projects[0].stages });
+    }
+    if (name === "stage_id") {
+      let blocks = await BlocksStore.getBlocksByStage(value);
+
+      blocks.unshift({
+        id: 0,
+        name: "Todas las manzanas",
+        stage_id: 0,
+      });
+      try {
+        let optsel = {
+          project: selected.project,
+          stage: value,
+          block: blocks[0].id,
+        };
+        setSelected(optsel);
+        setData({ ...data, blocks: blocks });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    if (name === "block_id") {
+      let optsel = {
+        project: selected.project,
+        stage: selected.stage,
+        block: value,
+      };
+      setSelected(optsel);
     }
   };
 
@@ -141,7 +201,7 @@ const Agents = observer(() => {
           stage: stages[0]?.id,
           block: parseInt(blocks[0]?.id),
         };
-    
+
         setData(projectStage);
         setSelected(selectOpt);
       } catch (error) {
@@ -162,7 +222,7 @@ const Agents = observer(() => {
 
           <Grid spacing={2}>
             <Grid container size={{ xs: 12, md: 12 }}>
-              <Grid size={{ xs: 12, md: 3 }}>
+              <Grid size={{ xs: 12, md: 2 }}>
                 <Autocomplete
                   sx={{ marginBottom: 2 }}
                   key={"agente"}
@@ -199,13 +259,38 @@ const Agents = observer(() => {
                   )}
                 />
               </Grid>
-
-              <Grid size={{ xs: 12, md: 4 }} sx={{ mt: 2 }}>
-                <Checkets data={ReportStore.checkboxes} />
+              <Grid size={{ xs: 12, md: 2 }}>
+                <Selector
+                  datas={data.projects}
+                  label={"Proyecto"}
+                  name={"project_id"}
+                  value={selected.project}
+                  onChange={onChangeSelector}
+                />
               </Grid>
+              <Grid container size={{ xs: 12, md: 2 }}>
+                <Selector
+                  key={"stages"}
+                  datas={data.stages}
+                  label={"Etapa"}
+                  name={"stage_id"}
+                  value={selected.stage}
+                  onChange={onChangeSelector}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 1 }}>
+                <Selector
+                  datas={data.blocks}
+                  label={"Manzana"}
+                  name={"block_id"}
+                  value={selected.block}
+                  onChange={onChangeSelector}
+                />
+              </Grid>
+
               <Grid size={{ xs: 12, md: 2 }} sx={{ mt: 2 }}>
                 <SearchByDate action={filterReports} />
-              </Grid>
+              </Grid>s
             </Grid>
           </Grid>
         </Card>

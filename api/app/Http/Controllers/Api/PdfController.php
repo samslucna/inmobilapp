@@ -348,7 +348,7 @@ class PdfController extends Controller
             }
         });
 
- 
+
         // Filtro 3: Por etapa específica
         if ($request->has('stage_id') && $request->stage_id) {
             $query->where('b.stage_id', $request->stage_id);
@@ -443,77 +443,82 @@ class PdfController extends Controller
     }
 
     public function reportAgentsContractsPdf(Request $request)
-   {
+    {
 
-        dd($request->all());
+        //dd($request->all());
+        $agentId = $request->input('agent_id', 0);
+        $projectId = $request->input('project_id', 0);
+        $stageId = $request->input('stage_id', 0);
+        $blockId = $request->input('block_id', 0);
 
 
         // Construir consulta base
-        $query = DB::table('properties as p')
-            ->join('blocks as b', 'p.block_id', '=', 'b.id')
+        $query = DB::table('contracts as c')
+            ->join('properties as p', 'c.property_id', '=', 'p.id')
+            ->leftJoin('blocks as b', 'p.block_id', '=', 'b.id')
             ->leftJoin('stages as s', 's.id', '=', 'b.stage_id')
-            ->leftJoin('contracts as c', 'p.id', '=', 'c.property_id')
-            ->leftJoin('tickets as t', 'c.id', '=', 't.contract_id')
+            ->leftJoin('projects as pr', 'pr.id', '=', 's.project_id')
             ->select(
-                'p.id',
+                'c.id',
                 'p.name',
-                'b.name as manzana',
+                'c.agent_id',
+                'pr.name as proyecto',
                 's.name as etapa',
+                'b.name as manzana',
+                'pr.id as project_id',
+                's.id as stage_id',
+                'p.block_id as block_id',
                 'p.amount_init',
                 'p.status',
-
-                // Subconsulta 1: Trae la suma total de los montos de los tickets
-                DB::raw("COALESCE(
-                (SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 0) as total_pagado"),
-
-                // Subconsulta 2: Calcula el saldo (amount_init - total_tickets)
-                DB::raw("p.amount_init - COALESCE(
-                (SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 
-                0
-            ) as saldo"),
-                'c.date as fecha_contrato' // asumiendo que existe esta columna
+                'c.date as fecha_contrato'
             );
 
 
-        //dd($query->get());
-        // 2. FILTRO POR ESTADO (disponible, vendido, apartado)
-        // Recibe el parámetro 'status' desde el request
-        $query->when($request->filled('status'), function ($q) use ($request) {
-            $status = $request->input('status');
-            //dd($status['disponible']);
-
-            if ($status) {
-                // Solo disponibles
-                //dd($status);
-
-                $seleccionados = array_filter($status);
-                $conteo = count($seleccionados);
-
-                if ($conteo === 1) {
-                    // Un solo estado seleccionado
-                    $estadoUnico = key($seleccionados);
-                    $q->where('p.status', $estadoUnico);
-                } elseif ($conteo === 2) {
-                    // Dos estados seleccionados
-                    $estados = array_keys($seleccionados);
-                    $q->whereIn('p.status', $estados);
-                } elseif ($conteo === 3 || $conteo === 0) {
-                    // Todos o ninguno seleccionado
-                    $q->whereIn('p.status', ['disponible', 'apartado', 'vendido']);
-                }
-            }
-        });
-
- 
-        // Filtro 3: Por etapa específica
-        if ($request->has('stage_id') && $request->stage_id) {
-            $query->where('b.stage_id', $request->stage_id);
+        // Filtro 1: Por Agente (usando c.agent_id)
+        if ($agentId > 0) {
+            $query->where('c.agent_id', (int) $agentId);
         }
+
+        // Filtro 2: Por Proyecto específico (usando pr.id)
+        if ($projectId > 0) {
+            $query->where('pr.id', (int) $projectId);
+        }
+        
+        
+        // Filtro 3: Por Etapa específica (usando s.id)
+        if ($stageId > 0) {
+           
+            $query->where('stage_id', (int) $stageId);
+         $resultados = $query->get();    
+        dd($resultados, $stageId);
+        }
+        
+        
+       
+
+        
+
 
         // Filtro 6: Por manzana específica
-        if ($request->has('block_id') && $request->block_id) {
-            $query->where('b.id', $request->block_id);
+        if ($blockId > 0) {
+            $query->where('b.block_id', $blockId);
         }
+
+
+
+
+
+
+
+
+        // Filtro 3: Por etapa específica
+        //if ($request->filled('stage_id') && $request->input('stage_id') > 0) {
+        //    $query->where('stage_id', $request->input('stage_id'));
+        //}
+
+
+
+
 
 
 
@@ -539,7 +544,7 @@ class PdfController extends Controller
             'etapa'    => $request->input('stage_id') > 0 ? 'Etapa ' . $request->input('stage_id') : 'Todas',
             'manzana'  => $request->input('block_id') > 0 ? 'Manzana ' . $request->input('block_id') : 'Todas',
             'Total'    => $request->input('total'), // Valor por defecto o real
-            
+
         ];
 
         // Obtenemos el usuario autenticado (O un fallback si es testing)
@@ -632,7 +637,7 @@ class PdfController extends Controller
             );
 
 
-        
+
         // 2. FILTRO POR ESTADO (disponible, vendido, apartado)
         // Recibe el parámetro 'status' desde el request
         $query->when($request->filled('status'), function ($q) use ($request) {
@@ -662,15 +667,15 @@ class PdfController extends Controller
         });
 
         //dd($query->get());
-       // // Filtro 3: Por etapa específica
-       // if ($request->has('stage_id') && $request->stage_id) {
-       //     $query->where('b.stage_id', $request->stage_id);
-       // }
-//
-       // // Filtro 6: Por manzana específica
-       // if ($request->has('block_id') && $request->block_id) {
-       //     $query->where('b.id', $request->block_id);
-       // }
+        // // Filtro 3: Por etapa específica
+        // if ($request->has('stage_id') && $request->stage_id) {
+        //     $query->where('b.stage_id', $request->stage_id);
+        // }
+        //
+        // // Filtro 6: Por manzana específica
+        // if ($request->has('block_id') && $request->block_id) {
+        //     $query->where('b.id', $request->block_id);
+        // }
 
 
 
@@ -755,7 +760,7 @@ class PdfController extends Controller
             ->header('Content-Type', 'application/pdf');
     }
 
-    
+
 
     public function exportTicketPDF(Request $request)
     {
@@ -787,7 +792,7 @@ class PdfController extends Controller
         // Construir los datos para la plantilla
         $data = $this->buildTicketData($ticket, $contract);
 
-        
+
         // Generar PDF
         $pdf = Pdf::loadView('templates/ticket/ticketpdf', compact('data'))
             ->setOption(['dpi' => 150, 'defaultFont' => 'sans-serif'])
@@ -831,7 +836,7 @@ class PdfController extends Controller
 
         return [
             // Datos del proyecto y ubicación
-            'title' => 'MOTSAKKI-MatJU',
+            'title' => 'SISTEMA MOTSAKKI-MATJU',
             'place' => $proyecto ? strtoupper($proyecto->name ?? strtoupper($proyecto->name)) : 'FRACCIONAMIENTO LOS ENCINOS',
             'etapa' => $etapa ? strtoupper($etapa->name) : 'ETAPA NO DEFINIDA',
             'manzana' => $manzana ? strtoupper($manzana->name) : 'MANZANA NO DEFINIDA',

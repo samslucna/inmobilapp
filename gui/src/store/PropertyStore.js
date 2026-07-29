@@ -137,7 +137,7 @@ class PropertyStore {
       data.amount_end = changeFormat.toInt(data.amount_end);
       if (resp.isConfirmed) {
         if (data.id !== null) {
-          await updateBd("properties", this.editId, data);
+          await updateBd("properties", data.id, data);
           if (data.boundaries.length > 0) {
             data.boundaries.forEach((boundary) => {
               boundary.property_id = data.id;
@@ -158,10 +158,10 @@ class PropertyStore {
           });
 
           this.setProperty({
-            id: null,
-            project_id: null,
-            stage_id: null,
-            block_id: null,
+            id: 0,
+            project_id: 0,
+            stage_id: 0,
+            block_id: 0,
             name: "",
             description: "",
             m2: 0.0,
@@ -199,7 +199,7 @@ class PropertyStore {
             address: "",
             amount_init: 0.0,
             amount_end: 0.0,
-            status: "Disponible",
+            status: "disponible",
             boundaries: [],
           });
           this.setHiddenForm(false);

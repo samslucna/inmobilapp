@@ -16,7 +16,7 @@ class BlockController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 5);
+        $perPage = $request->input('per_page', 50);
         $Block = Block::with('stage')->paginate($perPage);
         //dd($Block);
         //dd($Block);

@@ -11,6 +11,7 @@ import {
   searchDatas,
   setUrlExportPdf,
   showDataBd,
+  searchBdFilter,
 } from "../api/QueryApi";
 import Swal from "sweetalert2";
 import changeFormat from "../helper/changeFormat";
@@ -193,11 +194,15 @@ class ContractStore {
    * Cargar lista de contratos con filtros y paginación
    */
   loadContracts = async (page = 1) => {
-    this.setLoading(true);
     this.setError(null);
 
     try {
       const params = new URLSearchParams({
+        search: this.filters.search,
+        status: this.filters.status,
+        paytype: this.filters.paytype,
+        date_from: this.filters.date_from,
+        date_to: this.filters.date_to,
         page: page,
         per_page: this.pagination.per_page,
       });
@@ -228,7 +233,6 @@ class ContractStore {
       });
       throw error;
     } finally {
-      this.setLoading(false);
     }
   };
 
@@ -377,7 +381,7 @@ class ContractStore {
         runInAction(() => {
           this.setEditing(false);
           this.setEditId(null);
-          this.resetForm();
+          this.resetForm(); 
           this.setHiddenForm(false);
         });
 
@@ -643,12 +647,24 @@ class ContractStore {
   /**
    * Buscar contratos
    */
-  searchByTable = async (e, table) => {
+  searchByTable = async (e) => {
     e.preventDefault();
     const { value } = e.target;
 
-    this.setFilters({ search: value });
-    await this.loadContracts(1);
+    let data = { ...this.filters, search: value };
+    try {
+      if (value !== "") {
+        this.setContracts([]);
+        this.setFilters(data);
+        console.log(data);
+        const res = await searchBdFilter("contracts", data);
+        this.setContracts(res.data);
+        this.setPagination(res);
+      } else {
+      
+        this.resetFilters();
+      }
+    } catch (error) {}
   };
 
   /**
@@ -657,6 +673,7 @@ class ContractStore {
   seachQueryData = async (table, name) => {
     this.setQueryTable([]);
     let searchRender = await searchBd(table, name);
+    console.log("searchRender", searchRender);
     return searchRender;
   };
 

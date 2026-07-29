@@ -191,7 +191,7 @@ class ClientStore {
         this.setClients([]);
         let seachRender = await searchBd(table, value);
        
-        this.setClients(seachRender);
+        this.setClients(seachRender.data);
       } else {
         await this.loadClients();
       }

@@ -285,7 +285,7 @@ class ReportStore {
   };
 
   toExport = (url, data) => {
-    console.log(data);
+    
     return setUrlExportPdf(url, data);
   };
 

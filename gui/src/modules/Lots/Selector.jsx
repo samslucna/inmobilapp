@@ -19,8 +19,8 @@ export default function Selector({ datas,label,name,value, onChange,blur }) {
           {"No hay datos disponibles"}
         </MenuItem>
       )}
-      {datas && datas.map((data) => (
-        <MenuItem key={data.id} value={data.id}>
+      {datas && datas.map((data,i) => (
+        <MenuItem key={i} value={data.id}>
           {data.name}
         </MenuItem>
       ))}

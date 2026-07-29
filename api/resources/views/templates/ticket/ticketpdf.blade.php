@@ -29,7 +29,7 @@
         th,
         td {
             padding: 5px;
-            font-size: .7rem;
+            font-size: .5rem;
         }
 
 
@@ -42,26 +42,26 @@
 
 
         .title {
-            margin-top: 100px;
-            font-size: 5rem;
+            margin-top: 50px;
+            font-size: 4rem;
             font-weight: bold;
             text-align: center;
         }
 
         .subtitle {
             text-align: center;
-            font-size: 4rem;
+            font-size: 3rem;
         }
 
         .subold {
             font-weight: bold;
 
-            font-size: 2.5rem;
+            font-size: 2rem;
         }
 
         .sutext {
 
-            font-size: 2.5rem;
+            font-size: 2rem;
         }
     </style>
 </head>

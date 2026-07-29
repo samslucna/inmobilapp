@@ -362,6 +362,7 @@ const ContractForm = observer(({ open, onClose, onSuccess, contract }) => {
         case "srchagent":
           setAgents([]);
           const agentes = await seachQueryData("agents", value);
+
           if (!value) error = "Seleccione un agente";
           setAgents(agentes);
           break;
@@ -375,6 +376,7 @@ const ContractForm = observer(({ open, onClose, onSuccess, contract }) => {
         case "srchclient":
           setClients([]);
           let clientes = await seachQueryData("buyers", value);
+          
           setClients(clientes.data);
           if (!value) error = "Seleccione un comprador";
           break;

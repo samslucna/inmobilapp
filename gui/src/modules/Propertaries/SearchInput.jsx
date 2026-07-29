@@ -110,7 +110,7 @@ export default function SearchInput() {
             </SearchIconWrapper>
             <StyledInputBase
               onChange={(e) =>
-                PropertaryStore.searchByTable(e, "sellers/search")
+                PropertaryStore.searchByTable(e, "sellers")
               }
               name="q"
               placeholder="Buscar…"

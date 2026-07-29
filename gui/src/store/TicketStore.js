@@ -272,7 +272,7 @@ class TicketStore {
 
         this.setTickets([]);
         let seachRender = await searchBd(table, value);
-        console.log(seachRender.data);
+        console.log(seachRender);
 
         runInAction(() => {
           if (seachRender && seachRender.data) {
