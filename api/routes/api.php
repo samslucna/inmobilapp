@@ -120,6 +120,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // ------------------------------------------------------------------------
     Route::prefix('blocks')->group(function () {
         Route::post('/search', [BlockController::class, 'search']);
+        Route::post('/import', [XlsController::class, 'importBlocks']);
+
     });
     Route::apiResource('/blocks', BlockController::class);
 

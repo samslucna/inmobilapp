@@ -63,7 +63,7 @@ class AuditLogStore {
       });
       
       const response = await getFilteredBd(`audit/logs?${params}`);
-      console.log(response);
+    
       runInAction(() => {
         this.setLogs(response.data || []);
         this.setPagination({

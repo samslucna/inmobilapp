@@ -27,6 +27,7 @@ class ContractRequest extends FormRequest
             'agent_id' => ['required', 'integer'],
             'property_id' => ['nullable', 'integer'],
             'plazo' => ['nullable', 'integer'],
+            'ncontract' => ['nullable', 'string'],
             'paytype' => ['nullable', 'integer'],
             'ref' => ['nullable', 'string'],
             'status' => ['nullable', 'string'],

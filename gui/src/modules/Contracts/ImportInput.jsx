@@ -39,7 +39,7 @@ const ImportInput = () => {
       try {
         await importExcel(fileName, ContractStore.importXlsContracts);
         deleteFileHandle(e)
-    
+     
       } catch (error) {
         console.log(error);
       }

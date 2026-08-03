@@ -31,7 +31,7 @@ class PropertyImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
         $this->successRows[] = $row;
 
         return new Property([
-            'name'    => $row['nombre'],
+            'name'    =>(string) $row['nombre'],
             'description' => $row['descripcion'],
             'm2' => $row['m2'],
             'address' => $row['direccion'],
@@ -45,7 +45,7 @@ class PropertyImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
     public function rules(): array
     {
         return [
-            'nombre' => 'required|string|max:255',
+            
             'descripcion' => 'required|string|max:255',
             'm2' => 'required|numeric|min:0',
             'direccion' => 'required',
@@ -59,7 +59,7 @@ class PropertyImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
     public function customValidationMessages()
     {
         return [
-            'nombre.required' => 'El nombre de la propiedad es requerido',
+            
             'descripcion.required' => 'La descripcion de la propiedad es requerido',
             'm2.required' => 'El m2 de la propiedad es requerido',
             'direccion.required' => 'La direccion de la propiedad es requerido',

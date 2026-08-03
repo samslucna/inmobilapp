@@ -24,6 +24,7 @@ class TicketRequest extends FormRequest
         return [
            "concept"=> ['required', 'string'],
             "amount" => ['required', 'string'],
+            "nticket" => ['required', 'string'],
             "date" => ['required', 'date'],
             "paytype"=> ['nullable', 'string'],
              "status" => ['required', 'string'],

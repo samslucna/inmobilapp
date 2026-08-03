@@ -57,6 +57,7 @@ const DataList = observer(() => {
         loading={ContractStore.loading}
       />
       
+      
       {/* Botón flotante para nuevo contrato */}
       { (
         <Zoom in={true}>

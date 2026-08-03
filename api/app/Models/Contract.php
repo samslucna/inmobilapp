@@ -27,6 +27,7 @@ class Contract extends Model
         'agent_id',
         'property_id',
         'plazo',
+        'ncontract',
         'advance',
         'paytype',
         'ref',

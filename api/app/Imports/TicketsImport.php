@@ -120,6 +120,7 @@ class TicketsImport implements
             // Preparar datos del ticket
             $ticketData = [
                 //'receipt_number' => $receiptNumber,
+                'nticket' => $row['nrecibo'] ?? null,
                 'concept' => $this->sanitizeString($row['concepto'] ?? 'Pago de recibo'),
                 'amount' => $this->parseAmount($row['cantidad'] ?? 0),
                 'date' => $fecha,

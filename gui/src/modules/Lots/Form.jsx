@@ -79,35 +79,36 @@ export default function Form() {
 
       //project.stages.unshift({ id: 0, name: "Todas las etapas" });
       setData({ ...data, stages: project.stages });
+      setSelected(sel);
       setState({
         ...state,
         project_id: sel.project,
         stage_id: sel.stage,
         block_id: sel.block,
       });
-      setSelected(sel);
     }
     if (name === "stage_id") {
       let stages = await StageStore.getStages();
       let stage = stages.filter((stage) => stage.id === value)[0];
 
       if (stage) {
+        let gtblocks = stage.blocks[0];
+
         let sel = {
           project: stage.project_id,
           stage: stage.id,
-          block: stage.blocks[0].id,
+          block: gtblocks.id,
         };
 
+        setData({ ...data, blocks: stage.blocks });
+        setSelected(sel);
         setState({
           ...state,
           project_id: sel.project,
           stage_id: stage.id,
-          block_id: sel.block,
+          block_id: gtblocks.id,
         });
-        console.log(sel);
 
-        setData({ ...data, blocks: stage.blocks });
-        setSelected(sel);
         //setState(datas);
       } else {
         console.log(selected);
@@ -125,7 +126,7 @@ export default function Form() {
             project_id: selected.project,
           },
         ];
-        console.log({ ...data, blocks: auxStage[0].blocks });
+
         setData({ ...data, blocks: auxStage[0].blocks });
 
         setSelected({ ...selected, block: 0, stage: 0 });
@@ -157,54 +158,48 @@ export default function Form() {
         if (PropertyStore.editing) {
           if (PropertyStore.property.block_id !== null) {
             let getBLock = blocks.filter(
-              (block) => block.id === PropertyStore.property.block_id,
+              (block) => block.id === block_id,
             );
 
             let getStage = stages.filter(
               (stage) => stage.id === getBLock[0].stage_id,
             );
+
+            
             let getProject = projecs.filter(
               (project) => project.id === getStage[0].project_id,
             );
 
-            projecs.unshift({ id: 0, name: "Elija un  proyecto" });
-            stages.unshift({
-              id: 0,
-              name: "Seleccione una etapa",
-              blocks: [
-                {
-                  id: 0,
-                  name: "Seleccione una manzana",
-                  stage_id: getStage[0].id,
-                },
-              ],
-              project_id: getProject[0].id,
-            });
-            blocks.unshift({
-              id: 0,
-              name: "Elija una manzana",
-              stage_id: getStage[0].id,
-            });
-
-            setState({
-              ...state,
-              block_id: PropertyStore.property.block_id
-                ? PropertyStore.property.block_id
-                : 0,
-              project_id: getProject[0].id ? getProject[0].id : 0,
-              stage_id: getStage[0].id ? getStage[0].id : 0,
-            });
 
             let filtergetStage = stages.filter(
               (stage) => stage.project_id === getProject[0].id,
             );
-            console.log(filtergetStage);
-            setData({
-              ...data,
-              blocks: getBLock,
-              stages: filtergetStage,
-              projects: projecs,
+
+            let filterBlocks = blocks.filter(
+              (block) => block.stage_id === getStage[0].id,
+            );
+             
+            setSelected({
+              ...selected,
+              project: getStage[0]?.project_id,
+              block: getBLock[0]?.id,
+              stage: getStage[0]?.id,
             });
+            let changeState = {
+              ...state,
+              stage_id: getStage[0]?.id,
+            }
+            console.log(changeState)
+            setState(changeState);
+            
+          
+              setData({
+              ...data,
+              projects: projecs,
+              blocks: filterBlocks,
+              stages: filtergetStage,
+            });
+            
           }
         } else {
           projecs.unshift({ id: 0, name: "Todos los proyectos" });
@@ -253,7 +248,7 @@ export default function Form() {
                   datas={data.projects}
                   label={"Proyecto"}
                   name={"project_id"}
-                  value={project_id ? project_id : 0}
+                  value={selected.project}
                   onChange={onChangeSelector}
                   blur={handleBlur}
                 />
@@ -264,7 +259,7 @@ export default function Form() {
                   datas={data.stages}
                   label={"Etapa"}
                   name={"stage_id"}
-                  value={stage_id ? stage_id : 0}
+                  value={selected.stage}
                   onChange={onChangeSelector}
                   blur={handleBlur}
                 />
@@ -274,7 +269,7 @@ export default function Form() {
                   datas={data.blocks}
                   label={"Manzana"}
                   name={"block_id"}
-                  value={selected.block ? selected.block : 0}
+                  value={block_id}
                   onChange={onChangeSelector}
                   blur={handleBlur}
                 />

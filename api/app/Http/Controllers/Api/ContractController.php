@@ -100,10 +100,9 @@ class ContractController extends Controller
             
             //dd($request->all());
             $validator = Validator::make($request->all(), [
-                'buyer_id' => 'required|exists:buyers,id',
+                
                 'seller_id' => 'required|exists:sellers,id',
                 'agent_id' => 'required|exists:agents,id',
-                'property_id' => 'required|exists:properties,id',
                 'plazo' => 'required|integer|min:1',
                 'advance' => 'required|numeric|min:0',
                 'paytype' => 'required|string',
@@ -131,10 +130,11 @@ class ContractController extends Controller
 
             // Crear contrato
             $contract = Contract::create([
-                "buyer_id" => $request->buyer_id,
-                "seller_id" => $request->seller_id,
-                "agent_id" => $request->agent_id,
-                "property_id" => $request->property_id,
+                "buyer_id" => (int)$request->buyer_id,
+                "seller_id" => (int)$request->seller_id,
+                "agent_id" => (int)$request->agent_id,
+                "property_id" => (int)$request->property_id,
+                "ncontract" => $request->ncontract,
                 "plazo" => $request->plazo,
                 "advance" => $request->advance,
                 "paytype" => $request->paytype,

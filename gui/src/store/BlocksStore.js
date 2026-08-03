@@ -6,7 +6,8 @@ import {
   deleteBd,
   searchBd,
   getDatasBd,
-  getDataById
+  getDataById,
+  setUrImport
 } from "../api/QueryApi";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
@@ -18,6 +19,7 @@ class BlockStore {
     project_id: '0',
   };
 
+urlImp = "";
   blocks = [];
   pagination = {};
   editing = false;
@@ -32,6 +34,10 @@ class BlockStore {
   setBlock = (block) => {
     this.block = block;
   };
+
+setUrlImp = (url) => {
+    this.urlImp = url;
+  }
 
   setBlocks = (blocks) => {
     this.blocks = blocks;
@@ -112,6 +118,22 @@ class BlockStore {
       console.log(error);
     }
   };
+
+    importXlsBlocks = async () => {
+      try {
+
+        const importData = await setUrImport(
+          "/api/blocks/import",
+          this.urlImp,
+        );
+
+        console.log("Import response:", importData);
+        await this.getBlocks();
+        return importData;
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
   goEdit = async (block) => {
     

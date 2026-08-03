@@ -38,8 +38,10 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
         $property = Property::where('id', $row['lote'])->first();
         $row['fechacontrato'] = Carbon::instance(Date::excelToDateTimeObject($row['fechacontrato']));
 
+        
         $contract =  new Contract([
             "buyer_id" => $row['cliente'],
+            "ncontract" => $row['ncontract'],
             "seller_id" => $row['propietario'],
             "agent_id" => $row['agente'],
             "property_id" => $row['lote'],
@@ -51,20 +53,21 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             "date" => $row['fechacontrato'],
         ]);
 
+        //dd($contract);
         // Guardar el contrato para obtener su ID
         $contract->save();
 
         // Crear el recibo (Ticket) por el monto del enganche
-        $this->crearReciboEnganche($contract, $row);
+        // $this->crearReciboEnganche($contract, $row);
 
         // Actualizar etapa
-        //if (isset($row['status']) && !empty($row['status'])) {
-        //    if ($property && $property->status === 'disponible') {
-        //        $property->update(['status' => 'apartado']);
-        //    } else {
-        //        $property->update(['status' => 'disponible']);
-        //    }
-        //}
+        if (isset($row['status']) && !empty($row['status'])) {
+            if ($property && $property->status === 'disponible') {
+                $property->update(['status' => 'apartado']);
+            } else {
+                $property->update(['status' => 'disponible']);
+            }
+        } 
         // Registrar éxito
         $this->successCount++;
         $this->successRows[] = array_merge($row, ['contract_id' => $contract->id]);
@@ -100,14 +103,14 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
 
         $this->verificUpdateStatus($contract['id']);
 
-         // Registrar éxito
-         $this->successCount++;
-         $this->successRows[] = array_merge($row, ['contract_id' => $contract->id, 'ticket_id' => $ticket->id]);
+        // Registrar éxito
+        $this->successCount++;
+        $this->successRows[] = array_merge($row, ['contract_id' => $contract->id, 'ticket_id' => $ticket->id]);
 
         return $ticket;
     }
 
-     protected function verificUpdateStatus($contractId)
+    protected function verificUpdateStatus($contractId)
     {
         //dd($contractId);
         // 1. Obtenemos el costo inicial y la suma de los tickets
@@ -155,10 +158,9 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
     public function rules(): array
     {
         return [
-            'cliente' => 'required|numeric|max:255',
             'propietario' => 'required|numeric|max:255',
             'agente' => 'required|numeric|max:255',
-            'lote' => 'required|numeric|max:255',
+            
             'fechacontrato' => 'required',
             'ref' => 'required|string|max:255',
             'enganche' => 'required|numeric|min:0',
@@ -171,10 +173,9 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
     public function customValidationMessages()
     {
         return [
-            'cliente.required' => 'Error referencia cliente',
             'propietario.required' => 'Error referencia dueño/propietario',
             'agente.required' => 'Error referencia agente',
-            'lote.required' => 'Error de referencia lote/propiedad',
+            
             'fechacontrato.required' => 'Es necesatrio agregar una fecha',
             'ref.required' => 'Error al almacenar referencia',
             'enganche.required' => 'Es necesatrio agregar un anticipo',

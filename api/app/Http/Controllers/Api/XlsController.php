@@ -15,6 +15,7 @@ use App\Imports\BuyersImport;
 use App\Imports\PropertiesImport;
 use App\Imports\ContractsImport;
 use App\Imports\PropertyImport;
+use App\Imports\BlocksImport;
 use App\Imports\SellersImport;
 use App\Imports\TicketsImport;
 use Carbon\Carbon;
@@ -65,6 +66,43 @@ class XlsController extends Controller
 
         return $response;
     }
+
+
+   public function importBlocks(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        // 2. Instanciar la clase de importación
+        $import = new BlocksImport();
+
+        try {
+            // 3. Ejecutar la importación de manera síncrona
+            $import->import($request->file('file'));
+
+            // 4. Armar la respuesta estructurada
+            $failedRows = $import->getFailedRows();
+            $errorCount = $import->getErrorCount();
+            $successCount = $import->getSuccessCount();
+
+            return response()->json([
+                'message'       => 'Proceso de importación finalizado.',
+                'success_count' => $successCount,
+                'error_count'   => $errorCount,
+                'failed_rows'   => $failedRows, // Contiene: row, attribute, errors, values
+                'general_errors'=> $import->getErrors() // Captura excepciones o errores graves de BD
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Ocurrió un error crítico durante la importación.',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
 
     public function reportPropertiesXls(Request $request)
     {

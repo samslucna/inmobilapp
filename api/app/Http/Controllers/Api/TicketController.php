@@ -81,8 +81,8 @@ class TicketController extends Controller
 
         try {
 
-            //dd($request->all());
-            // Validación mejorada
+            dd($request->all());
+          
             $validator = Validator::make($request->all(), [
                 'concept' => 'required|string|max:255',
                 'amount' => 'required|numeric|min:0',
@@ -105,7 +105,7 @@ class TicketController extends Controller
             if (!$contract) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Contrato no encontrado'
+                    'message' => 'Recibo no encontrado'
                 ], 404);
             }
 
@@ -115,6 +115,7 @@ class TicketController extends Controller
 
             // Crear ticket
             $ticket = Ticket::create([
+                "nticket" => $request->nticket,
                 "concept" => $request->concept,
                 "amount" => $request->amount,
                 "date" => Carbon::parse($request->date)->format('Y-m-d'),

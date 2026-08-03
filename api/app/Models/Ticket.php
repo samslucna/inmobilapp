@@ -13,6 +13,7 @@ class Ticket extends Model
 {
     use HasFactory, Notifiable, HasApiTokens, LogsActivity;
     protected $fillable = [
+        "nticket",
         "concept",
         "amount",
         "date",

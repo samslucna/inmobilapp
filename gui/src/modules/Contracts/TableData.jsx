@@ -458,6 +458,7 @@ const ContractFilters = ({
     <Box sx={{ mb: 2 }}>
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={12} md={4}>
+          <ImportInput />
           <TextField
             fullWidth
             size="small"
@@ -976,7 +977,7 @@ const ContractTable = observer(
         <Paper sx={{ borderRadius: 2, boxShadow: 3, overflow: "hidden" }}>
           {/* Filtros */}
           <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-            {/* <ImportInput /> */}
+            <ImportInput  />
             <SearchInput />
           </Box>
 

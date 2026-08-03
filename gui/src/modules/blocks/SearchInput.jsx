@@ -8,6 +8,7 @@ import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import StageStore from "../../store/StageStore";
 import authStore from "../../store/AuthStore";
+import ImportInput from "./ImportInput";
 
 
 const Search = styled("div")(({ theme }) => ({
@@ -71,6 +72,7 @@ export default function SearchInput() {
         <>
           <Box display="flex" justifyContent="flex-start" mb={2}>
             <Can permission={'manzanas.create'}>
+            <ImportInput />
             <Button
               variant="contained"
               //startIcon={<PersonAdd />}
