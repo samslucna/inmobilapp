@@ -17,7 +17,17 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 5);
-        $Projects = Project::with("stages")->paginate($perPage);
+        $id = $request->input('id', null);
+        $search = $request->input('search', '');
+        $query = Project::query();
+        
+        if ($id) {
+            $query->where('id', $id);
+        }
+        if ($search) {
+            $query->where('name', 'LIKE', "%$search%");
+        }
+        $Projects = $query->with("stages")->paginate($perPage);
         //dd($Projects);
         return response()->json($Projects);
     }

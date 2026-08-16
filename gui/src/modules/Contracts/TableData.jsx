@@ -768,7 +768,7 @@ const ContractTable = observer(
     const {
       page,
       rowsPerPage,
-      totalCount, 
+      totalCount,
       totalPages,
       from,
       to,
@@ -977,7 +977,7 @@ const ContractTable = observer(
         <Paper sx={{ borderRadius: 2, boxShadow: 3, overflow: "hidden" }}>
           {/* Filtros */}
           <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-            <ImportInput  />
+            {/* <ImportInput /> */}
             <SearchInput />
           </Box>
 
@@ -1138,7 +1138,9 @@ const ContractTable = observer(
                               <Tooltip title="Generar PDF">
                                 <ModalMuiIconContract
                                   data={contract}
-                                  url={"/api/contracts/export/pdf/contractExportPDF?id="}
+                                  url={
+                                    "/api/contracts/export/pdf/contractExportPDF?id="
+                                  }
                                   color={"error"}
                                 />
                               </Tooltip>

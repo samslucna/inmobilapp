@@ -46,29 +46,71 @@ class PropertyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): JsonResponse
+
+
+    public function index(Request $request)
     {
         try {
             $perPage = $request->input('per_page', 10);
+            $stageId = $request->input('stage_id', '');
+            $blockId = $request->input('block_id', '');
+            $projectId = $request->input('project_id', '');
             $page = $request->input('page', 1);
             $search = $request->input('search', '');
-            $status = $request->input('status', '');
-            $paytype = $request->input('paytype', '');
-            $dateFrom = $request->input('date_from', '');
-            $dateTo = $request->input('date_to', '');
+            $status = $request->input('status', ''); // Nuevo parámetro para el estado
 
-            $query = Property::with('block')->with('boundaries');
+            // Construir consulta base
+            $query = DB::table('properties as p')
+                ->join('blocks as b', 'p.block_id', '=', 'b.id')
+                ->leftJoin('stages as s', 'b.stage_id', '=', 's.id')
+                ->leftJoin('projects as pr', 's.project_id', '=', 'pr.id')
+                ->leftJoin('contracts as c', 'p.id', '=', 'c.property_id')
+                ->leftJoin('tickets as t', 'c.id', '=', 't.contract_id')
+                ->select(
+                    'p.id',
+                    'p.name',
+                    'b.name as manzana',
+                    's.name as etapa',
+                    'pr.name as project_name',
+                    'p.amount_init',
+                    'p.status',
+
+                    // Subconsulta 1: Trae la suma total de los montos de los tickets
+                    DB::raw("COALESCE(
+                (SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 0) as total_pagado"),
+
+                    // Subconsulta 2: Calcula el saldo (amount_init - total_tickets)
+                    DB::raw("p.amount_init - COALESCE(
+                (SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 
+                0
+            ) as saldo"),
+                    'c.date as fecha_contrato' // asumiendo que existe esta columna
+                );
 
             // Aplicar filtros
-            if (!empty($search)) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('id', 'LIKE', "%{$search}%");
-                });
+            if ($stageId) {
+                $query->where('b.stage_id', $stageId);
+            }
+
+            if ($blockId) {
+                $query->where('p.block_id', $blockId);
+            }
+
+            if ($projectId) {
+                $query->where('b.project_id', $projectId);
+            }
+
+            if ($search) {
+                $query->where('p.name', 'like', '%' . $search . '%');
+            }
+
+            if ($status) {
+                $query->where('p.status', $status);
             }
 
 
-
             $properties = $query->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+
 
             return response()->json([
                 'success' => true,
@@ -83,7 +125,7 @@ class PropertyController extends Controller
         } catch (\Exception $th) {
             return response()->json([
                 'success' => false,
-                'message' => $th->getMessage()  
+                'message' => $th->getMessage()
             ]);
         }
     }
@@ -93,13 +135,15 @@ class PropertyController extends Controller
         // Construir consulta base
         $query = DB::table('properties as p')
             ->join('blocks as b', 'p.block_id', '=', 'b.id')
+            ->leftJoin('stages as s', 'b.stage_id', '=', 's.id')
             ->leftJoin('contracts as c', 'p.id', '=', 'c.property_id')
             ->leftJoin('tickets as t', 'c.id', '=', 't.contract_id')
             ->select(
                 'p.id',
                 'p.name',
+                'p.m2',
                 'b.name as manzana',
-                'b.stage_id',
+                's.name as etapa',
                 'p.amount_init',
                 'p.status',
 
@@ -116,7 +160,7 @@ class PropertyController extends Controller
             );
 
 
-        //dd($query->get());
+        dd($query->get());
         // 2. FILTRO POR ESTADO (disponible, vendido, apartado)
         // Recibe el parámetro 'status' desde el request
         $query->when($request->filled('status'), function ($q) use ($request) {
@@ -181,7 +225,7 @@ class PropertyController extends Controller
 
         // Filtro 8: Búsqueda por nombre de lote
         if ($request->has('search') && $request->search) {
-            $query->where('l.name', 'like', '%' . $request->search . '%');
+            $query->where('p.name', 'like', '%' . $request->search . '%');
         }
 
         // Ordenamiento
@@ -295,9 +339,9 @@ class PropertyController extends Controller
      */
     public function update(Request $request)
     {
-    
-    //dd($request->all());
-    // inserta los datos
+
+        //dd($request->all());
+        // inserta los datos
         Property::where('id', $request->id)->update([
             "name" => $request->name,
             "description" => $request->description,

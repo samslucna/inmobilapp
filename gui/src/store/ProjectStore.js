@@ -7,6 +7,7 @@ import {
   searchBd,
   getDatasBd,
   getDataById,
+  searchBdFilter
 } from "../api/QueryApi";
 import Swal from "sweetalert2";
 
@@ -133,6 +134,17 @@ class ProjectStore {
     }
   };
 
+   filterProjects = async (filters) => {
+        try {
+          const data = await searchBdFilter("projects", filters);
+          this.setPagination(data);
+          this.setProjects(data.data);
+      
+          return data;
+        } catch (error) {
+          console.log(error);
+        }
+      };
   searchByTable = async (e, table) => {
     e.preventDefault();
     const { value } = e.target;

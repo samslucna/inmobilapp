@@ -1,7 +1,7 @@
 FROM php:8.2-fpm
 
 # =========================
-# Instalar dependencias
+# Instalar dependencias-LbLPTvLTV9Nm
 # =========================
 
 RUN apt-get update && apt-get install -y \
@@ -73,7 +73,7 @@ COPY . .
 
 RUN composer install \
     --optimize-autoloader \
-    --no-de 
+    --no-dev
 # =========================
 # Permisos Laravel
 # =========================

@@ -9,6 +9,7 @@ import SearchInput from "./SearchInput";
 import Form from "./Form";
 import TableData from "./TableData";
 import authStore from "../../store/AuthStore";
+import PropertiesPage from "./PropertiesPage";
 
 const DataList = observer(() => {
   
@@ -33,7 +34,7 @@ const {Can} = authStore;
             </Grid>
           ) : (
             <Grid size={12}>
-              <TableData datas={PropertyStore.properties} />
+             <PropertiesPage />
             </Grid>
           )}
         </Grid>

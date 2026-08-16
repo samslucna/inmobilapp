@@ -7,7 +7,7 @@ import {
   searchBd,
   getDatasBd,
   getDataById,
-  setUrImport
+  setUrImport,searchBdFilter
 } from "../api/QueryApi";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
@@ -118,6 +118,19 @@ setUrlImp = (url) => {
       console.log(error);
     }
   };
+
+
+   filterBlocks = async (filters) => {
+        try {
+          const data = await searchBdFilter("blocks", filters);
+          this.setPagination(data);
+          this.setBlocks(data.data);
+          
+          return data;
+        } catch (error) {
+          console.log(error);
+        }
+      };
 
     importXlsBlocks = async () => {
       try {

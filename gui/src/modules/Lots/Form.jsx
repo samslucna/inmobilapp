@@ -151,60 +151,55 @@ export default function Form() {
   useEffect(() => {
     const init = async () => {
       try {
-        let projecs = await ProjectStore.loadProjects();
-        let blocks = await BlocksStore.getBlocks();
-        let stages = await StageStore.getStages();
+        if (PropertyStore.editing && PropertyStore.property.block_id) {
+          // --- MODO EDICIÓN ---
 
-        if (PropertyStore.editing) {
-          if (PropertyStore.property.block_id !== null) {
-            let getBLock = blocks.filter(
-              (block) => block.id === block_id,
-            );
+          setData({
+            projects: [],
+            stages: [],
+            blocks: [],
+          });
+          const block = await BlocksStore.filterBlocks({
+            id: PropertyStore.property.block_id,
+          });
+          const stage = await StageStore.filterStages({
+            id: block.data[0].stage_id,
+          });
 
-            let getStage = stages.filter(
-              (stage) => stage.id === getBLock[0].stage_id,
-            );
+          const project = await ProjectStore.filterProjects({
+            id: stage.data[0].project_id,
+          });
 
-            
-            let getProject = projecs.filter(
-              (project) => project.id === getStage[0].project_id,
-            );
+          setData({
+            projects: project.data,
+            stages: project.data[0].stages,
+            blocks: stage.data[0].blocks,
+          });
+          setSelected({
+            project: project.data[0]?.id || 0,
+            stage: stage.data[0]?.id || 0,
+            block: block.data[0]?.id || 0,
+          });
 
+          setState({
+            ...state,
+            block_id: block.data[0]?.id || 0,
+          });
 
-            let filtergetStage = stages.filter(
-              (stage) => stage.project_id === getProject[0].id,
-            );
-
-            let filterBlocks = blocks.filter(
-              (block) => block.stage_id === getStage[0].id,
-            );
-             
-            setSelected({
-              ...selected,
-              project: getStage[0]?.project_id,
-              block: getBLock[0]?.id,
-              stage: getStage[0]?.id,
-            });
-            let changeState = {
-              ...state,
-              stage_id: getStage[0]?.id,
-            }
-            console.log(changeState)
-            setState(changeState);
-            
-          
-              setData({
-              ...data,
-              projects: projecs,
-              blocks: filterBlocks,
-              stages: filtergetStage,
-            });
-            
-          }
+          //
         } else {
-          projecs.unshift({ id: 0, name: "Todos los proyectos" });
-          blocks.unshift({ id: 0, name: "Todas las manzanas" });
-          stages.unshift({ id: 0, name: "Todas las etapas" });
+          const [rawProjects, rawBlocks, rawStages] = await Promise.all([
+            ProjectStore.loadProjects(),
+            BlocksStore.getBlocks(),
+            StageStore.getStages(),
+          ]);
+          let projecs = [
+            { id: 0, name: "Todos los proyectos" },
+            ...rawProjects,
+          ];
+          let blocks = [{ id: 0, name: "Todas las manzanas" }, ...rawBlocks];
+          let stages = [{ id: 0, name: "Todas las etapas" }, ...rawStages];
+
           setData({
             ...data,
             blocks: blocks,
@@ -248,7 +243,7 @@ export default function Form() {
                   datas={data.projects}
                   label={"Proyecto"}
                   name={"project_id"}
-                  value={selected.project}
+                  value={selected.project || 0}
                   onChange={onChangeSelector}
                   blur={handleBlur}
                 />
@@ -259,7 +254,7 @@ export default function Form() {
                   datas={data.stages}
                   label={"Etapa"}
                   name={"stage_id"}
-                  value={selected.stage}
+                  value={selected.stage || 0}
                   onChange={onChangeSelector}
                   blur={handleBlur}
                 />
@@ -269,7 +264,9 @@ export default function Form() {
                   datas={data.blocks}
                   label={"Manzana"}
                   name={"block_id"}
-                  value={block_id}
+                  value={
+                    data.blocks.some((b) => b.id === block_id) ? block_id : ""
+                  }
                   onChange={onChangeSelector}
                   blur={handleBlur}
                 />

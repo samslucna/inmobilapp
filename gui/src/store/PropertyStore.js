@@ -8,6 +8,7 @@ import {
   getDatasBd,
   setUrImport,
   getDataById,
+  searchBdFilter,
 } from "../api/QueryApi";
 import Swal from "sweetalert2";
 import changeFormat from "../helper/changeFormat";
@@ -109,10 +110,16 @@ class PropertyStore {
     }
   };
 
-  loadProperties = async () => {
+  loadProperties = async (filters,page) => {
     try {
-      const data = await getAllBd("properties");
 
+      const params = new URLSearchParams({
+        page,
+        ...filters,
+      });
+      const data = await searchBdFilter("properties", filters);
+
+      //console.log("loadProperties", data); // Depuración
       this.setPagination(data);
       this.setProperties(data.data);
       return data.data;
@@ -120,6 +127,18 @@ class PropertyStore {
       console.log(error);
     }
   };
+
+   filterProperty = async (filters) => {
+      try {
+        const data = await searchBdFilter("properties", filters);
+        this.setPagination(data);
+        this.setProperties(data.data);
+        this.setFilter(filters);
+        return data;
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
   addProperty = async (data) => {
     try {

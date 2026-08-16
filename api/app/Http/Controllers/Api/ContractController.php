@@ -149,16 +149,16 @@ class ContractController extends Controller
             ]);
 
             // Crear ticket de enganche solo si el advance es mayor a 0
-            if ($request->advance > 0) {
-                $ticket = Ticket::create([
-                    "concept" => "Enganche",
-                    "amount" => $request->advance,
-                    "date" => Carbon::parse($request->date)->format('Y-m-d'),
-                    "paytype" => $request->paytype,
-                    "contract_id" => $contract->id,
-                ]);
-                $contract->ticket = $ticket;
-            }
+            //if ($request->advance > 0) {
+            //    $ticket = Ticket::create([
+            //        "concept" => "Enganche",
+            //        "amount" => $request->advance,
+            //        "date" => Carbon::parse($request->date)->format('Y-m-d'),
+            //        "paytype" => $request->paytype,
+            //        "contract_id" => $contract->id,
+            //    ]);
+            //    $contract->ticket = $ticket;
+            //}
 
             // Registrar auditoría
             AuditLogService::log(

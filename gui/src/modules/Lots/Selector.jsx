@@ -20,7 +20,7 @@ export default function Selector({ datas,label,name,value, onChange,blur }) {
         </MenuItem>
       )}
       {datas && datas.map((data,i) => (
-        <MenuItem key={i} value={data.id}>
+        <MenuItem key={data.id} value={data.id}>
           {data.name}
         </MenuItem>
       ))}

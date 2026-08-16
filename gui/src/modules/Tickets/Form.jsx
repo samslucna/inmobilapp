@@ -186,11 +186,16 @@ export default function Form() {
 
       if (result.isConfirmed) {
         setLoading(true);
+        console.log("Guardando recibo con datos:", state);
         // Preparar datos para guardar
+        let amountValue = amount;
+        if (typeof amount === "string") {
+          amountValue = parseFloat(amount.replace(/[$,]/g, ""));
+        }
         const ticketData = {
           ...state,
           contract_id: contract?.id || contract_id,
-          amount: parseFloat(amount.replace(/[$,]/g, "")) || 0,
+          amount: parseFloat(amountValue || 0),
         };
 
         setState(ticketData);

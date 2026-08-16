@@ -101,18 +101,20 @@ const TableData = observer(({ datas }) => {
   };
 
   const goEdit = async (property) => {
+    console.log("goEdit", property);
     BoundaryStore.setBoundaries(property.boundaries);
     const data = {
       ...property,
       boundaries: BoundaryStore.Boundaries,
     };
 
+ 
     PropertyStore.setEditing(true);
     PropertyStore.setEditId(property.id);
     PropertyStore.setProperty(data);
     PropertyStore.setHiddenForm(true);
   };
-
+console.log("datas", datas); // Depuración
   return (
     <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
       {/* Box con overflowX asegura la responsividad en móviles */}
@@ -130,7 +132,7 @@ const TableData = observer(({ datas }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {datas.map((property) => (
+          {datas!== undefined && datas.map((property) => (
             <TableRow key={property.id} hover>
               <TableCell>{property.id}</TableCell>
 

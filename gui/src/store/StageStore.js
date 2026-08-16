@@ -5,7 +5,7 @@ import {
   updateBd,
   deleteBd,
   searchBd,
-  getDatasBd,getDataById
+  getDatasBd,getDataById,searchBdFilter
 } from "../api/QueryApi";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
@@ -75,6 +75,18 @@ class StageStore {
       console.log(error);
     }
   };
+
+     filterStages = async (filters) => {
+          try {
+            const data = await searchBdFilter("stages", filters);
+            this.setPagination(data);
+            this.setStages(data.data);
+            
+            return data;
+          } catch (error) {
+            console.log(error);
+          }
+        };
 
     getStagesByProject = async (project_id) => {
     try {

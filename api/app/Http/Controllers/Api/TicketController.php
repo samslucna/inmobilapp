@@ -81,7 +81,7 @@ class TicketController extends Controller
 
         try {
 
-            dd($request->all());
+            //dd($request->all());
           
             $validator = Validator::make($request->all(), [
                 'concept' => 'required|string|max:255',
@@ -117,7 +117,7 @@ class TicketController extends Controller
             $ticket = Ticket::create([
                 "nticket" => $request->nticket,
                 "concept" => $request->concept,
-                "amount" => $request->amount,
+                "amount" => (float)($request->amount),
                 "date" => Carbon::parse($request->date)->format('Y-m-d'),
                 "paytype" => $request->paytype,
                 "contract_id" => $request->contract_id,

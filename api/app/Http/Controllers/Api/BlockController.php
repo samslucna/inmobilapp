@@ -17,7 +17,16 @@ class BlockController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 5); // Valor por defecto de 5 si no se proporciona
-        $Block = Block::with('stage')->paginate($perPage);
+        $id = $request->input('id', null);
+        $search = $request->input('search', '');
+        $query = Block::query();
+        if ($id) {
+            $query->where('id', $id);
+        }
+        if ($search) {
+            $query->where('name', 'LIKE', "%$search%");
+        }
+        $Block = $query->paginate($perPage);
         //dd($Block);
         //dd($Block);
         return response()->json($Block);
@@ -32,7 +41,7 @@ class BlockController extends Controller
         $validator = Validator::make($request->all(), [
             "stage_id" => "required|integer",
             "description" => "nullable|string|max:255",
-            
+
         ]);
 
         if ($validator->fails()) {
@@ -42,7 +51,7 @@ class BlockController extends Controller
         }
         $Block = Block::create([
             "stage_id" => $request->stage_id,
-            "name" => $request->name,   
+            "name" => $request->name,
             "description" => $request->description,
         ]);
 
