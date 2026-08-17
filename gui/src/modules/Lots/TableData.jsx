@@ -114,7 +114,7 @@ const TableData = observer(({ datas }) => {
     PropertyStore.setProperty(data);
     PropertyStore.setHiddenForm(true);
   };
-console.log("datas", datas); // Depuración
+console.log(datas)
   return (
     <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
       {/* Box con overflowX asegura la responsividad en móviles */}
@@ -124,8 +124,9 @@ console.log("datas", datas); // Depuración
           <TableRow>
             <TableCell>ID</TableCell>
             <TableCell>Nombre/Clave</TableCell>
-            <TableCell>M2</TableCell>
             <TableCell>Manzana</TableCell>
+            <TableCell>Etapa</TableCell>
+            <TableCell>Proyecto</TableCell>
             <TableCell>$ Precio</TableCell>
             <TableCell>Status</TableCell>
             <TableCell align="right">Acciones</TableCell>
@@ -139,21 +140,19 @@ console.log("datas", datas); // Depuración
               {/* Columna de Usuario con Avatar */}
               <TableCell>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <Avatar sx={{ bgcolor: "primary.main" }}>
-                    {property.name.charAt(0)}
-                  </Avatar>
                   <Box>
                     <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
                       {property.name}
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
-                      {property.description}
+                      {property.m2}
                     </Typography>
                   </Box>
                 </Box>
               </TableCell>
-              <TableCell>{property.m2}</TableCell>
-              <TableCell>{property?.block?.name}</TableCell>
+              <TableCell>{property.manzana}</TableCell>
+              <TableCell>{property?.etapa}</TableCell>
+              <TableCell>{property?.project_name}</TableCell>
 
               <TableCell>
                 {changeFormat.numberToString(property.amount_init)}
@@ -191,8 +190,8 @@ console.log("datas", datas); // Depuración
 
       <Stack spacing={2} sx={{ padding: 2, alignItems: "center" }}>
         <Pagination
-          count={PropertyStore.pagination.last_page}
-          page={PropertyStore.pagination.currentPage}
+          count={PropertyStore.pagination.last_page || 0}
+          page={PropertyStore.pagination.currentPage || 0}
           onChange={handleChange}
         />
       </Stack>

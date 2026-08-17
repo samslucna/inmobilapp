@@ -26,28 +26,31 @@ class AuthStore {
     // Revisar token en localStorage primero
     const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
-   
 
+    
     if (savedUser !== null) {
       const user = JSON.parse(savedUser);
-      this.setPermissions(user.permissions);
-      this.setRoles(user.roles);
-    }
 
-    // Revisar token en cookie secundariamente
-    const cookieToken = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("token="));
-    this.setUser(JSON.parse(savedUser));
-    if (savedToken && savedUser) {
-      this.token = savedToken;
+      this.setPermissions(user.permissions || []);
+      this.setRoles(user.roles || []);
 
-      this.user = JSON.parse(savedUser);
-      this.isAuthenticated = true;
-    } else if (cookieToken) {
-      this.token = cookieToken.split("=")[1];
-      this.user = JSON.parse(savedUser);
-      this.isAuthenticated = true;
+      // Revisar token en cookie secundariamente
+      const cookieToken = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("token="));
+      this.setUser(JSON.parse(savedUser));
+      if (savedToken && savedUser) {
+        this.token = savedToken;
+
+        this.user = JSON.parse(savedUser);
+        this.isAuthenticated = true;
+      } else if (cookieToken) {
+        this.token = cookieToken.split("=")[1];
+        this.user = JSON.parse(savedUser);
+        this.isAuthenticated = true;
+      }
+    }else {
+      console.log("No hay usuario guardado en localStorage.");
     }
   }
 
@@ -85,7 +88,6 @@ class AuthStore {
   };
 
   Can = ({ permission, children }) => {
-    
     if (!authStore.permissions.includes(permission)) {
       return null;
     }

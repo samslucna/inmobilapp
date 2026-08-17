@@ -83,8 +83,8 @@ const TableDatas = observer(({ list }) => {
       </table>
       <div className="ui icon buttons">
         <Pagination
-          count={ReportStore.pagination.last_page}
-          page={ReportStore.pagination.currentPage}
+          count={ReportStore.pagination.last_page || 1}
+          page={ReportStore.pagination.currentPage || 1}
           onChange={ReportStore.handlePaginationChange}
         />
       </div>

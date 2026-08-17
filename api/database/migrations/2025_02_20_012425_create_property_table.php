@@ -14,14 +14,16 @@ return new class extends Migration
         Schema::create('properties', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('description');
+            $table->text('description', 500)->nullable();
             $table->string('m2');
             $table->string('address');
             $table->unsignedBigInteger('block_id')->nullable();
             $table->foreign('block_id')
                 ->references('id')->on('blocks')->onDelete('set null')->onUpdate('cascade');
-            $table->double('amount_init',14,5)->nullable();;
-            $table->double('amount_end',14,5)->nullable();;
+            $table->double('amount_init',14,5)->nullable();
+            $table->double('amount_end',14,5)->nullable();
+            $table->string('latitude');
+            $table->string('longitude');
             $table->string('status');
             $table->timestamps();
         });

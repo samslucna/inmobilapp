@@ -26,6 +26,8 @@ class Property extends Model
         "block_id",
         "amount_init",
         "amount_end",
+        "latitude",
+        "longitude",
         "status"
     ];
 

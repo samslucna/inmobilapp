@@ -31,6 +31,8 @@ class PropertyRequest extends FormRequest
         "stage" => ['required', 'string'],
         "amount_init" => ['required', 'double'],
         "amount_end" => ['required', 'double'],
+        "latitude" => ['string'],
+        "longitude" => ['string'],
         "status" => ['required', 'string'],
         "boundaries" => ['required', 'array'],
         ];

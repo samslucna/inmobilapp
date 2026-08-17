@@ -180,8 +180,8 @@ const TableData = observer(({ datas }) => {
 
       <Stack spacing={2} sx={{ padding: 2, alignItems: "center" }}>
         <Pagination
-          count={ProjectStore.pagination.last_page}
-          page={ProjectStore.pagination.currentPage}
+          count={ProjectStore.pagination.last_page || 1}
+          page={ProjectStore.pagination.currentPage || 1}
           onChange={handleChange}
         />
       </Stack>

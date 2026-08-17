@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('contracts', function (Blueprint $table) {
             $table->id();
+            $table->string('ncontract', 100);
             $table->date('date');
             $table->unsignedBigInteger('buyer_id')->nullable();
             $table->foreign('buyer_id')
@@ -28,7 +29,7 @@ return new class extends Migration
                 ->references('id')->on('properties')->onDelete('set null')->onUpdate('cascade');
             $table->integer('plazo');
             $table->decimal('advance', 13, 5);
-            $table->string('ref');
+            $table->string('ref', 100)->nullable();
             $table->string('paytype',100)->nullable();
             $table->string('status')->default('credito');
             $table->timestamps();

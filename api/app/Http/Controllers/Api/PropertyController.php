@@ -51,21 +51,27 @@ class PropertyController extends Controller
     public function index(Request $request)
     {
         try {
-            $perPage = $request->input('per_page', 10);
-            $stageId = $request->input('stage_id', '');
-            $blockId = $request->input('block_id', '');
-            $projectId = $request->input('project_id', '');
-            $page = $request->input('page', 1);
-            $search = $request->input('search', '');
-            $status = $request->input('status', ''); // Nuevo parámetro para el estado
+            $perPage   = $request->input('per_page', 10);
+            $stageId   = $request->input('stage_id');
+            $blockId   = $request->input('block_id');
+            $projectId = $request->input('project_id');
+            $search    = $request->input('search');
+            $status    = $request->input('status');
 
-            // Construir consulta base
+            // 1. Subconsulta agregada de tickets (calcula totales por contrato de forma eficiente)
+            $ticketsSum = DB::table('tickets')
+                ->select('contract_id', DB::raw('SUM(amount) as total_tickets'))
+                ->groupBy('contract_id');
+
+            // 2. Consulta principal con JOINs optimizados
             $query = DB::table('properties as p')
                 ->join('blocks as b', 'p.block_id', '=', 'b.id')
                 ->leftJoin('stages as s', 'b.stage_id', '=', 's.id')
                 ->leftJoin('projects as pr', 's.project_id', '=', 'pr.id')
                 ->leftJoin('contracts as c', 'p.id', '=', 'c.property_id')
-                ->leftJoin('tickets as t', 'c.id', '=', 't.contract_id')
+                ->leftJoinSub($ticketsSum, 't', function ($join) {
+                    $join->on('c.id', '=', 't.contract_id');
+                })
                 ->select(
                     'p.id',
                     'p.name',
@@ -74,20 +80,12 @@ class PropertyController extends Controller
                     'pr.name as project_name',
                     'p.amount_init',
                     'p.status',
-
-                    // Subconsulta 1: Trae la suma total de los montos de los tickets
-                    DB::raw("COALESCE(
-                (SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 0) as total_pagado"),
-
-                    // Subconsulta 2: Calcula el saldo (amount_init - total_tickets)
-                    DB::raw("p.amount_init - COALESCE(
-                (SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 
-                0
-            ) as saldo"),
-                    'c.date as fecha_contrato' // asumiendo que existe esta columna
+                    DB::raw('COALESCE(t.total_tickets, 0) as total_pagado'),
+                    DB::raw('p.amount_init - COALESCE(t.total_tickets, 0) as saldo'),
+                    'c.date as fecha_contrato'
                 );
 
-            // Aplicar filtros
+            // 3. Aplicación de Filtros
             if ($stageId) {
                 $query->where('b.stage_id', $stageId);
             }
@@ -97,36 +95,36 @@ class PropertyController extends Controller
             }
 
             if ($projectId) {
-                $query->where('b.project_id', $projectId);
+                $query->where('s.project_id', $projectId); // Corregido: project_id proviene de stages
             }
 
             if ($search) {
-                $query->where('p.name', 'like', '%' . $search . '%');
+                $query->where('p.id', '=', $search);
             }
 
             if ($status) {
                 $query->where('p.status', $status);
             }
 
+            // 4. Paginación automática (Laravel maneja la página solicitada implícitamente)
+            $properties = $query->orderBy('p.id', 'desc')->paginate($perPage);
 
-            $properties = $query->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
-
-
+            // Conserva exactamente la misma estructura de respuesta en tu API
             return response()->json([
-                'success' => true,
-                'data' => $properties->items(),
+                'success'      => true,
+                'data'         => $properties->items(),
                 'current_page' => $properties->currentPage(),
-                'last_page' => $properties->lastPage(),
-                'per_page' => $properties->perPage(),
-                'total' => $properties->total(),
-                'from' => $properties->firstItem(),
-                'to' => $properties->lastItem(),
+                'last_page'    => $properties->lastPage(),
+                'per_page'     => $properties->perPage(),
+                'total'        => $properties->total(),
+                'from'         => $properties->firstItem(),
+                'to'           => $properties->lastItem(),
             ]);
         } catch (\Exception $th) {
             return response()->json([
                 'success' => false,
                 'message' => $th->getMessage()
-            ]);
+            ], 500);
         }
     }
 
@@ -274,6 +272,8 @@ class PropertyController extends Controller
                 "block_id" => $request->block_id,
                 "amount_init" => $request->amount_init,
                 "amount_end" => $request->amount_end,
+                "latitude" => $request->latitude,
+                "longitude" => $request->longitude,
                 "status" => $request->status,
             ]
         );
@@ -306,6 +306,8 @@ class PropertyController extends Controller
                 "block_id" => $request->block_id,
                 "amount_init" => $request->amount_init,
                 "amount_end" => $request->amount_end,
+                 "latitude" => $request->latitude,
+                "longitude" => $request->longitude,
                 "status" => $request->status,
             ],
             subject: $property
@@ -350,6 +352,8 @@ class PropertyController extends Controller
             "block_id" => $request->block_id,
             "amount_init" => $request->amount_init,
             "amount_end" => $request->amount_end,
+            "latitude" => $request->latitude,
+            "longitude" => $request->longitude,
             "status" => $request->status,
         ]);
 

@@ -23,6 +23,8 @@ class PropertyStore {
     description: "",
     m2: 0.0,
     address: "",
+    latitude: "",
+    longitude: "",
     amount_init: 0.0,
     amount_end: 0.0,
     status: "disponible",

@@ -174,9 +174,9 @@ const TableData = observer(({ datasTable, loading: externalLoading }) => {
               </thead>
               <tbody>
                 {datasTable !== [] && datasTable !== undefined
-                  ? datasTable.map((data) => {
+                  ? datasTable.map((data, i) => {
                       return (
-                        <tr key={"r" + data.id}>
+                        <tr key={"r" + i}>
                           <td>{data?.id}</td>
 
                           <td>{data.date}</td>
@@ -242,8 +242,8 @@ const TableData = observer(({ datasTable, loading: externalLoading }) => {
                         </Grid>
                         <Grid item>
                           <DataTablePagination
-                            totalCount={totalCount}
-                            page={page}
+                            totalCount={totalCount || 0}
+                            page={page || 0}
                             rowsPerPage={rowsPerPage}
                             onPageChange={handlePageChange}
                             onRowsPerPageChange={handleRowsPerPageChange}

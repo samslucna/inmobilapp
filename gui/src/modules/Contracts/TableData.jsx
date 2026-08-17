@@ -977,7 +977,7 @@ const ContractTable = observer(
         <Paper sx={{ borderRadius: 2, boxShadow: 3, overflow: "hidden" }}>
           {/* Filtros */}
           <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-            {/* <ImportInput /> */}
+             <ImportInput />
             <SearchInput />
           </Box>
 
@@ -1192,8 +1192,8 @@ const ContractTable = observer(
                   </Grid>
                   <Grid item>
                     <DataTablePagination
-                      totalCount={totalCount}
-                      page={page}
+                      totalCount={totalCount || 0}
+                      page={page || 0}
                       rowsPerPage={rowsPerPage}
                       onPageChange={handlePageChange}
                       onRowsPerPageChange={handleRowsPerPageChange}

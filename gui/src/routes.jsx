@@ -14,7 +14,6 @@ import CatStage from './modules/stage'
 import CatBlock from './modules/blocks'
 import ContractsPage from "./modules/Contracts";
 import TicketsPage from './modules/Tickets';
-import FinanzasPage from "./modules/finances";
 import ReportesPage from "./modules/reports";
 import UsersPage from "./modules/users";
 import ReporteLotes from "./modules/reports/Lots";

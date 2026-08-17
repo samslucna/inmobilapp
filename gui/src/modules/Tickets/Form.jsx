@@ -250,8 +250,9 @@ export default function Form() {
     if (newValue) {
       setContract(newValue);
       setState({ ...state, contract_id: newValue.id });
-      loadContractDetails(newValue.id);
+
       setSearchTerm("");
+      loadContractDetails(newValue.id);
     } else {
       setContract(null);
       setContractDetails(null);
@@ -261,7 +262,8 @@ export default function Form() {
 
   // Renderizar opciones del autocomplete
   const renderContractOption = useCallback((option) => {
-    if (!option) return "";
+    console.log(option);
+    if (!option.id) return "";
     return `C-${option?.id} - ${option?.cliente} `;
   }, []);
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   List,
   ListItemButton,
@@ -24,6 +24,13 @@ import PaymentsIcon from "@mui/icons-material/Payments";
 import { Link } from "react-router-dom";
 import authStore from "../store/AuthStore";
 
+
+export default function Sidebar({ openSidebar }) {
+  const { Can } = authStore;
+
+
+
+  const [open, setOpen] = useState({});
 // Supongamos que este es tu arreglo de entrada
 const menuData = [
   {
@@ -113,56 +120,24 @@ const menuData = [
     icon: <BarChart />,
   },
 ];
-export default function Sidebar({ openSidebar }) {
-  const { Can } = authStore;
-
-  const menuItems = [
-    { text: "Dashboard", link: "/dashboard", submenu: [], icon: <Dashboard /> },
-    {
-      text: "Ventas",
-      link: "/ventas",
-      submenu: [
-        { text: "Contratos", link: "/contratos" }, // Crud Contratos
-        { text: "Registro de pago", link: "/pagos" }, // Captura los recibos
-        { text: "Estado de Cuenta", link: "/usuarios" }, //Para los estados de cuenta de los clientes?
-      ],
-      icon: <MonetizationOnIcon variant="outlined" />,
-    },
-
-    {
-      text: "Catalogos",
-      link: "#!",
-      submenu: [
-        { text: "Clientes", link: "/catalogo/clientes" },
-        { text: "Propietarios", link: "/propiedades" },
-        { text: "Agentes", link: "/agentes" },
-        { text: "Lotes", link: "/usuarios" },
-        { text: "Usuarios", link: "/usuarios" },
-        { text: "Roles", link: "/roles" },
-      ],
-      icon: <ListAltIcon />,
-    },
-    {
-      text: "Reportes",
-      link: "/reportes",
-      submenu: [
-        { text: "Lotes", link: "/lotes" },
-        { text: "Recibos", link: "/recibos" },
-        { text: "Ingresos", link: "/recibos" },
-        { text: "Ventas", link: "/recibos" },
-      ],
-      icon: <BarChart />,
-    },
-  ];
-
-  const [open, setOpen] = useState({});
-
   const handleToggle = (text) => {
     setOpen((prev) => ({
       ...prev,
       [text]: !prev[text],
     }));
   };
+
+
+  useEffect(() => {
+    // Inicializar el estado de los submenús como cerrados
+    const initialOpenState = {};
+    menuData.forEach((item) => {
+      if (item.submenu) {
+        initialOpenState[item.text] = false;
+      }
+    });
+    setOpen(initialOpenState);
+  }, []);
 
   return (
     <Drawer

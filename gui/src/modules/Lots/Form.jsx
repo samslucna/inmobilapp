@@ -50,6 +50,8 @@ export default function Form() {
     m2,
     amount_end,
     amount_init,
+    latitude,
+    longitude,
   } = state;
 
   const saveProperty = async (e) => {
@@ -361,6 +363,37 @@ export default function Form() {
                   onBlur={handleBlur}
                   sx={{ mb: 2 }}
                 />
+                
+              </Grid>
+
+                    <Grid size={{ sm: 12, md: 6 }}>
+                <TextField
+                  name="latitude"
+                  label="Latitud"
+                  type="text"
+                  fullWidth
+                  required
+                  value={latitude}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  sx={{ mb: 2 }}
+                />
+                
+              </Grid>
+
+                    <Grid size={{ sm: 12, md: 6 }}>
+                <TextField
+                  name="longitude"
+                  label="Longitud"
+                  type="text"
+                  fullWidth
+                  required
+                  value={longitude}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  sx={{ mb: 2 }}
+                />
+                
               </Grid>
             </Grid>
 
