@@ -13,28 +13,22 @@ import {
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ClearIcon from '@mui/icons-material/Clear';
 import SearchIcon from '@mui/icons-material/Search';
+import PropertyStore from '../../store/PropertyStore';
 
-const initialFilters = {
-  search: '',
-  block_id: '',
-  stage_id: '',
-  project_id: '',
-  paytype: '',
-  date_from: '',
-  date_to: '',
-};
 
-export default function PropertyFilters({ onFilter, onReset }) {
-  const [filters, setFilters] = useState(initialFilters);
+
+export default function PropertyFilters({ onFilter, onReset,filters,setFilters }) {
+  
 
   // Actualiza el estado local al escribir o seleccionar
   const handleChange = (e) => {
 
     const { name, value } = e.target;
-    setFilters((prev) => ({
-      ...prev,
+    setFilters({
+      ...filters,
       [name]: value,
-    }));
+    });
+    handleApply(e); // Aplica los filtros automáticamente al cambiar cualquier campo
   };
 
   // Dispara los filtros hacia el componente padre o la llamada a la API
@@ -47,6 +41,15 @@ export default function PropertyFilters({ onFilter, onReset }) {
 
   // Limpia los filtros
   const handleClear = () => {
+    const initialFilters = {
+    search: "",
+    block_id: "",
+    stage_id: "",
+    project_id: "",
+    status: "",
+    date_from: "",
+    date_to: "",
+  };
     setFilters(initialFilters);
     if (onReset) {
       onReset(initialFilters);
@@ -64,7 +67,7 @@ export default function PropertyFilters({ onFilter, onReset }) {
         </Typography>
       </Box>
 
-      <Box component="form" onSubmit={handleApply}>
+      <Box component="form" >
         <Grid container spacing={2}>
           {/* Búsqueda General */}
           <Grid item xs={12} sm={6} md={4}>
@@ -73,8 +76,8 @@ export default function PropertyFilters({ onFilter, onReset }) {
               size="small"
               label="Buscar por ID o N°"
               name="search"
-              value={filters.search}
-              onChange={handleChange}
+              value={filters?.search}
+              onChange={onFilter}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -92,8 +95,8 @@ export default function PropertyFilters({ onFilter, onReset }) {
               size="small"
               label="Proyecto ID"
               name="project_id"
-              value={filters.project_id}
-              onChange={handleChange}
+              value={filters?.project_id}
+              onChange={onFilter}
             />
           </Grid>
 
@@ -104,8 +107,8 @@ export default function PropertyFilters({ onFilter, onReset }) {
               size="small"
               label="Etapa ID"
               name="stage_id"
-              value={filters.stage_id}
-              onChange={handleChange}
+              value={filters?.stage_id}
+              onChange={onFilter}
             />
           </Grid>
 
@@ -114,27 +117,29 @@ export default function PropertyFilters({ onFilter, onReset }) {
             <TextField
               fullWidth
               size="small"
-              label="Manzana (Block ID)"
+              label="Manzana"
               name="block_id"
-              value={filters.block_id}
-              onChange={handleChange}
+              value={filters?.block_id}
+              onChange={onFilter}
             />
           </Grid>
 
           {/* Tipo de Pago */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item size={{ xs: 12, sm: 6, md: 3 }} >
             <TextField
               select
               fullWidth
               size="small"
-              label="Tipo de Pago"
-              name="paytype"
-              value={filters.paytype}
-              onChange={handleChange}
+              label="Status"
+              name="status"
+              value={filters?.status}
+              onChange={onFilter}
             >
-              <MenuItem value="">Todos</MenuItem>
-              <MenuItem value="contado">Contado</MenuItem>
-              <MenuItem value="credito">Crédito</MenuItem>
+              <MenuItem key={0} value="">Todos</MenuItem>
+              <MenuItem key={1} value="pagado">Pagado</MenuItem>
+              <MenuItem key={2} value="pendiente">Pendiente</MenuItem>
+              <MenuItem key={3} value="disponible">Disponible</MenuItem>
+
             </TextField>
           </Grid>
 
@@ -146,8 +151,8 @@ export default function PropertyFilters({ onFilter, onReset }) {
               type="date"
               label="Desde"
               name="date_from"
-              value={filters.date_from}
-              onChange={handleChange}
+              value={filters?.date_from}
+              onChange={onFilter}
               InputLabelProps={{ shrink: true }}
             />
           </Grid>
@@ -160,8 +165,8 @@ export default function PropertyFilters({ onFilter, onReset }) {
               type="date"
               label="Hasta"
               name="date_to"
-              value={filters.date_to}
-              onChange={handleChange}
+              value={filters?.date_to}
+              onChange={onFilter}
               InputLabelProps={{ shrink: true }}
             />
           </Grid>
@@ -177,10 +182,11 @@ export default function PropertyFilters({ onFilter, onReset }) {
               Limpiar
             </Button>
             <Button
-              type="submit"
+              type="button"
               variant="contained"
               color="primary"
               startIcon={<FilterListIcon />}
+              onClick={handleApply}
             >
               Aplicar Filtros
             </Button>

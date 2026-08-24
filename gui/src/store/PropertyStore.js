@@ -9,6 +9,7 @@ import {
   setUrImport,
   getDataById,
   searchBdFilter,
+  getFilteredBd,
 } from "../api/QueryApi";
 import Swal from "sweetalert2";
 import changeFormat from "../helper/changeFormat";
@@ -43,7 +44,24 @@ class PropertyStore {
 
   isLoading = false;
 
-  pagination = {};
+  pagination = {
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+    per_page: 10,
+    from: null,
+    to: null,
+  };
+
+  filters = {
+    search: "",
+    block_id: "",
+    stage_id: "",
+    project_id: "",
+    paytype: "",
+    date_from: "",
+    date_to: "",
+  };
   editing = false;
   editId = null;
   hiddenForm = false;
@@ -75,6 +93,9 @@ class PropertyStore {
     this.selectedBlock = id;
   }
 
+  setFilters = (filters) => {
+    this.filters = { ...this.filters, ...filters };
+  };
   setStages(stages) {
     this.stages = stages;
   }
@@ -103,44 +124,42 @@ class PropertyStore {
     this.pagination = pagination;
   };
 
-  handlePaginationChange = async (page) => {
-    const pagCurrent = await getDatasBd("properties?page=" + page);
-    if (pagCurrent) {
-      this.setProperties(pagCurrent.data);
-      delete pagCurrent.data;
-      this.setPagination(pagCurrent);
+  handlePaginationChange = async (value,filters) => {
+
+    let pagCurrent = await this.loadProperties(parseInt(value),filters);
+    if (pagCurrent) {      
+      return pagCurrent;
     }
   };
 
-  loadProperties = async (filters,page) => {
+  loadProperties = async (page,filters) => {
     try {
-
-      const params = new URLSearchParams({
-        page,
+      let params = new URLSearchParams({
+        page:page,
         ...filters,
       });
-      const data = await searchBdFilter("properties", filters);
-
-      //console.log("loadProperties", data); // Depuración
-      this.setPagination(data);
-      this.setProperties(data.data);
-      return data.data;
+  
+      const data = await getFilteredBd("properties?", params);
+      if (page != undefined) {
+      
+        return data;
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
-   filterProperty = async (filters) => {
-      try {
-        const data = await searchBdFilter("properties", filters);
-        this.setPagination(data);
-        this.setProperties(data.data);
-        this.setFilter(filters);
-        return data;
-      } catch (error) {
-        console.log(error);
-      }
-    };
+  filterProperty = async (filters) => {
+    try {
+      const data = await searchBdFilter("properties", filters);
+      this.setPagination(data);
+      this.setProperties(data.data);
+      this.setFilter(filters);
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   addProperty = async (data) => {
     try {
@@ -196,10 +215,8 @@ class PropertyStore {
           this.setEditing(false);
           this.loadProperties();
         } else {
+          console.log(data);
 
-           
-          console.log(data)
-          
           await createBd("properties", data);
 
           Swal.fire({

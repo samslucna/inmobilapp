@@ -51,6 +51,8 @@ class PropertyController extends Controller
     public function index(Request $request)
     {
         try {
+            $page = $request->input('page',1);
+            $page = $page !== 'undefined' ? $page : 1;
             $perPage   = $request->input('per_page', 10);
             $stageId   = $request->input('stage_id');
             $blockId   = $request->input('block_id');
@@ -87,38 +89,41 @@ class PropertyController extends Controller
 
             // 3. Aplicación de Filtros
             if ($stageId) {
-                $query->where('b.stage_id', $stageId);
+                $query->where('s.name','like', "%$stageId%"); // Corregido: stage_id proviene de stages
             }
 
             if ($blockId) {
-                $query->where('p.block_id', $blockId);
+                $query->where('b.name','=', "$blockId"); // Corregido: block_id proviene de blocks
             }
 
+             
             if ($projectId) {
-                $query->where('s.project_id', $projectId); // Corregido: project_id proviene de stages
+                $query->where('pr.name','like', "%$projectId%"); // Corregido: project_id proviene de stages
             }
+            //dd($query->get());
+           
 
             if ($search) {
-                $query->where('p.id', '=', $search);
+                $query->where('p.name','like', "%$search%"); // Corregido: search proviene de properties
             }
 
             if ($status) {
-                $query->where('p.status', $status);
+                $query->where('p.status','like', "%$status%");
             }
 
             // 4. Paginación automática (Laravel maneja la página solicitada implícitamente)
-            $properties = $query->orderBy('p.id', 'desc')->paginate($perPage);
+            $properties = $query->orderBy('p.id', 'desc')->paginate($perPage,null,null,$page);
 
             // Conserva exactamente la misma estructura de respuesta en tu API
             return response()->json([
-                'success'      => true,
-                'data'         => $properties->items(),
+                 'success' => true,
+                'data' => $properties->items(),
                 'current_page' => $properties->currentPage(),
-                'last_page'    => $properties->lastPage(),
-                'per_page'     => $properties->perPage(),
-                'total'        => $properties->total(),
-                'from'         => $properties->firstItem(),
-                'to'           => $properties->lastItem(),
+                'last_page' => $properties->lastPage(),
+                'per_page' => $properties->perPage(),
+                'total' => $properties->total(),
+                'from' => $properties->firstItem(),
+                'to' => $properties->lastItem(),
             ]);
         } catch (\Exception $th) {
             return response()->json([
@@ -158,7 +163,7 @@ class PropertyController extends Controller
             );
 
 
-        dd($query->get());
+        //dd($query->get());
         // 2. FILTRO POR ESTADO (disponible, vendido, apartado)
         // Recibe el parámetro 'status' desde el request
         $query->when($request->filled('status'), function ($q) use ($request) {
@@ -187,15 +192,10 @@ class PropertyController extends Controller
             }
         });
 
-
-
         // Filtro 3: Por etapa específica
         if ($request->has('Etapa') && $request->stage_id) {
             $query->where('b.stage_id', $request->stage_id);
         }
-
-
-
 
         // Filtro 5: Rango de fechas del contrato (solo para lotes vendidos)
         $query->when($request->input('dates')['date_init'] && $request->input('dates')['date_end'], function ($q) use ($request) {

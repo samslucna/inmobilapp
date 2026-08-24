@@ -24,6 +24,7 @@ import Stack from "@mui/material/Stack";
 import BoundaryStore from "../../store/BoundaryStore";
 import changeFormat from "../../helper/changeFormat";
 import authStore from "../../store/AuthStore";
+import PropertyFilters from "./PropertyFilters";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -67,10 +68,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-const TableData = observer(({ datas }) => {
-  
-  const {Can}=authStore;
-  
+const TableData = observer(({ datas, changePage,paginate }) => {
+  const { Can } = authStore;
+  const { handlePaginationChange, filters } = PropertyStore;
+
   const handleDelete = async (id) => {
     const resp = await Swal.fire({
       title: "¿Eliminar usuario?",
@@ -96,8 +97,10 @@ const TableData = observer(({ datas }) => {
     }
   };
 
-  const handleChange = (e, value) => {
-    PropertyStore.handlePaginationChange(value);
+  const handleChange = async (e, value) => {
+    e.preventDefault();
+    const change = await handlePaginationChange(value);
+    console.log(change);
   };
 
   const goEdit = async (property) => {
@@ -108,94 +111,93 @@ const TableData = observer(({ datas }) => {
       boundaries: BoundaryStore.Boundaries,
     };
 
- 
     PropertyStore.setEditing(true);
     PropertyStore.setEditId(property.id);
     PropertyStore.setProperty(data);
     PropertyStore.setHiddenForm(true);
   };
-console.log(datas)
+
   return (
-    <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
-      {/* Box con overflowX asegura la responsividad en móviles */}
+    <>
+      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
+        {/* Box con overflowX asegura la responsividad en móviles */}
 
-      <Table aria-label="tabla de usuarios">
-        <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
-          <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell>Nombre/Clave</TableCell>
-            <TableCell>Manzana</TableCell>
-            <TableCell>Etapa</TableCell>
-            <TableCell>Proyecto</TableCell>
-            <TableCell>$ Precio</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell align="right">Acciones</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {datas!== undefined && datas.map((property) => (
-            <TableRow key={property.id} hover>
-              <TableCell>{property.id}</TableCell>
-
-              {/* Columna de Usuario con Avatar */}
-              <TableCell>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
-                      {property.name}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {property.m2}
-                    </Typography>
-                  </Box>
-                </Box>
-              </TableCell>
-              <TableCell>{property.manzana}</TableCell>
-              <TableCell>{property?.etapa}</TableCell>
-              <TableCell>{property?.project_name}</TableCell>
-
-              <TableCell>
-                {changeFormat.numberToString(property.amount_init)}
-              </TableCell>
-              <TableCell>{property.status}</TableCell>
-
-              {/* Acciones del CRUD */}
-              <TableCell align="right">
-                <Can permission={"lotes.update"}>
-                  <Tooltip title="Editar">
-                    <IconButton
-                      sx={{ color: "blue" }}
-                      onClick={() => goEdit(property)}
-                    >
-                      <Edit />
-                    </IconButton>
-                  </Tooltip>
-                </Can>
-                <Can permission={"lotes.delete"}>
-                  <Tooltip title="Eliminar">
-                    <IconButton
-                      color="error"
-                      onClick={() => handleDelete(property.id)}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </Tooltip>
-                </Can>
-              </TableCell>
+        <Table aria-label="tabla de usuarios">
+          <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
+            <TableRow>
+              <TableCell>ID</TableCell>
+              <TableCell>Nombre/Clave</TableCell>
+              <TableCell>Manzana</TableCell>
+              <TableCell>Etapa</TableCell>
+              <TableCell>Proyecto</TableCell>
+              <TableCell>$ Precio</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell align="right">Acciones</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-        {/* Componente de Paginación */}
-      </Table>
+          </TableHead>
+          <TableBody>
+            {datas !== undefined &&
+              datas.map((property) => (
+                <TableRow key={property.id} hover>
+                  <TableCell>{property.id}</TableCell>
 
-      <Stack spacing={2} sx={{ padding: 2, alignItems: "center" }}>
-        <Pagination
-          count={PropertyStore.pagination.last_page || 0}
-          page={PropertyStore.pagination.currentPage || 0}
-          onChange={handleChange}
-        />
-      </Stack>
-    </TableContainer>
+                  {/* Columna de Usuario con Avatar */}
+                  <TableCell>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Box>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ fontWeight: "bold" }}
+                        >
+                          {property.name}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          {property.m2}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </TableCell>
+                  <TableCell>{property.manzana}</TableCell>
+                  <TableCell>{property?.etapa}</TableCell>
+                  <TableCell>{property?.project_name}</TableCell>
+
+                  <TableCell>
+                    {changeFormat.numberToString(property.amount_init)}
+                  </TableCell>
+                  <TableCell>{property.status}</TableCell>
+
+                  {/* Acciones del CRUD */}
+                  <TableCell align="right">
+                    <Can permission={"lotes.update"}>
+                      <Tooltip title="Editar">
+                        <IconButton
+                          sx={{ color: "blue" }}
+                          onClick={() => goEdit(property)}
+                        >
+                          <Edit />
+                        </IconButton>
+                      </Tooltip>
+                    </Can>
+                    <Can permission={"lotes.delete"}>
+                      <Tooltip title="Eliminar">
+                        <IconButton
+                          color="error"
+                          onClick={() => handleDelete(property.id)}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </Tooltip>
+                    </Can>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+          {/* Componente de Paginación */}
+        </Table>
+
+      
+      </TableContainer>
+    </>
   );
 });
 
