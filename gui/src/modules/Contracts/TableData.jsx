@@ -92,13 +92,13 @@ const StatusChip = ({ status }) => {
       color: theme.palette.warning.main,
       icon: <Pending fontSize="small" />,
     },
-    activo: {
-      label: "Activo",
+    finiquitado: {
+      label: "Finiquitado",
       color: theme.palette.success.main,
       icon: <CheckCircle fontSize="small" />,
     },
-    completado: {
-      label: "Completado",
+    pagado: {
+      label: "Pagado",
       color: theme.palette.info.main,
       icon: <CheckCircle fontSize="small" />,
     },
@@ -264,14 +264,6 @@ const MobileContractRow = ({
             </Typography>
             <Typography variant="body2" fontWeight="bold" color="success.main">
               {changeFormat.numberToString(contract.property?.amount_init)}
-            </Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="caption" color="textSecondary">
-              Enganche
-            </Typography>
-            <Typography variant="body2" fontWeight="bold" color="warning.main">
-              {changeFormat.numberToString(contract.advance)}
             </Typography>
           </Grid>
           <Grid item xs={6}>
@@ -611,11 +603,11 @@ const ContractDetailsDialog = ({ open, contract, onClose }) => {
               Propiedad
             </Typography>
             <Typography variant="body1" fontWeight="bold">
-              {contract.property?.title || "N/A"}
+              {contract.property?.name || "N/A"}
             </Typography>
             <Typography variant="caption" color="textSecondary">
               <LocationOn fontSize="inherit" sx={{ fontSize: 12, mr: 0.5 }} />
-              {contract.property?.location || "Sin ubicación"}
+              {contract.property?.latitude+"-"+contract.property?.longitude || "Sin ubicación"}
             </Typography>
           </Grid>
 
@@ -670,14 +662,7 @@ const ContractDetailsDialog = ({ open, contract, onClose }) => {
               {changeFormat.numberToString(contract.property?.amount_init)}
             </Typography>
           </Grid>
-          <Grid item xs={6} sm={3}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Enganche
-            </Typography>
-            <Typography variant="h6" color="warning.main">
-              {changeFormat.numberToString(contract.advance)}
-            </Typography>
-          </Grid>
+     
           <Grid item xs={6} sm={3}>
             <Typography variant="subtitle2" color="textSecondary">
               Total Pagado

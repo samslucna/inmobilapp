@@ -13,11 +13,13 @@ import {
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ClearIcon from '@mui/icons-material/Clear';
 import SearchIcon from '@mui/icons-material/Search';
+import CircularProg from '@mui/icons-material/RotateRight';
+import PlaylistPlay from '@mui/icons-material/PlayForWork';
 import PropertyStore from '../../store/PropertyStore';
 
 
 
-export default function PropertyFilters({ onFilter, onReset,filters,setFilters }) {
+export default function PropertyFilters({ onFilter, onReset,filters,setFilters, btnConsolidate }) {
   
 
   // Actualiza el estado local al escribir o seleccionar
@@ -31,6 +33,8 @@ export default function PropertyFilters({ onFilter, onReset,filters,setFilters }
     handleApply(e); // Aplica los filtros automáticamente al cambiar cualquier campo
   };
 
+  
+
   // Dispara los filtros hacia el componente padre o la llamada a la API
   const handleApply = (e) => {
     e.preventDefault();
@@ -39,24 +43,7 @@ export default function PropertyFilters({ onFilter, onReset,filters,setFilters }
     }
   };
 
-  // Limpia los filtros
-  const handleClear = () => {
-    const initialFilters = {
-    search: "",
-    block_id: "",
-    stage_id: "",
-    project_id: "",
-    status: "",
-    date_from: "",
-    date_to: "",
-  };
-    setFilters(initialFilters);
-    if (onReset) {
-      onReset(initialFilters);
-    } else if (onFilter) {
-      onFilter(initialFilters);
-    }
-  };
+
 
   return (
     <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
@@ -137,38 +124,11 @@ export default function PropertyFilters({ onFilter, onReset,filters,setFilters }
             >
               <MenuItem key={0} value="">Todos</MenuItem>
               <MenuItem key={1} value="pagado">Pagado</MenuItem>
-              <MenuItem key={2} value="pendiente">Pendiente</MenuItem>
-              <MenuItem key={3} value="disponible">Disponible</MenuItem>
+              <MenuItem key={2} value="finiquitado">Finiquitado</MenuItem>
+              <MenuItem key={3} value="pendiente">Pendiente</MenuItem>
+              <MenuItem key={4} value="disponible">Disponible</MenuItem>
 
             </TextField>
-          </Grid>
-
-          {/* Fecha Desde */}
-          <Grid item xs={12} sm={6} md={2}>
-            <TextField
-              fullWidth
-              size="small"
-              type="date"
-              label="Desde"
-              name="date_from"
-              value={filters?.date_from}
-              onChange={onFilter}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
-
-          {/* Fecha Hasta */}
-          <Grid item xs={12} sm={6} md={2}>
-            <TextField
-              fullWidth
-              size="small"
-              type="date"
-              label="Hasta"
-              name="date_to"
-              value={filters?.date_to}
-              onChange={onFilter}
-              InputLabelProps={{ shrink: true }}
-            />
           </Grid>
 
           {/* Botones de Acción */}
@@ -177,18 +137,54 @@ export default function PropertyFilters({ onFilter, onReset,filters,setFilters }
               variant="outlined"
               color="inherit"
               startIcon={<ClearIcon />}
-              onClick={handleClear}
+              onClick={onReset}
             >
               Limpiar
+            </Button>
+              <Button
+              type="button"
+              variant="contained"
+              sx={{
+                color:'white',
+                background:'#2895a3'
+              }}
+              startIcon={<CircularProg />}
+              onClick={(e)=>btnConsolidate(e)}
+            >
+              Consolidar
             </Button>
             <Button
               type="button"
               variant="contained"
               color="primary"
               startIcon={<FilterListIcon />}
-              onClick={handleApply}
+              onClick={onFilter}
             >
               Aplicar Filtros
+            </Button>
+            <Button
+              type="button"
+              variant="contained"
+              sx={{
+                color:'white',
+                background:'green'
+              }}
+              startIcon={<PlaylistPlay />}
+              onClick={(e)=>btnConsolidate(e)}
+            >
+              Xls
+            </Button>
+                <Button
+              type="button"
+              variant="contained"
+              sx={{
+                color:'white',
+                background:'#d42e2e'
+              }}
+              startIcon={<PlaylistPlay />}
+              onClick={(e)=>btnConsolidate(e)}
+            >
+              Pdf
             </Button>
           </Grid>
         </Grid>

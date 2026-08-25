@@ -124,24 +124,33 @@ class PropertyStore {
     this.pagination = pagination;
   };
 
-  handlePaginationChange = async (value,filters) => {
-
-    let pagCurrent = await this.loadProperties(parseInt(value),filters);
-    if (pagCurrent) {      
+  handlePaginationChange = async (value, filters) => {
+    let pagCurrent = await this.loadProperties(parseInt(value), filters);
+    
+    if (pagCurrent) {
       return pagCurrent;
     }
   };
+  consolidate = async (e) => {
+    e.preventDefault();
+    const data = await getDatasBd("properties/consolidate");
+    
+    const updte =await this.loadProperties(1,{page:1});
 
-  loadProperties = async (page,filters) => {
-    try {
-      let params = new URLSearchParams({
-        page:page,
-        ...filters,
-      });
+    return updateBd
   
-      const data = await getFilteredBd("properties?", params);
+  };
+
+  loadProperties = async (page, filters) => {
+    try {
       if (page != undefined) {
-      
+        let params = new URLSearchParams({
+          page: page,
+          ...filters,
+        });
+
+        const data = await getFilteredBd("properties?", params);
+
         return data;
       }
     } catch (error) {

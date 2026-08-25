@@ -24,14 +24,6 @@ import PaymentsIcon from "@mui/icons-material/Payments";
 import { Link } from "react-router-dom";
 import authStore from "../store/AuthStore";
 
-
-export default function Sidebar({ openSidebar }) {
-  const { Can } = authStore;
-
-
-
-  const [open, setOpen] = useState({});
-// Supongamos que este es tu arreglo de entrada
 const menuData = [
   {
     text: "Finanzas",
@@ -114,12 +106,19 @@ const menuData = [
         icon: <BorderAll variant="small" />,
       },
       { text: "Agentes",permission: "reportes.read", link: "/reporteagentes",icon: <PeopleAltIcon variant="small" /> },
-      //{ text: "Ingresos", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
-      //{ text: "Ventas", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
+      
     ],
     icon: <BarChart />,
   },
 ];
+export default function Sidebar({ openSidebar }) {
+  const { Can } = authStore;
+
+
+
+  const [open, setOpen] = useState({});
+// Supongamos que este es tu arreglo de entrada
+
   const handleToggle = (text) => {
     setOpen((prev) => ({
       ...prev,

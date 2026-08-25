@@ -23,16 +23,19 @@ class AuthStore {
   constructor() {
     makeAutoObservable(this);
 
+
     // Revisar token en localStorage primero
     const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
 
     
-    if (savedUser !== null) {
+    if (!this.isAuthenticated) {
+      console.log(this.isAuthenticated)
       const user = JSON.parse(savedUser);
 
-      this.setPermissions(user.permissions || []);
-      this.setRoles(user.roles || []);
+      
+      this.setPermissions(user?.permissions || []);
+      this.setRoles(user?.roles || []);
 
       // Revisar token en cookie secundariamente
       const cookieToken = document.cookie

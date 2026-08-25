@@ -49,7 +49,7 @@ class AuditLogStore {
 
   loadLogs = async (page = 1) => {
     this.setLoading(true);
-    
+
     try {
       const params = new URLSearchParams({
         page: page,
@@ -61,22 +61,24 @@ class AuditLogStore {
         ...(this.filters.date_to && { date_to: this.filters.date_to }),
         ...(this.filters.severity && { severity: this.filters.severity }),
       });
-      
+
       const response = await getFilteredBd(`audit/logs?${params}`);
-    
-      runInAction(() => {
-        this.setLogs(response.data || []);
-        this.setPagination({
-          current_page: response.current_page,
-          last_page: response.last_page,
-          total: response.total,
-          per_page: response.per_page,
-          from: response.from,
-          to: response.to,
+      console.log(response);
+      if (response !== undefined) {
+        runInAction(() => {
+          this.setLogs(response.data || []);
+          this.setPagination({
+            current_page: response.current_page,
+            last_page: response.last_page,
+            total: response.total,
+            per_page: response.per_page,
+            from: response.from,
+            to: response.to,
+          });
         });
-      });
-      
-      return response;
+
+        return response;
+      }
     } catch (error) {
       console.error("Error loading audit logs:", error);
       runInAction(() => {
@@ -90,7 +92,7 @@ class AuditLogStore {
 
   deleteLog = async (id) => {
     this.setLoading(true);
-    
+
     try {
       const response = await deleteBd("audit/logs", id);
       return response;
@@ -112,19 +114,20 @@ class AuditLogStore {
         ...(filters.date_to && { date_to: filters.date_to }),
         ...(filters.severity && { severity: filters.severity }),
       });
-      
+
       const response = await getAllBd(`audit/logs/export?${params}`);
-      
+
       // Crear y descargar archivo JSON
       const dataStr = JSON.stringify(response, null, 2);
-      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      const dataUri =
+        "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
       const exportFileDefaultName = `audit_logs_${new Date().toISOString()}.json`;
-      
-      const linkElement = document.createElement('a');
-      linkElement.setAttribute('href', dataUri);
-      linkElement.setAttribute('download', exportFileDefaultName);
+
+      const linkElement = document.createElement("a");
+      linkElement.setAttribute("href", dataUri);
+      linkElement.setAttribute("download", exportFileDefaultName);
       linkElement.click();
-      
+
       return response;
     } catch (error) {
       console.error("Error exporting logs:", error);
@@ -134,7 +137,7 @@ class AuditLogStore {
 
   clearOldLogs = async (days) => {
     this.setLoading(true);
-    
+
     try {
       const response = await deleteBd(`audit/logs/clear-old?days=${days}`);
       return response;

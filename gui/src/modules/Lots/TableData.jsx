@@ -12,9 +12,10 @@ import {
   Typography,
   Tooltip,
 } from "@mui/material";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import InputBase from "@mui/material/InputBase";
-import { Edit, Delete } from "@mui/icons-material";
+import { Edit, Delete, Visibility } from "@mui/icons-material";
 import { observer } from "mobx-react-lite";
 import PropertyStore from "../../store/PropertyStore";
 import { styled, alpha } from "@mui/material/styles";
@@ -25,6 +26,7 @@ import BoundaryStore from "../../store/BoundaryStore";
 import changeFormat from "../../helper/changeFormat";
 import authStore from "../../store/AuthStore";
 import PropertyFilters from "./PropertyFilters";
+import ViewDetails from "./ViewDetails";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -68,9 +70,11 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-const TableData = observer(({ datas, changePage,paginate }) => {
+const TableData = observer(({ datas, changePage, paginate }) => {
   const { Can } = authStore;
   const { handlePaginationChange, filters } = PropertyStore;
+  const [state, setState] = useState({});
+  const [loadView, setLoadView] = useState(false);
 
   const handleDelete = async (id) => {
     const resp = await Swal.fire({
@@ -117,11 +121,28 @@ const TableData = observer(({ datas, changePage,paginate }) => {
     PropertyStore.setHiddenForm(true);
   };
 
+  const getView = (e, property) => {
+    e.preventDefault();
+    setState(property);
+    setLoadView(true);
+  };
+
+  const closeView = (e) => {
+    e.preventDefault();
+    if (loadView === false) {
+      setLoadView(true);
+    } else {
+      setLoadView(false);
+    }
+  };
+
   return (
     <>
+    <ViewDetails open={loadView} state={state} onClose={closeView} />
       <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
         {/* Box con overflowX asegura la responsividad en móviles */}
 
+        
         <Table aria-label="tabla de usuarios">
           <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
             <TableRow>
@@ -168,6 +189,16 @@ const TableData = observer(({ datas, changePage,paginate }) => {
 
                   {/* Acciones del CRUD */}
                   <TableCell align="right">
+                    <Can permission={"lotes.read"}>
+                      <Tooltip title="Ver">
+                        <IconButton
+                          sx={{ color: "#2895a3" }}
+                          onClick={(e) => getView(e, property)}
+                        >
+                          <Visibility />
+                        </IconButton>
+                      </Tooltip>
+                    </Can>
                     <Can permission={"lotes.update"}>
                       <Tooltip title="Editar">
                         <IconButton
@@ -178,6 +209,7 @@ const TableData = observer(({ datas, changePage,paginate }) => {
                         </IconButton>
                       </Tooltip>
                     </Can>
+
                     <Can permission={"lotes.delete"}>
                       <Tooltip title="Eliminar">
                         <IconButton
@@ -194,8 +226,6 @@ const TableData = observer(({ datas, changePage,paginate }) => {
           </TableBody>
           {/* Componente de Paginación */}
         </Table>
-
-      
       </TableContainer>
     </>
   );

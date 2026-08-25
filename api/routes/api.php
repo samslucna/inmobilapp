@@ -85,6 +85,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/reportPropertiesXls', [XlsController::class, 'reportPropertiesXls']);
         Route::get('/{id}/boundaries', [PropertyController::class, 'boundariesByProperty']);
         Route::get('/export/xls', [XlsController::class, 'export']);
+        Route::get('/consolidate', [PropertyController::class, 'consolidate']);
         Route::post('/import', [XlsController::class, 'importProperty']);
     });
     Route::apiResource('/properties', PropertyController::class);

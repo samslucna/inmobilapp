@@ -46,24 +46,21 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             "agent_id" => $row['agente'],
             "property_id" => $row['lote'],
             "plazo" => $row['plazo'],
-            "advance" => $row['enganche'],
             "paytype" => $row['tipo_pago'],
             "ref" => $row['ref'],
             "status" => $row['status'],
             "date" => $row['fechacontrato'],
         ]);
 
-        //dd($contract);
         // Guardar el contrato para obtener su ID
         $contract->save();
 
-        // Crear el recibo (Ticket) por el monto del enganche
-        // $this->crearReciboEnganche($contract, $row);
+
 
         // Actualizar etapa
         if (isset($row['status']) && !empty($row['status'])) {
             if ($property && $property->status === 'disponible') {
-                $property->update(['status' => 'apartado']);
+                $property->update(['status' => 'pendiente']);
             } else {
                 $property->update(['status' => 'disponible']);
             }
@@ -91,11 +88,10 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
         $ticket = new Ticket([
             'receipt_number' => $numeroRecibo, // Número de recibo
             'concept' => 'Enganche - Contrato #: ' . ($contract['id'] ?? 'N/A'),
-            'amount' => $row['enganche'],
             'date' => $row['fechacontrato'],
             'paytype' => $contract['paytype'],
             'contract_id' => $contract['id'],
-            //'status' => 'pagado',
+            'status' => 'activo',
             'description' => 'Enganche inicial para el contrato con referencia ' . ($row['ref'] ?? '')
         ]);
 
@@ -163,7 +159,6 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             
             'fechacontrato' => 'required',
             'ref' => 'required|string|max:255',
-            'enganche' => 'required|numeric|min:0',
             'tipo_pago' => 'required|string|max:100',
             'plazo' => 'required|numeric|max:255',
             'status' => 'required|string|max:100'
@@ -178,7 +173,6 @@ class ContractsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             
             'fechacontrato.required' => 'Es necesatrio agregar una fecha',
             'ref.required' => 'Error al almacenar referencia',
-            'enganche.required' => 'Es necesatrio agregar un anticipo',
             'tipo_pago.required' => 'Es nesesario seleccionar una forma de pago',
             'plazo.required' => 'Es nesesario seleccionar un plazo',
             'status.required' => 'Es nesesario seleccionar un estado',

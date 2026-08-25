@@ -52,7 +52,6 @@ class PropertyController extends Controller
     {
         try {
             $page = $request->input('page',1);
-            $page = $page !== 'undefined' ? $page : 1;
             $perPage   = $request->input('per_page', 10);
             $stageId   = $request->input('stage_id');
             $blockId   = $request->input('block_id');
@@ -82,6 +81,8 @@ class PropertyController extends Controller
                     'pr.name as project_name',
                     'p.amount_init',
                     'p.status',
+                    'p.latitude',
+                    'p.longitude',
                     DB::raw('COALESCE(t.total_tickets, 0) as total_pagado'),
                     DB::raw('p.amount_init - COALESCE(t.total_tickets, 0) as saldo'),
                     'c.date as fecha_contrato'
@@ -104,15 +105,18 @@ class PropertyController extends Controller
            
 
             if ($search) {
-                $query->where('p.name','like', "%$search%"); // Corregido: search proviene de properties
+                $query->where('p.name',$search); // Corregido: search proviene de properties
             }
 
+            
             if ($status) {
                 $query->where('p.status','like', "%$status%");
             }
 
+
+
             // 4. Paginación automática (Laravel maneja la página solicitada implícitamente)
-            $properties = $query->orderBy('p.id', 'desc')->paginate($perPage,null,null,$page);
+            $properties = $query->orderBy('p.id', 'desc')->paginate(perPage:$perPage,page:$page);
 
             // Conserva exactamente la misma estructura de respuesta en tu API
             return response()->json([
@@ -129,6 +133,61 @@ class PropertyController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function consolidate()
+    {
+        try {
+            DB::beginTransaction();
+
+            $affectedRows = DB::table('properties as p')
+                ->update([
+                    'p.status' => DB::raw("
+                        CASE 
+                            -- 1. Si NO existe un contrato para este lote, su estado es 'disponible'
+                            WHEN NOT EXISTS (
+                                SELECT 1 FROM contracts c WHERE c.property_id = p.id
+                            ) THEN 'disponible'
+                            
+                            -- 2. Si SÍ tiene contrato, evaluamos los recibos
+                            ELSE COALESCE(
+                                (
+                                    SELECT 
+                                        CASE 
+                                            -- Si la sumatoria de recibos es mayor al precio del lote -> 'pagado'
+                                            WHEN SUM(r.amount) > p.amount_init THEN 'pagado'
+                                            -- Si la sumatoria de recibos es igual al precio del lote -> 'finiquitado'
+                                            WHEN SUM(r.amount) = p.amount_init THEN 'finiquitado'
+                                            -- Si la sumatoria es menor al precio del lote -> 'pendiente'
+                                            WHEN SUM(r.amount) < p.amount_init THEN 'pendiente'
+                                            ELSE 'pendiente'
+                                        END
+                                    FROM contracts c
+                                    LEFT JOIN tickets r ON r.contract_id = c.id
+                                    WHERE c.property_id = p.id
+                                ), 
+                                'pendiente' -- Por si tiene contrato pero 0 recibos registrados aún
+                            )
+                        END
+                    ")
+                ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lotes consolidados exitosamente (Disponibles, Pendientes, Finiquitados y Pagados).',
+                'total_actualizados' => $affectedRows
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al consolidar los lotes: ' . $e->getMessage()
             ], 500);
         }
     }

@@ -104,7 +104,6 @@ class ContractController extends Controller
                 'seller_id' => 'required|exists:sellers,id',
                 'agent_id' => 'required|exists:agents,id',
                 'plazo' => 'required|integer|min:1',
-                'advance' => 'required|numeric|min:0',
                 'paytype' => 'required|string',
                 'ref' => 'nullable|string|max:255',
            
@@ -136,7 +135,6 @@ class ContractController extends Controller
                 "property_id" => (int)$request->property_id,
                 "ncontract" => $request->ncontract,
                 "plazo" => $request->plazo,
-                "advance" => $request->advance,
                 "paytype" => $request->paytype,
                 "ref" => $request->ref,
                 "status" => $request->status,
@@ -169,7 +167,6 @@ class ContractController extends Controller
                     'contract_id' => $contract->id,
                     'property_id' => $request->property_id,
                     'buyer_id' => $request->buyer_id,
-                    'advance' => $request->advance,
                     'total_amount' => $property->amount_init ?? 0,
                 ],
                 subject: $contract
@@ -267,7 +264,6 @@ class ContractController extends Controller
                 'agent_id' => 'sometimes|exists:agents,id',
                 'property_id' => 'sometimes|exists:properties,id',
                 'plazo' => 'sometimes|integer|min:1',
-                'advance' => 'sometimes|numeric|min:0',
                 'paytype' => 'sometimes|string',
                 'ref' => 'nullable|string|max:255',
                 'date' => 'sometimes|date',
@@ -295,7 +291,7 @@ class ContractController extends Controller
                 $updateData['date'] = Carbon::parse($request->date)->format('Y-m-d');
             }
 
-            dd($updateData);
+            
             $contract->update($updateData);
 
             // Registrar cambios en auditoría

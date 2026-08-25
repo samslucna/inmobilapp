@@ -110,5 +110,92 @@ const MenuDash = ({ items }) => {
 };
 
 export default function App() {
-  return <MenuDash items={menuData} />;
+  return <MenuDash items={[
+  {
+    text: "Finanzas",
+    link: "#!",
+    submenu: [
+      {
+        text: "Contratos",
+        permission: "contratos.read",
+        link: "/contratos",
+        icon: <HistoryEduIcon fontSize="small" />,
+      }, // Crud Contratos
+      {
+        text: "Recibos de Ingresos",
+        link: "/recibos",
+        permission: "recibos.read",
+        icon: <PaymentsIcon variant="small" />,
+      }, // Captura los recibos
+      //{ text: "Estado de Cuenta", link: "/usuarios",icon: <RequestQuoteIcon variant="small" /> }, //Para los estados de cuenta de los clientes?
+    ],
+    icon: <MonetizationOnIcon variant="outline" />,
+  },
+
+  {
+    text: "Catalogos",
+    link: "#!",
+    submenu: [
+      {
+        text: "Clientes",
+        link: "clientes",
+        permission: "clientes.read",
+        icon: <PeopleAltIcon variant="small" />,
+      },
+      {
+        text: "Propietarios",
+        permission: "propietarios.read",
+        link: "propietarios",
+        icon: <PermIdentityIcon variant="small" />,
+      },
+      {
+        text: "Agentes",
+        link: "agentes",
+        permission: "agentes.read",
+        icon: <AccountBoxIcon variant="small" />,
+      },
+      {
+        text: "Proyectos",
+        link: "proyectos",
+        permission: "proyectos.read",
+        icon: <AccountTreeTwoToneIcon variant="small" />,
+      },
+      {
+        text: "Lotes",
+        link: "lotes",
+        permission: "lotes.read",
+        icon: <BorderAll variant="small" />,
+      },
+      {
+        text: "Usuarios",
+        link: "usuarios",
+        permission: "usuarios.create",
+        icon: <AccountCircleIcon variant="small" />,
+      },
+      {
+        text: "Roles",
+        link: "roles",
+        permission: "usuarios.create",
+        icon: <SupervisedUserCircleIcon variant="small" />,
+      },
+    ],
+    icon: <ListAltIcon />,
+  },
+  {
+    text: "Reportes",
+    link: "#!",
+    submenu: [
+      {
+        text: "Lotes",
+        link: "/reportelotes",
+        permission: "reportes.read",
+        icon: <BorderAll variant="small" />,
+      },
+      { text: "Agentes",permission: "reportes.read", link: "/reporteagentes",icon: <PeopleAltIcon variant="small" /> },
+      //{ text: "Ingresos", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
+      //{ text: "Ventas", link: "/recibos",icon: <MonetizationOnIcon variant="small" /> },
+    ],
+    icon: <BarChart />,
+  },
+]} />;
 }

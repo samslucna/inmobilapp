@@ -39,6 +39,8 @@ class PropertyImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
             'amount_init' => $row['precio_inicial'],
             'amount_end' => $row['precio_final'],
             'status' => $row['status'],
+            'latitude' => $row['latitude'],
+            'longitude' => $row['longitude'],
         ]);
     }
 
