@@ -28,15 +28,19 @@ export default function PropertiesPage() {
 
   // Handler para el formulario de filtros
   const handleFilterSubmit = async (e) => {
-    e.preventDefault();
-    const { name, value } = e.target;
-    let filter = { ...filters, [name]: value };
-    filter.page = 1;
-    const res = await loadProperties(filter.page, filter);
-    if (res) {
-      setPaginate(res);
-      setFilters(filter);
-      setData(res.data);
+    try {
+      e.preventDefault();
+      const { name, value } = e.target;
+      let filter = { ...filters, [name]: value };
+      filter.page = 1;
+      const res = await loadProperties(filter.page, filter);
+      if (res) {
+        setPaginate(res);
+        setFilters(filter);
+        setData(res.data);
+      }
+    } catch (error) {
+      console.log(e);
     }
   };
   const changePage = async (e) => {
@@ -57,8 +61,8 @@ export default function PropertiesPage() {
     e.preventDefault();
     consolidate(e);
 
-    const upd =await loadProperties(1,{page:1});
-    console.log(upd)
+    const upd = await loadProperties(1, { page: 1 });
+
     if (upd) {
       setPaginate(upd);
       setData(upd.data);

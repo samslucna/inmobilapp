@@ -104,7 +104,7 @@ class XlsController extends Controller
 
 
 
-    public function reportPropertiesXls(Request $request)
+    public function reportPropertiesXls2(Request $request)
     {
 
 
@@ -339,6 +339,11 @@ class XlsController extends Controller
             ]
         );
     }
+
+    public function reportPropertiesXls(Request $request)
+{
+    return Excel::download(new PropertiesExport($request), 'Reporte_Lotes_' . date('Y-m-d') . '.xlsx');
+}
 
     public function importProperty(Request $request)
     {

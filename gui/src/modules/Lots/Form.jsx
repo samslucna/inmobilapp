@@ -7,6 +7,9 @@ import {
   Alert,
   Typography,
   Grid,
+  useTheme,
+  useMediaQuery,
+  InputAdornment,
 } from "@mui/material";
 
 import PropertyStore from "../../store/PropertyStore";
@@ -21,6 +24,8 @@ import ProjectStore from "../../store/ProjectStore";
 import StageStore from "../../store/StageStore";
 
 export default function Form() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [data, setData] = useState({
     projects: [],
     stages: [],
@@ -55,6 +60,7 @@ export default function Form() {
   } = state;
 
   const saveProperty = async (e) => {
+    e.preventDefault();
     const dataform = {
       ...state,
       boundaries: BoundaryStore.Boundaries,
@@ -172,15 +178,17 @@ export default function Form() {
             id: stage.data[0].project_id,
           });
 
+          let selectedData = {
+            project: PropertyStore?.property?.project_id || 0,
+            stage: PropertyStore?.property?.stage_id || 0,
+            block: PropertyStore?.property?.block_id || 0,
+          };
+          setSelected(selectedData);
+
           setData({
             projects: project.data,
-            stages: project.data[0].stages,
-            blocks: stage.data[0].blocks,
-          });
-          setSelected({
-            project: project.data[0]?.id || 0,
-            stage: stage.data[0]?.id || 0,
-            block: block.data[0]?.id || 0,
+            stages: stage.data,
+            blocks: block.data,
           });
 
           setState({
@@ -230,27 +238,45 @@ export default function Form() {
 
   return (
     <>
-      <Box display="flex">
-        <Card sx={{ p: 4 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>
+      <Box display="flex" justifyContent="center" sx={{ width: "100%" }}>
+        <Card
+          sx={{
+            p: { xs: 2, sm: 3, md: 4 },
+            width: "100%",
+            maxWidth: "1200px",
+            mx: { xs: 1, sm: 2, md: 0 },
+          }}
+        >
+          <Typography
+            variant={isMobile ? "h6" : "h5"}
+            sx={{ mb: 2, fontWeight: "bold" }}
+          >
             {PropertyStore.editing === false
               ? "Registrar nuevo lote"
               : "Editar lote"}
           </Typography>
 
-          <Grid container spacing={2}>
-            <Grid container size={{ sm: 12, md: 6 }}>
-              <Grid size={{ sm: 12, md: 5 }}>
+          <Grid container spacing={isMobile ? 1.5 : 2}>
+            {/* Columna Izquierda - Información del Lote */}
+            <Grid
+              container
+              size={{ xs: 12, md: 6 }}
+              spacing={isMobile ? 1.5 : 2}
+            >
+              {/* Proyecto */}
+              <Grid size={{ xs: 12, md: 5 }}>
                 <Selector
                   datas={data.projects}
                   label={"Proyecto"}
                   name={"project_id"}
-                  value={selected.project || 0}
+                  value={selected.project}
                   onChange={onChangeSelector}
                   blur={handleBlur}
                 />
               </Grid>
-              <Grid size={{ sm: 12, md: 6 }}>
+
+              {/* Etapa */}
+              <Grid size={{ xs: 12, md: 7 }}>
                 <Selector
                   key={"stages"}
                   datas={data.stages}
@@ -261,7 +287,9 @@ export default function Form() {
                   blur={handleBlur}
                 />
               </Grid>
-              <Grid size={{ sm: 12, md: 12 }}>
+
+              {/* Manzana */}
+              <Grid size={{ xs: 12, md: 12 }}>
                 <Selector
                   datas={data.blocks}
                   label={"Manzana"}
@@ -274,7 +302,8 @@ export default function Form() {
                 />
               </Grid>
 
-              <Grid size={{ sm: 12, md: 3 }}>
+              {/* Nombre/Clave */}
+              <Grid size={{ xs: 12, md: 3 }}>
                 <TextField
                   name="name"
                   label="Nombre/Clave"
@@ -284,27 +313,38 @@ export default function Form() {
                   value={name}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  sx={{ mb: 2 }}
+                  size="small"
+                  sx={{ mb: errors.name ? 0 : 2 }}
                 />
-                {errors.name && <Alert severity="error">{errors.name}</Alert>}
+                {errors.name && (
+                  <Alert severity="error" sx={{ mt: 0.5, mb: 2 }}>
+                    {errors.name}
+                  </Alert>
+                )}
               </Grid>
-              <Grid size={{ sm: 12, md: 9 }}>
+
+              {/* Descripción */}
+              <Grid size={{ xs: 12, md: 9 }}>
                 <TextField
                   name="description"
-                  label="Descripcion"
+                  label="Descripción"
                   fullWidth
                   required
                   value={description}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  size="small"
+                  sx={{ mb: errors.description ? 0 : 2 }}
                 />
-
                 {errors.description && (
-                  <Alert severity="error">{errors.description}</Alert>
+                  <Alert severity="error" sx={{ mt: 0.5, mb: 2 }}>
+                    {errors.description}
+                  </Alert>
                 )}
               </Grid>
 
-              <Grid size={{ sm: 12, md: 3 }}>
+              {/* M2 */}
+              <Grid size={{ xs: 12, md: 3 }}>
                 <TextField
                   name="m2"
                   label="M2"
@@ -313,28 +353,40 @@ export default function Form() {
                   value={m2}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  size="small"
+                  type="number"
+                  sx={{ mb: errors.m2 ? 0 : 2 }}
                 />
-
-                {errors.m2 && <Alert severity="error">{errors.m2}</Alert>}
+                {errors.m2 && (
+                  <Alert severity="error" sx={{ mt: 0.5, mb: 2 }}>
+                    {errors.m2}
+                  </Alert>
+                )}
               </Grid>
-              <Grid size={{ sm: 12, md: 9 }}>
+
+              {/* Dirección */}
+              <Grid size={{ xs: 12, md: 9 }}>
                 <TextField
                   name="address"
-                  label="Direccion"
+                  label="Dirección"
                   type="text"
                   fullWidth
                   required
                   value={address}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  sx={{ mb: 2 }}
+                  size="small"
+                  sx={{ mb: errors.address ? 0 : 2 }}
                 />
-
                 {errors.address && (
-                  <Alert severity="error">{errors.address}</Alert>
+                  <Alert severity="error" sx={{ mt: 0.5, mb: 2 }}>
+                    {errors.address}
+                  </Alert>
                 )}
               </Grid>
-              <Grid size={{ sm: 12, md: 6 }}>
+
+              {/* Precio Inicial */}
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name="amount_init"
                   label="Precio inicial ($)"
@@ -344,14 +396,23 @@ export default function Form() {
                   value={amount_init}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  sx={{ mb: 2 }}
+                  size="small"
+                  sx={{ mb: errors.amount_init ? 0 : 2 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">$</InputAdornment>
+                    ),
+                  }}
                 />
-
                 {errors.amount_init && (
-                  <Alert severity="error">{errors.amount_init}</Alert>
+                  <Alert severity="error" sx={{ mt: 0.5, mb: 2 }}>
+                    {errors.amount_init}
+                  </Alert>
                 )}
               </Grid>
-              <Grid size={{ sm: 12, md: 6 }}>
+
+              {/* Precio Final */}
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name="amount_end"
                   label="Precio final ($)"
@@ -361,12 +422,18 @@ export default function Form() {
                   value={amount_end}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  size="small"
                   sx={{ mb: 2 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">$</InputAdornment>
+                    ),
+                  }}
                 />
-                
               </Grid>
 
-                    <Grid size={{ sm: 12, md: 6 }}>
+              {/* Latitud */}
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name="latitude"
                   label="Latitud"
@@ -376,12 +443,14 @@ export default function Form() {
                   value={latitude}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  size="small"
                   sx={{ mb: 2 }}
+                  placeholder="Ej: 19.4326077"
                 />
-                
               </Grid>
 
-                    <Grid size={{ sm: 12, md: 6 }}>
+              {/* Longitud */}
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name="longitude"
                   label="Longitud"
@@ -391,26 +460,59 @@ export default function Form() {
                   value={longitude}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  size="small"
                   sx={{ mb: 2 }}
+                  placeholder="Ej: -99.133208"
                 />
-                
               </Grid>
             </Grid>
 
-            <Grid container size={{ sm: 12, md: 6 }}>
-              <Grid size={{ sm: 12, md: 12 }}>
-                <BoundaryMain />
+            {/* Columna Derecha - Mapa de Límites */}
+            <Grid
+              container
+              size={{ xs: 12, md: 6 }}
+              spacing={isMobile ? 1.5 : 2}
+            >
+              <Grid size={{ xs: 12, md: 12 }}>
+                <Box
+                  sx={{
+                    height: { xs: "300px", sm: "400px", md: "450px" },
+                    width: "100%",
+                    minHeight: "250px",
+                    borderRadius: 1,
+                    overflow: "hidden",
+                    border: "1px solid",
+                    borderColor: "divider",
+                  }}
+                >
+                  <BoundaryMain />
+                </Box>
               </Grid>
             </Grid>
           </Grid>
 
-          <DialogActions sx={{ p: 3 }}>
+          {/* Botones de Acción */}
+          <DialogActions
+            sx={{
+              p: { xs: 2, sm: 3 },
+              flexDirection: { xs: "column", sm: "row" },
+              gap: { xs: 1, sm: 0 },
+              mt: 2,
+            }}
+          >
             <Button
+              fullWidth={isMobile}
               onClick={() => {
                 PropertyStore.setHiddenForm(false);
                 PropertyStore.setEditing(false);
               }}
-              sx={{ background: "gray", color: "whitesmoke" }}
+              variant="contained"
+              sx={{
+                background: "gray",
+                color: "whitesmoke",
+                "&:hover": { background: "#666" },
+                order: { xs: 2, sm: 1 },
+              }}
             >
               Cancelar
             </Button>
@@ -418,7 +520,14 @@ export default function Form() {
               type="submit"
               variant="contained"
               color="primary"
+              fullWidth={isMobile}
               onClick={(e) => saveProperty(e)}
+              sx={{
+                order: { xs: 1, sm: 2 },
+                "&:hover": {
+                  backgroundColor: "primary.dark",
+                },
+              }}
             >
               Guardar
             </Button>

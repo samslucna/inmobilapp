@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\PropertiesPdfExport;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Ticket;
@@ -286,7 +287,162 @@ class PdfController extends Controller
         return $pdf->stream();
     }
 
+
     public function reportPropertiesPdf(Request $request)
+    {
+        // Aumentar tiempo de ejecución
+        set_time_limit(120);
+
+        // Construir consulta base
+        $query = DB::table('properties as p')
+            ->join('blocks as b', 'p.block_id', '=', 'b.id')
+            ->leftJoin('stages as s', 'b.stage_id', '=', 's.id')
+            ->leftJoin('projects as pr', 's.project_id', '=', 'pr.id')
+            ->leftJoin('contracts as c', 'p.id', '=', 'c.property_id')
+            ->leftJoin('tickets as t', 'c.id', '=', 't.contract_id')
+            ->select(
+                'p.id',
+                'p.name',
+                'p.m2',
+                'b.name as manzana',
+                'p.amount_init',
+                'p.status',
+                'pr.name as project_name',
+                's.name as etapa',
+               
+                'c.date as fecha_contrato',
+                DB::raw("COALESCE((SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 0) as total_pagado"),
+                DB::raw("p.amount_init - COALESCE((SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 0) as saldo")
+            )
+            ->distinct();
+
+        // Aplicar filtros
+        $this->applyFilters($query, $request);
+
+        // Obtener datos
+        $properties = $query->get();
+
+        // Verificar si hay datos
+        if ($properties->isEmpty()) {
+            return response()->json([
+                'message' => 'No hay datos para generar el reporte',
+                'error' => true
+            ], 404);
+        }
+
+        // Calcular totales
+        $totals = [
+            'amount_init' => $properties->sum('amount_init'),
+            'total_pagado' => $properties->sum('total_pagado'),
+            'saldo' => $properties->sum('saldo'),
+        ];
+
+        // Obtener usuario
+        $userName = auth()->user()->name ?? 'Sistema';
+
+        // Generar texto de filtros
+        $filtersText = $this->getFilterText($request);
+
+        // Crear PDF
+        $pdf = new PropertiesPdfExport($properties, $request, $totals, $userName, $filtersText);
+        $pdf->AliasNbPages();
+        $pdf->AddPage();
+        $pdf->GenerateTable();
+
+        // Generar nombre del archivo
+        $fileName = 'Reporte_Lotes_' . date('Y-m-d_His') . '.pdf';
+
+        // Obtener el contenido del PDF
+        $pdfContent = $pdf->Output('S', $fileName);
+
+        // Descargar
+        return response($pdfContent, 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
+            ->header('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
+            ->header('Content-Length', strlen($pdfContent));
+    }
+
+    // Método para generar texto de filtros
+    private function getFilterText($request)
+    {
+        $filtros = [];
+
+        if ($request->has('status') && $request->status) {
+            $statusValues = array_filter($request->input('status'));
+            if (!empty($statusValues)) {
+                $statusLabels = array_map('ucfirst', array_keys($statusValues));
+                $filtros[] = "Estado: " . implode(', ', $statusLabels);
+            }
+        }
+
+        if ($request->has('stage_id') && $request->stage_id) {
+            $filtros[] = "Etapa: " . $request->stage_id;
+        }
+
+        if ($request->has('block_id') && $request->block_id) {
+            $filtros[] = "Manzana: " . $request->block_id;
+        }
+
+        if ($request->has('project_id') && $request->project_id) {
+            $filtros[] = "Proyecto: " . $request->project_id;
+        }
+
+        if ($request->has('dates') && $request->input('dates')['date_init'] && $request->input('dates')['date_end']) {
+            $filtros[] = "Fechas: " . $request->input('dates')['date_init'] . " al " . $request->input('dates')['date_end'];
+        }
+
+        return empty($filtros) ? 'Filtros aplicados: Todos los registros' : 'Filtros aplicados: ' . implode(' | ', $filtros);
+    }
+
+    // Método para aplicar filtros
+    private function applyFilters($query, $request)
+    {
+        // Filtro por estado
+        $query->when($request->filled('status'), function ($q) use ($request) {
+            $status = $request->input('status');
+            if ($status) {
+                $seleccionados = array_filter($status);
+                $conteo = count($seleccionados);
+
+                if ($conteo === 1) {
+                    $estadoUnico = key($seleccionados);
+                    $q->where('p.status', $estadoUnico);
+                } elseif ($conteo === 2) {
+                    $estados = array_keys($seleccionados);
+                    $q->whereIn('p.status', $estados);
+                } elseif ($conteo === 3 || $conteo === 0) {
+                    $q->whereIn('p.status', ['disponible', 'apartado', 'vendido']);
+                }
+            }
+        });
+
+        // Filtro por etapa
+        if ($request->has('stage_id') && $request->stage_id) {
+            $query->where('b.stage_id', $request->stage_id);
+        }
+
+        // Filtro por manzana
+        if ($request->has('block_id') && $request->block_id) {
+            $query->where('b.id', $request->block_id);
+        }
+
+        // Filtro por proyecto
+        if ($request->has('project_id') && $request->project_id) {
+            $query->where('p.project_id', $request->project_id);
+        }
+
+        // Filtro por fechas
+        if ($request->has('dates') && $request->input('dates')['date_init'] && $request->input('dates')['date_end']) {
+            $query->whereBetween('c.date', [
+                $request->input('dates')['date_init'],
+                $request->input('dates')['date_end']
+            ]);
+        }
+    }
+
+
+    public function reportPropertiesPdf2(Request $request)
     {
 
         //dd($request->all());
@@ -483,20 +639,20 @@ class PdfController extends Controller
         if ($projectId > 0) {
             $query->where('pr.id', (int) $projectId);
         }
-        
-        
+
+
         // Filtro 3: Por Etapa específica (usando s.id)
         if ($stageId > 0) {
-           
-            $query->where('stage_id', (int) $stageId);
-         $resultados = $query->get();    
-        dd($resultados, $stageId);
-        }
-        
-        
-       
 
-        
+            $query->where('stage_id', (int) $stageId);
+            $resultados = $query->get();
+            dd($resultados, $stageId);
+        }
+
+
+
+
+
 
 
         // Filtro 6: Por manzana específica
