@@ -54,6 +54,61 @@ class PropertiesExport implements
 
         // Aplicar filtros aquí...
 
+        $request = $this->request;
+
+        
+        if(!$request->filled('status')){
+            $query->when($request->filled('status'), function ($q) use ($request) {
+            $status = $request->input('status');
+            $allowedStatuses = ['disponible', 'pagado', 'finiquitado', 'pendiente'];
+
+            if (in_array($status, $allowedStatuses)) {
+                // Si el estado enviado es válido, filtra solo por ese
+                $q->where('p.status', $status);
+            } else {
+                // Si envió un texto no reconocido, busca en todos los válidos
+                $q->whereIn('p.status', $allowedStatuses);
+            }
+        });
+
+        }
+        
+        // Filtro por etapa
+      
+        if ($request->has('stage_id') && $request->stage_id) {
+            $query->where('s.name','like', "%$request->stage_id%");
+        }
+
+        
+
+        // Filtro por manzana
+        if ($request->has('block_id') && $request->block_id) {
+            $query->where('b.name','like', "%$request->block_id%");
+        }
+
+       
+    
+        // Filtro por proyecto
+        if ($request->has('project_id') && $request->project_id) {
+            $query->where('p.name', 'like',"%$request->project_id%");
+        }
+        
+
+        // Filtro por fechas
+        if ($request->has('dates') && $request->input('dates')['date_init'] && $request->input('dates')['date_end']) {
+            $query->whereBetween('c.date', [
+                $request->input('dates')['date_init'],
+                $request->input('dates')['date_end']
+            ]);
+        }
+
+         
+        
+         if ($request->input('search') && $request->search) {
+                $query->where('p.name',$request->search); // Corregido: search proviene de properties
+            }
+
+            
         return $query->get();
     }
 
@@ -61,7 +116,7 @@ class PropertiesExport implements
     {
         return [
             'ID', 'Propiedad', 'Manzana', 'Etapa', 'Proyecto',
-            'Estado', 'M²', 'Precio Inicial', 'Total Pagado', 'Saldo',
+            'Estado', 'M²', 'Precio', 'Total Pagado', 'Saldo',
             'Fecha Contrato'
         ];
     }

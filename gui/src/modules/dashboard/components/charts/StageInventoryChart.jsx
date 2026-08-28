@@ -45,12 +45,12 @@ export default function StageInventoryChart({
                         <Legend/>
 
                         <Bar
-                            dataKey="disponibles"
+                            dataKey="pendiente"
                             fill="#0288d1"
                         />
 
                         <Bar
-                            dataKey="vendidas"
+                            dataKey="finiquitado"
                             fill="#2e7d32"
                         />
 

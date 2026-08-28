@@ -42,6 +42,7 @@ export default function PropertyFilters({
 
   // Actualiza el estado local al escribir o seleccionar
   const handleChange = (e) => {
+    e.preventDefault();
     try {
       const { name, value } = e.target;
       setFilters({
@@ -154,7 +155,7 @@ export default function PropertyFilters({
       <Box component="form">
         <Grid container spacing={isMobile ? 1.5 : 2}>
           {/* Búsqueda General */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item size={{xs:12, md:2}}>
             <TextField
               fullWidth
               size="small"
@@ -183,7 +184,7 @@ export default function PropertyFilters({
           </Grid>
 
           {/* Proyecto */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item size={{xs:12, md:2}}>
             <TextField
               fullWidth
               size="small"
@@ -207,7 +208,7 @@ export default function PropertyFilters({
           </Grid>
 
           {/* Etapa */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item size={{xs:12, md:2}}>
             <TextField
               fullWidth
               size="small"
@@ -231,7 +232,7 @@ export default function PropertyFilters({
           </Grid>
 
           {/* Manzana / Block */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item size={{xs:12, md:2}}>
             <TextField
               fullWidth
               size="small"
@@ -255,7 +256,7 @@ export default function PropertyFilters({
           </Grid>
 
           {/* Status */}
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item size={{xs:12, md:2}}>
             <TextField
               select
               fullWidth

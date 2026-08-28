@@ -293,6 +293,8 @@ class PdfController extends Controller
         // Aumentar tiempo de ejecución
         set_time_limit(120);
 
+
+
         // Construir consulta base
         $query = DB::table('properties as p')
             ->join('blocks as b', 'p.block_id', '=', 'b.id')
@@ -309,7 +311,6 @@ class PdfController extends Controller
                 'p.status',
                 'pr.name as project_name',
                 's.name as etapa',
-               
                 'c.date as fecha_contrato',
                 DB::raw("COALESCE((SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 0) as total_pagado"),
                 DB::raw("p.amount_init - COALESCE((SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 0) as saldo")
@@ -317,6 +318,10 @@ class PdfController extends Controller
             ->distinct();
 
         // Aplicar filtros
+
+
+
+
         $this->applyFilters($query, $request);
 
         // Obtener datos
@@ -343,6 +348,7 @@ class PdfController extends Controller
         // Generar texto de filtros
         $filtersText = $this->getFilterText($request);
 
+
         // Crear PDF
         $pdf = new PropertiesPdfExport($properties, $request, $totals, $userName, $filtersText);
         $pdf->AliasNbPages();
@@ -368,11 +374,11 @@ class PdfController extends Controller
     {
         $filtros = [];
 
-        if ($request->has('status') && $request->status) {
-            $statusValues = array_filter($request->input('status'));
+        if ($request->status) {
+            $statusValues = $request->input('status');
             if (!empty($statusValues)) {
-                $statusLabels = array_map('ucfirst', array_keys($statusValues));
-                $filtros[] = "Estado: " . implode(', ', $statusLabels);
+                $statusLabels = $statusValues;
+                $filtros[] = "Estado: " . $statusLabels;
             }
         }
 
@@ -399,45 +405,49 @@ class PdfController extends Controller
     private function applyFilters($query, $request)
     {
         // Filtro por estado
+
         $query->when($request->filled('status'), function ($q) use ($request) {
             $status = $request->input('status');
-            if ($status) {
-                $seleccionados = array_filter($status);
-                $conteo = count($seleccionados);
+            $allowedStatuses = ['disponible', 'pagado', 'finiquitado', 'pendiente'];
 
-                if ($conteo === 1) {
-                    $estadoUnico = key($seleccionados);
-                    $q->where('p.status', $estadoUnico);
-                } elseif ($conteo === 2) {
-                    $estados = array_keys($seleccionados);
-                    $q->whereIn('p.status', $estados);
-                } elseif ($conteo === 3 || $conteo === 0) {
-                    $q->whereIn('p.status', ['disponible', 'apartado', 'vendido']);
-                }
+            if (in_array($status, $allowedStatuses)) {
+                // Si el estado enviado es válido, filtra solo por ese
+                $q->where('p.status', $status);
+            } else {
+                // Si envió un texto no reconocido, busca en todos los válidos
+                $q->whereIn('p.status', $allowedStatuses);
             }
         });
 
         // Filtro por etapa
+
         if ($request->has('stage_id') && $request->stage_id) {
-            $query->where('b.stage_id', $request->stage_id);
+            $query->where('s.name', 'like', "%$request->stage_id%");
         }
+
+
 
         // Filtro por manzana
         if ($request->has('block_id') && $request->block_id) {
-            $query->where('b.id', $request->block_id);
+            $query->where('b.name', 'like', "%$request->block_id%");
         }
+
+
 
         // Filtro por proyecto
         if ($request->has('project_id') && $request->project_id) {
-            $query->where('p.project_id', $request->project_id);
+            $query->where('p.name', 'like', "%$request->project_id%");
         }
-
         // Filtro por fechas
         if ($request->has('dates') && $request->input('dates')['date_init'] && $request->input('dates')['date_end']) {
             $query->whereBetween('c.date', [
                 $request->input('dates')['date_init'],
                 $request->input('dates')['date_end']
             ]);
+        }
+
+        if ($request->input('search') && $request->search) {
+            $query->where('p.name', $request->search); // Corregido: search proviene de properties
         }
     }
 

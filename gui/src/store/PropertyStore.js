@@ -274,7 +274,7 @@ class PropertyStore {
     };
 
       toExport = (url, data) => {
-        
+        console.log(data)
         return setUrlExportPdf(url, data);
       };
 

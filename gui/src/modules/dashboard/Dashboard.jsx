@@ -53,7 +53,7 @@ export default function Dashboard() {
 
   const dataPayment = {
     cards: {
-      vendidas: 320,
+      Finiquitados: 320,
       disponibles: 87,
       corriente: 290,
       atrasados: 30,
@@ -81,20 +81,24 @@ export default function Dashboard() {
   return (
     <>
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 3 }}>
+        <Grid size={{ xs: 12, md: 2 }}>
           <StatCard value={stats.Totales} title="Total lotes" />
         </Grid>
 
-        <Grid size={{ xs: 12, md: 3 }}>
-          <StatCard title="Lotes Apartados" value={stats.TotalApartados} />
+        <Grid size={{ xs: 12, md: 2 }}>
+          <StatCard title="Apartados" value={stats.TotalApartados} />
         </Grid>
 
-        <Grid size={{ xs: 12, md: 3 }}>
-          <StatCard title="Lotes Vendidos" value={stats.TotalVendidos} />
+        <Grid size={{ xs: 12, md: 2 }}>
+          <StatCard title="Finiquitados" value={stats.TotalVendidos} />
         </Grid>
-        <Grid size={{ xs: 12, md: 3 }}>
-          <StatCard title="Lotes Disponibles" value={stats.TotalDisponibles} />
+         <Grid size={{ xs: 12, md: 2 }}>
+          <StatCard title="Pagados" value={stats.TotalPagados} />
         </Grid>
+        <Grid size={{ xs: 12, md: 2 }}>
+          <StatCard title="Disponibles" value={stats.TotalDisponibles} />
+        </Grid>
+       
       </Grid>
 
       <Grid container spacing={3}>

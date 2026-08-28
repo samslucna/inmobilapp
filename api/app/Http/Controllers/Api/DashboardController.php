@@ -23,8 +23,9 @@ class DashboardController extends Controller
             ->select(
                 DB::raw("COUNT(*) AS Totales"),
                 DB::raw("COUNT(CASE WHEN status = 'disponible' THEN 1 END) AS TotalDisponibles"),
-                DB::raw("COUNT(CASE WHEN status = 'apartado' THEN 1 END) AS TotalApartados"),
-                DB::raw("COUNT(CASE WHEN status = 'vendido' THEN 1 END) AS TotalVendidos"),
+                DB::raw("COUNT(CASE WHEN status = 'pendiente' THEN 1 END) AS TotalApartados"),
+                DB::raw("COUNT(CASE WHEN status = 'finiquitado' THEN 1 END) AS TotalVendidos"),
+                DB::raw("COUNT(CASE WHEN status = 'pagado' THEN 1 END) AS TotalPagados"),
             );
 
         $paymonth = DB::table('tickets')
@@ -44,9 +45,9 @@ class DashboardController extends Controller
             ->select(
                 's.id AS stage_id',
                 's.name AS etapa_nombre',
-                DB::raw("SUM(CASE WHEN p.status = 'apartado' THEN 1 ELSE 0 END) AS apartados"),
+                DB::raw("SUM(CASE WHEN p.status = 'pendiente' THEN 1 ELSE 0 END) AS apartados"),
                 DB::raw("SUM(CASE WHEN p.status = 'disponible' THEN 1 ELSE 0 END) AS disponibles"),
-                DB::raw("SUM(CASE WHEN p.status = 'vendido' THEN 1 ELSE 0 END) AS vendidos"),
+                DB::raw("SUM(CASE WHEN p.status = 'finiquitado' THEN 1 ELSE 0 END) AS vendidos"),
                 DB::raw("COUNT(p.id) AS total_propiedades")
             )->groupBy('s.id', 's.name')
             ->orderBy('s.name', 'ASC')->get();
