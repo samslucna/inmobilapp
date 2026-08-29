@@ -1,16 +1,17 @@
 import { observer } from "mobx-react-lite";
-import { Box, Typography, Button, Fade } from "@mui/material";
+import { Box, Typography, Button, Fade, Pagination } from "@mui/material";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
 import ImportInput from "./ImportInput";
 import SearchInput from "./SearchInput";
 import SearchByDate from "./SearchByDate";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Form from "./Form";
 import TableData from "./TableData";
 import TicketStore from "../../store/TicketStore";
 import authStore from "../../store/AuthStore";
+import Filters from "./Filters";
 
 const DataList = observer(({ btnMn }) => {
   const { Can } = authStore;
@@ -18,10 +19,107 @@ const DataList = observer(({ btnMn }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const [mnSearch, setMnSearch] = useState("");
+  const { loadTickets, handlePaginationChange, consolidate } = TicketStore;
+  const [filters, setFilters] = useState({
+    search: "",
+    clientname: "",
+    concept: "",
+    status: "",
+    fecha_inicio: null,
+    fecha_fin: null,
+    mes: "",
+    año: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [paginate, setPaginate] = useState({
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+    per_page: 10,
+    from: null,
+    to: null,
+  });
+  const [data, setData] = useState([]);
+
+  // Handler para el formulario de filtros
+  const handleFilterSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      const { name, value } = e.target;
+      let filter = { ...filters, [name]: value };
+      filter.page = 1;
+      const res = await loadTickets(filter.page, filter);
+      console.log(res);
+      if (res) {
+        setPaginate(res);
+        setFilters(filter);
+        setData(res.data);
+      }
+    } catch (error) {
+      console.log(e);
+    }
+  };
+
+  const changePage = async (e) => {
+    e.preventDefault();
+    let { innerText } = e.target;
+    let filter = { ...filters, page: innerText };
+
+    const res = await loadTickets(innerText, filter);
+
+    if (res) {
+      setData(res.data);
+      setPaginate(res);
+      setFilters(filter);
+    }
+  };
+
+  const btnConsolidate = async (e) => {
+    e.preventDefault();
+    //consolidate(e);
+    console.log("consolidar");
+    //const upd = await loadTickets(1, { page: 1 });
+
+    //if (upd) {
+    //  setPaginate(upd);
+    //  setData(upd.data);
+    //}
+  };
+
+  const resetFilter = async () => {
+    const filterInit = {
+      search: "",
+      clientname: "",
+      concept: "",
+      status: "",
+      fecha_inicio: null,
+      fecha_fin: null,
+      mes: "",
+      año: "",
+    };
+
+    const res = await loadTickets(filterInit.page, filterInit);
+    setFilters(filterInit);
+    setData(res.data);
+    setPaginate(res);
+  };
+  // Carga cuando cambian los filtros o la página
+  useEffect(() => {
+    const init = async () => {
+      const dataApi = await loadTickets(filters.page, filters);
+      if (dataApi) {
+        setPaginate(dataApi);
+        setData(dataApi.data);
+      }
+    };
+
+    init();
+  }, []);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = (e) => {
     if (e.target.id === "searchClient") {
       btnMn(e);
@@ -30,14 +128,24 @@ const DataList = observer(({ btnMn }) => {
     }
     setAnchorEl(null);
   };
+
   const handlerSearch = () => {
     switch (mnSearch) {
       case "main":
         return <SearchInput btnMn={btnMn} setMnSearch={setMnSearch} />;
 
-      case "seachbydate":
-        return <SearchByDate setMnSearch={setMnSearch} />;
+      case "filters":
+        return      <Filters
+              onFilter={handleFilterSubmit}
+              onReset={resetFilter}
+              filters={filters}
+              setFilters={setFilters}
+              btnConsolidate={btnConsolidate}
+              setMnSearch={setMnSearch}
+            /> ;
 
+       case "seachbydate":
+        return <SearchByDate setMnSearch={setMnSearch} />;
       case "import":
         return <ImportInput btnMnSearch={btnMnSearch} btnMn={btnMn} />;
 
@@ -67,6 +175,7 @@ const DataList = observer(({ btnMn }) => {
             >
               Mas
             </Button>
+       
           </Can>
           <Menu
             id="fade-menu"
@@ -80,17 +189,18 @@ const DataList = observer(({ btnMn }) => {
             open={open}
             onClose={handleClose}
           >
-            <Can permission={'recibos.create'}>
-            <MenuItem id="import" onClick={handleClose}>
-              Import
-            </MenuItem>
-            </Can>
-            <MenuItem id="seachbydate" onClick={handleClose}>
-              Buscar por rango de fecha
+            <Can permission={"recibos.create"}>
+              <MenuItem id="import" onClick={handleClose}>
+                Import
+              </MenuItem>
+           
+            <MenuItem id="filters" onClick={handleClose}>
+              Buscar y filtrar
             </MenuItem>
             <MenuItem id="searchClient" onClick={handleClose}>
               Buscar por Cliente
             </MenuItem>
+             </Can>
           </Menu>
         </Typography>
       </Box>
@@ -106,10 +216,17 @@ const DataList = observer(({ btnMn }) => {
             </Grid>
           ) : (
             <Grid size={12}>
-              <TableData datasTable={TicketStore.tickets} loading ={TicketStore.loading} />
+              <TableData datasTable={data} loading={loading} />
+            
             </Grid>
           )}
         </Grid>
+          <Pagination
+                sx={{ textAlign: "center" }}
+                count={paginate?.last_page}
+                page={paginate?.current_page}
+                onChange={(e) => changePage(e)}
+              />
       </Box>
     </>
   );

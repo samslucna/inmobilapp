@@ -128,7 +128,7 @@ class PropertyStore {
 
   handlePaginationChange = async (value, filters) => {
     let pagCurrent = await this.loadProperties(parseInt(value), filters);
-    
+
     if (pagCurrent) {
       return pagCurrent;
     }
@@ -136,11 +136,10 @@ class PropertyStore {
   consolidate = async (e) => {
     e.preventDefault();
     const data = await getDatasBd("properties/consolidate");
-    
-    const updte =await this.loadProperties(1,{page:1});
 
-    return updateBd
-  
+    const updte = await this.loadProperties(1, { page: 1 });
+
+    return updateBd;
   };
 
   loadProperties = async (page, filters) => {
@@ -184,13 +183,13 @@ class PropertyStore {
         confirmButtonColor: "rgb(176, 221, 51)",
         cancelButtonColor: "#3085d6",
       });
-      console.log(data)
+      console.log(data);
       data.amount_init = changeFormat.toInt(data.amount_init);
-      
+
       if (resp.isConfirmed) {
         if (data.id !== null) {
           await updateBd("properties", data.id, data);
-          if (data.boundaries!== undefined && data.boundaries.length > 0) {
+          if (data.boundaries !== undefined && data.boundaries.length > 0) {
             data.boundaries.forEach((boundary) => {
               boundary.property_id = data.id;
               if (boundary.id !== null) {
@@ -258,7 +257,7 @@ class PropertyStore {
         }
       }
     } catch (error) {
-    console.log(error);
+      console.log(error);
       Swal.fire({
         title: "Error",
         text: "error al guardar el lote",
@@ -269,14 +268,14 @@ class PropertyStore {
     }
   };
 
-   toExportExcel = async (url, namedoc, data) => {
-      return setUrlExportXls(url, namedoc, data);
-    };
+  toExportExcel = async (url, namedoc, data) => {
+    return setUrlExportXls(url, namedoc, data);
+  };
 
-      toExport = (url, data) => {
-        console.log(data)
-        return setUrlExportPdf(url, data);
-      };
+  toExport = (url, data) => {
+    console.log(data);
+    return setUrlExportPdf(url, data);
+  };
 
   importXlsProperties = async () => {
     try {

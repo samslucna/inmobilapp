@@ -51,13 +51,27 @@ class PropertyController extends Controller
     public function index(Request $request)
     {
         try {
-            $page = $request->input('page',1);
+            $page = $request->input('page', 1);
             $perPage   = $request->input('per_page', 10);
             $stageId   = $request->input('stage_id');
             $blockId   = $request->input('block_id');
             $projectId = $request->input('project_id');
             $search    = $request->input('search');
             $status    = $request->input('status');
+
+            $colindanciasSub = DB::table('boundaries')
+                ->select(
+                    'property_id',
+                    DB::raw("JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'name', name,
+                'description', description,
+                'm2', m2,
+                'property_id', property_id
+            )
+        ) as boundary_json")
+                )
+                ->groupBy('property_id');
 
             // 1. Subconsulta agregada de tickets (calcula totales por contrato de forma eficiente)
             $ticketsSum = DB::table('tickets')
@@ -72,6 +86,9 @@ class PropertyController extends Controller
                 ->leftJoin('contracts as c', 'p.id', '=', 'c.property_id')
                 ->leftJoinSub($ticketsSum, 't', function ($join) {
                     $join->on('c.id', '=', 't.contract_id');
+                })
+                ->leftJoinSub($colindanciasSub, 'col', function ($join) {
+                    $join->on('p.id', '=', 'col.property_id');
                 })
                 ->select(
                     'p.id',
@@ -89,6 +106,7 @@ class PropertyController extends Controller
                     'p.status',
                     'p.latitude',
                     'p.longitude',
+                    DB::raw("COALESCE(col.boundary_json, '[]') as boundaries"),
                     DB::raw('COALESCE(t.total_tickets, 0) as total_pagado'),
                     DB::raw('p.amount_init - COALESCE(t.total_tickets, 0) as saldo'),
                     'c.date as fecha_contrato'
@@ -96,37 +114,43 @@ class PropertyController extends Controller
 
             // 3. Aplicación de Filtros
             if ($stageId) {
-                $query->where('s.name','like', "%$stageId%"); // Corregido: stage_id proviene de stages
+                $query->where('s.name', 'like', "%$stageId%"); // Corregido: stage_id proviene de stages
             }
 
             if ($blockId) {
-                $query->where('b.name','=', "$blockId"); // Corregido: block_id proviene de blocks
+                $query->where('b.name', '=', "$blockId"); // Corregido: block_id proviene de blocks
             }
 
-             
+
             if ($projectId) {
-                $query->where('pr.name','like', "%$projectId%"); // Corregido: project_id proviene de stages
+                $query->where('pr.name', 'like', "%$projectId%"); // Corregido: project_id proviene de stages
             }
             //dd($query->get());
-           
+
 
             if ($search) {
-                $query->where('p.name',$search); // Corregido: search proviene de properties
+                $query->where('p.name', $search); // Corregido: search proviene de properties
             }
 
-            
+
             if ($status) {
-                $query->where('p.status','like', "%$status%");
+                $query->where('p.status', 'like', "%$status%");
             }
+
 
 
 
             // 4. Paginación automática (Laravel maneja la página solicitada implícitamente)
-            $properties = $query->orderBy('p.id', 'desc')->paginate(perPage:$perPage,page:$page);
+            $properties = $query->orderBy('p.id', 'desc')->paginate(perPage: $perPage, page: $page);
+
+            $properties->getCollection()->transform(function ($item) {
+                $item->boundaries = json_decode($item->boundaries);
+                return $item;
+            });
 
             // Conserva exactamente la misma estructura de respuesta en tu API
             return response()->json([
-                 'success' => true,
+                'success' => true,
                 'data' => $properties->items(),
                 'current_page' => $properties->currentPage(),
                 'last_page' => $properties->lastPage(),
@@ -187,7 +211,6 @@ class PropertyController extends Controller
                 'message' => 'Lotes consolidados exitosamente (Disponibles, Pendientes, Finiquitados y Pagados).',
                 'total_actualizados' => $affectedRows
             ], 200);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -371,7 +394,7 @@ class PropertyController extends Controller
                 "block_id" => $request->block_id,
                 "amount_init" => $request->amount_init,
                 "amount_end" => $request->amount_end,
-                 "latitude" => $request->latitude,
+                "latitude" => $request->latitude,
                 "longitude" => $request->longitude,
                 "status" => $request->status,
             ],

@@ -72,7 +72,7 @@ class BoundaryStore {
 
   loaBoundaries = async () => {
     try {
-      const data = await getAllBd("Boundaries");
+      const data = await getAllBd("boundaries");
 
       this.setPagination(data);
       this.setBoundaries(data.data);
@@ -136,6 +136,7 @@ class BoundaryStore {
       console.log(error);
     }
   };
+
   addListBoundary = async (boundary) => {
     this.setBoundaries([...this.Boundaries, boundary]);
     this.setHiddenForm(false);
@@ -150,9 +151,9 @@ class BoundaryStore {
     return newList;
   };
 
-  impBoundaries = async () => {
+  importBoundaries = async () => {
     try {
-      await setUrImport("/api/Boundaries/import", this.urlImp);
+      await setUrImport("/api/boundaries/import", this.urlImp);
       await this.loaBoundaries();
     } catch (error) {
       console.log(error);

@@ -16,6 +16,7 @@ use App\Imports\PropertiesImport;
 use App\Imports\ContractsImport;
 use App\Imports\PropertyImport;
 use App\Imports\BlocksImport;
+use App\Imports\BoundaryImport;
 use App\Imports\SellersImport;
 use App\Imports\TicketsImport;
 use Carbon\Carbon;
@@ -425,6 +426,38 @@ class XlsController extends Controller
         }
     }
 
+
+     public function importBoundaries(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240'
+        ]);
+
+        try {
+            // 2. Pasamos la instancia al método import
+            DB::beginTransaction();
+            $import = new BoundaryImport();
+            Excel::import($import, $request->file('file'));
+
+            DB::commit();
+
+            $mesage = $import->getErrorCount() === 0 ? 'Importación completada' : 'Errores al importar datos';
+
+            return response()->json([
+                'message' => $mesage,
+                'success_count' => $import->getSuccessCount(),
+                'error_count' => $import->getErrorCount(),
+                'errors' => $import->getErrors()
+            ], 200);
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error en la importación',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
 
 

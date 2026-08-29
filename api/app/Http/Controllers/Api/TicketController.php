@@ -18,14 +18,17 @@ class TicketController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): JsonResponse
+    public function indexbk(Request $request): JsonResponse
     {
 
         try {
             $perPage = $request->input('per_page', 5);
-            $page = $request->input('page',1);
+            $page = $request->input('page', 1);
             $search = $request->input('search', '');
- 
+            $clientname = $request->input('clientname', '');
+            $concept = $request->input('concept', '');
+            $status = $request->input('status', '');
+
             $query = Ticket::orderBy('id', 'desc')
                 ->with('contract');
 
@@ -52,7 +55,7 @@ class TicketController extends Controller
                     'total' => $tickets->total(),
                 ]
             );
-            
+
 
             //dd($tickets->lastPage());
             return response()->json([
@@ -65,8 +68,97 @@ class TicketController extends Controller
                 'from' => $tickets->firstItem(),
                 'to' => $tickets->lastItem(),
             ]);
+        } catch (\Exception $e) {
+            return $this->errorResponse('Error al obtener recibos', $e);
+        }
+    }
+
+    public function index(Request $request): JsonResponse
+    {
+        try {
+            $perPage = (int) $request->input('per_page', 5);
+            $page = (int) $request->input('page', 1);
+            $query = Ticket::query()->with(['contract.buyer']); // Carga ansiosa para evitar problema N+1
+
+            // 1. Filtro General de Búsqueda (ID o Número de Recibo)
+            $query->when($request->filled('search'), function ($q) use ($request) {
+                $search = $request->input('search');
+                $q->where('id', 'LIKE', "%{$search}%");
+            });
 
 
+
+            //dd($request->input('clientname'));
+            // 2. Filtro por Nombre de Cliente (A través de la relación de contrato/cliente)
+            $query->when($request->filled('clientname'), function ($q) use ($request) {
+                $clientName = $request->input('clientname');
+                $q->whereHas('contract.buyer', function ($qClient) use ($clientName) {
+                    $qClient->where('name', 'LIKE', "%{$clientName}%")
+                        ->orWhere('lastnames', 'LIKE', "%{$clientName}%");
+                });
+            });
+
+
+            // 3. Filtro por Concepto
+            $query->when($request->filled('concept'), function ($q) use ($request) {
+                $q->where('concept', 'LIKE', "%{$request->input('concept')}%");
+            });
+
+
+            // 4. Filtro por Estado (Status)
+            $query->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->input('status'));
+            });
+
+
+
+            //// 5. Filtro por Rango de Fechas (fecha_inicio - fecha_fin)
+            //$query->when($request->filled('fecha_inicio'), function ($q) use ($request) {
+            //    $q->whereDate('created_at', '>=', $request->input('fecha_inicio'));
+            //});
+//
+            //$query->when($request->filled('fecha_fin'), function ($q) use ($request) {
+            //    $q->whereDate('created_at', '<=', $request->input('fecha_fin'));
+            //});
+
+            // 6. Filtro por Mes (1 al 12)
+            $query->when($request->filled('month'), function ($q) use ($request) {
+                $q->whereMonth('created_at', $request->input('month'));
+            });
+
+            // 7. Filtro por Año (Ej: 2026)
+            $query->when($request->filled('year'), function ($q) use ($request) {
+                $q->whereYear('created_at', $request->input('year'));
+            });
+
+            //dd($query->get()[0]);
+            // Ordenamiento y Paginación limpia
+            $tickets = $query->orderBy('id', 'desc')
+                ->paginate(perPage: $perPage, page: $page);
+
+            // Registrar acción en la Auditoría
+            AuditLogService::log(
+                description: auth()->user()->name . " visualizó lista de Recibos",
+                event: 'view',
+                logName: 'Recibos',
+                properties: [
+                    'page' => $page,
+                    'per_page' => $perPage,
+                    'total' => $tickets->total(),
+                ]
+            );
+
+
+            return response()->json([
+                'success' => true,
+                'data' => $tickets->items(),
+                'current_page' => $tickets->currentPage(),
+                'last_page' => $tickets->lastPage(),
+                'per_page' => $tickets->perPage(),
+                'total' => $tickets->total(),
+                'from' => $tickets->firstItem(),
+                'to' => $tickets->lastItem(),
+            ], 200);
         } catch (\Exception $e) {
             return $this->errorResponse('Error al obtener recibos', $e);
         }
@@ -82,7 +174,7 @@ class TicketController extends Controller
         try {
 
             //dd($request->all());
-          
+
             $validator = Validator::make($request->all(), [
                 'concept' => 'required|string|max:255',
                 'amount' => 'required|numeric|min:0',
@@ -375,7 +467,7 @@ class TicketController extends Controller
             }
 
             $tickets = Ticket::with('contract')
-                ->where('id', '=', $query) 
+                ->where('id', '=', $query)
                 //->orWhere('ref', 'LIKE', "%{$query}%")
                 //->orWhereHas('contract', function($q) use ($query) {
                 //    $q->where('ref', 'LIKE', "%{$query}%");

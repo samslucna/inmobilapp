@@ -5,7 +5,7 @@ import { Box, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import ImportInput from "./ImportInput";
 import SearchInput from "./SearchInput";
-
+import ImportInputBoundaries from './ImportInputBoundaries'
 import Form from "./Form";
 import TableData from "./TableData";
 import authStore from "../../store/AuthStore";
@@ -20,7 +20,10 @@ const {Can} = authStore;
     <>
       <Box display="flex" justifyContent="space-between">
         <Typography variant="h5" gutterBottom>
-          {PropertyStore.hiddenForm ? null : <Can permission={'lotes.create'}><ImportInput /></Can>}
+          {PropertyStore.hiddenForm ? null : <Can permission={'lotes.create'}>
+            <ImportInput />
+            <ImportInputBoundaries />
+            </Can>}
         </Typography>
 
         <SearchInput />

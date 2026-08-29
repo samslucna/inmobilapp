@@ -45,59 +45,30 @@ class BoundaryController extends Controller
         return response()->json(['data' => $boundary]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Request $req)
-    {
-        //
-        $boundary = Boundary::with('property')->with('buyer')->find($req->id);
-        $tickets = Ticket::where('contract_id', $req->id)->get();
-        //var_dump($tickets);
 
-        $totalTickets = $this->total($tickets, 'contract_id');
-
-        return response()->json([
-            'contract' => $boundary,
-            'tickets' => $tickets,
-            'totalTickets' => $totalTickets + $boundary['partamount'],
-        ]);
-    }
-
-
-
-    public function search(Request $request)
-    {
-        $query = $request->name;
-        //dd($query);
-        $items = Boundary::with('buyer')->with('property')->with('tickets')->where('id', 'LIKE', "%$query%")
-            ->get();
-        return response()->json($items);
-    }
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request)
     {
         // inserta los datos
-try {
-        //dd($request->property_id);
-        Boundary::where('id', $request->id)->update([
-            "property_id" => $request->property_id,
-            "name" => $request->name,
-            "description" => $request->description,
-            "m2" => $request->m2,
-        ]);
+        try {
+            
+            Boundary::where('id', $request->id)->update([
+                "property_id" => $request->property_id,
+                "name" => $request->name,
+                "description" => $request->description,
+                "m2" => $request->m2,
+            ]);
 
-        // respesta de JSON
-        $response['message'] = "Actualizo exitosamente";
-        $response['success'] = true;
+            // respesta de JSON
+            $response['message'] = "Actualizo exitosamente";
+            $response['success'] = true;
 
-        return $response;
-} catch (\Throwable $th) {
-    return $response['message']='Algo salio mal';
-}
-    
+            return $response;
+        } catch (\Throwable $th) {
+            return $response['message'] = 'Algo salio mal';
+        }
     }
 
     /**

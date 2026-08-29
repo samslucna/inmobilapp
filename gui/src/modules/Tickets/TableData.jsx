@@ -12,7 +12,6 @@ import AgentStore from "../../store/AgentStore";
 import ClientStore from "../../store/ClientStore";
 import PropertyStore from "../../store/PropertyStore";
 import PropertaryStore from "../../store/PropertaryStore";
-import DataTablePagination from "./DataTablePagination";
 import changeFormat from "../../helper/changeFormat";
 import ContractStore from "../../store/ContractStore";
 import ModalDocIcon from "./ModalDocIcon";
@@ -76,7 +75,7 @@ const TableData = observer(({ datasTable, loading: externalLoading }) => {
   const [selectedContract, setSelectedContract] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [orderBy, setOrderBy] = useState("id");
-  const [order, setOrder] = useState("desc"); 
+  const [order, setOrder] = useState("desc");
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
 
@@ -108,7 +107,7 @@ const TableData = observer(({ datasTable, loading: externalLoading }) => {
 
   const handleChange = (e, value) => {
     TicketStore.handlePaginationChange(value);
-  }; 
+  };
 
   const goEdit = async (ticket) => {
     const contract = await ContractStore.showContract(
@@ -155,7 +154,7 @@ const TableData = observer(({ datasTable, loading: externalLoading }) => {
       </Paper>
     );
   }
-
+console.log(datasTable);
   return (
     <Fragment>
       <div className="row">
@@ -166,9 +165,10 @@ const TableData = observer(({ datasTable, loading: externalLoading }) => {
                 <tr>
                   <th>Numero</th>
                   <th>Fecha</th>
-                  <th>Concepto($)</th>
+                  <th>Cliente</th>
+                  <th>Concepto</th>
                   <th>Monto($)</th>
-
+                  <th>Status</th>
                   <th>Accion</th>
                 </tr>
               </thead>
@@ -180,10 +180,11 @@ const TableData = observer(({ datasTable, loading: externalLoading }) => {
                           <td>{data?.id}</td>
 
                           <td>{data.date}</td>
+                          <td>{data?.contract?.buyer?.name+" "+data?.contract?.buyer?.lastnames}</td>
                           <td>{data.concept}</td>
 
                           <td>{changeFormat.numberToString(data.amount)}</td>
-
+                          <td>{data.status}</td>
                           <td>
                             <div
                               key={"edit" + data.id}
@@ -229,31 +230,6 @@ const TableData = observer(({ datasTable, loading: externalLoading }) => {
                   <td colSpan={5}>
                     <div className="ui divider"></div>
                     {/* Paginación desktop */}
-                    <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
-                      <Grid
-                        container
-                        alignItems="center"
-                        justifyContent="space-between"
-                      >
-                        <Grid item>
-                          <Typography variant="body2" color="textSecondary">
-                            Mostrando {from} - {to} de {totalCount} registros
-                          </Typography>
-                        </Grid>
-                        <Grid item>
-                          <DataTablePagination
-                            totalCount={totalCount || 0}
-                            page={page || 0}
-                            rowsPerPage={rowsPerPage}
-                            onPageChange={handlePageChange}
-                            onRowsPerPageChange={handleRowsPerPageChange}
-                            from={from}
-                            to={to}
-                            isLoading={ContractStore.loading}
-                          />
-                        </Grid>
-                      </Grid>
-                    </Box>
                   </td>
                 </tr>
               </tfoot>

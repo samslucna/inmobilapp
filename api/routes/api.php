@@ -95,6 +95,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // ------------------------------------------------------------------------
     Route::prefix('boundaries')->group(function () {
         Route::post('/search', [BoundaryController::class, 'search']);
+        Route::post('/import', [XlsController::class, 'importBoundaries']);
     });
     Route::apiResource('/boundaries', BoundaryController::class);
 
@@ -122,7 +123,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('blocks')->group(function () {
         Route::post('/search', [BlockController::class, 'search']);
         Route::post('/import', [XlsController::class, 'importBlocks']);
-
     });
     Route::apiResource('/blocks', BlockController::class);
 

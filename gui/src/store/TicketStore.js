@@ -11,6 +11,7 @@ import {
   setUrlExportPdf,
   setUrlExportXls,
   showDataBd,
+  getFilteredBd,
 } from "../api/QueryApi";
 import Swal from "sweetalert2";
 import changeFormat from "../helper/changeFormat";
@@ -173,33 +174,22 @@ class TicketStore {
   /**
    * Cargar lista de contratos con filtros y paginación
    */
-  loadTickets = async (page = 1) => {
+  loadTickets = async (page = 1, filters) => {
     this.setLoading(true);
     this.setError(null);
 
     try {
-      const params = new URLSearchParams({
-        page: page,
-        per_page: this.pagination.per_page,
-      });
+      if (page != undefined) {
+        let params = new URLSearchParams({
+          page: page,
+          ...filters,
+        });
 
-      const response = await getAllBd(`tickets?${params}`);
+        const data = await getFilteredBd("tickets?", params);
 
-      runInAction(() => {
-        if (response && response.data) {
-          this.setTickets(response.data);
-          this.setPagination({
-            current_page: response.current_page,
-            last_page: response.last_page,
-            total: response.total,
-            per_page: response.per_page,
-            from: response.from,
-            to: response.to,
-          });
-        }
-      });
-
-      return response;
+        console.log(data);
+        return data;
+      }
     } catch (error) {
       console.error("Error loading recibos:", error);
       runInAction(() => {
@@ -269,7 +259,6 @@ class TicketStore {
     this.setError(null);
     try {
       if (value !== "") {
-
         this.setTickets([]);
         let seachRender = await searchBd(table, value);
         console.log(seachRender);
@@ -287,14 +276,13 @@ class TicketStore {
             });
           }
         });
-         this.setLoading(false);
+        this.setLoading(false);
       } else {
         await this.loadTickets();
       }
     } catch (error) {
       console.log(error);
-       this.setLoading(false);
-      
+      this.setLoading(false);
     }
   };
 }

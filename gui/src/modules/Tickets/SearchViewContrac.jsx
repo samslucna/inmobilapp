@@ -3,7 +3,8 @@ import {
   TextField,
   Autocomplete,
   ButtonGroup,
-  Button,
+  Button,isMobile,isTablet,useTheme,
+useMediaQuery,
 } from "@mui/material";
 import DataList from "./DataList";
 import SearchInput from "./SearchInput";
@@ -12,12 +13,16 @@ import ContractStore from "../../store/ContractStore";
 import changeFormat from "../../helper/changeFormat";
 import ClientStore from "../../store/ClientStore";
 import TicketStore from "../../store/TicketStore";
+import {KeyboardReturn} from '@mui/icons-material'
 import Form from "./Form";
 import Modal from "./Modal";
-import { set } from "mobx";
+
 import ModalDoc from "./ModalDoc";
 
 export default function SearchViewContract({btnMn}) {
+const theme = useTheme();
+ const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const { searchEdit, seachQueryData, contract, setSearchEdit, queryTable } =
     ContractStore;
   const { urlImp, setUrlImp } = TicketStore;
@@ -69,10 +74,22 @@ export default function SearchViewContract({btnMn}) {
         aria-label="outlined button group"
         sx={{ mb: 2 }}
       >
-        <Button id="main" onClick={e=>btnMn(e)}>
-          Principal
-        </Button>
-   
+         <Button
+                       type="button"
+                       variant="contained"
+                       sx={{
+                         color: "white",
+                         background: "#3576ca",
+                         "&:hover": { background: "#b02626" },
+                       }}
+                       startIcon={<KeyboardReturn />}
+                       onClick={e=>btnMn(e)}
+                       fullWidth={isMobile}
+                       size={isMobile ? "small" : "medium"}
+                     >
+                       Atras
+                     </Button>
+ 
       </ButtonGroup>
         <div className="ui centered grid">
           <div className=" row">
