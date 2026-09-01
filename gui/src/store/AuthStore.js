@@ -30,10 +30,9 @@ class AuthStore {
 
     
     if (!this.isAuthenticated) {
-      console.log(this.isAuthenticated)
+     
       const user = JSON.parse(savedUser);
 
-      
       this.setPermissions(user?.permissions || []);
       this.setRoles(user?.roles || []);
 

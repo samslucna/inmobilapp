@@ -15,63 +15,6 @@ use Illuminate\Support\Facades\Validator;
 
 class TicketController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function indexbk(Request $request): JsonResponse
-    {
-
-        try {
-            $perPage = $request->input('per_page', 5);
-            $page = $request->input('page', 1);
-            $search = $request->input('search', '');
-            $clientname = $request->input('clientname', '');
-            $concept = $request->input('concept', '');
-            $status = $request->input('status', '');
-
-            $query = Ticket::orderBy('id', 'desc')
-                ->with('contract');
-
-            if (!empty($search)) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('id', 'LIKE', "%{$search}%");
-                });
-            }
-
-
-
-
-            $tickets = $query->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
-
-
-            // Registrar acción de visualización
-            AuditLogService::log(
-                description: auth()->user()->name . " visualizó lista de Recibos",
-                event: 'view',
-                logName: 'Recibos',
-                properties: [
-                    'page' => $request->input('page', 1),
-                    'per_page' => $perPage,
-                    'total' => $tickets->total(),
-                ]
-            );
-
-
-            //dd($tickets->lastPage());
-            return response()->json([
-                'success' => true,
-                'data' => $tickets->items(),
-                'current_page' => $tickets->currentPage(),
-                'last_page' => $tickets->lastPage(),
-                'per_page' => $tickets->perPage(),
-                'total' => $tickets->total(),
-                'from' => $tickets->firstItem(),
-                'to' => $tickets->lastItem(),
-            ]);
-        } catch (\Exception $e) {
-            return $this->errorResponse('Error al obtener recibos', $e);
-        }
-    }
 
     public function index(Request $request): JsonResponse
     {
@@ -83,12 +26,9 @@ class TicketController extends Controller
             // 1. Filtro General de Búsqueda (ID o Número de Recibo)
             $query->when($request->filled('search'), function ($q) use ($request) {
                 $search = $request->input('search');
-                $q->where('id', 'LIKE', "%{$search}%");
+                $q->where('id', $search);
             });
 
-
-
-            //dd($request->input('clientname'));
             // 2. Filtro por Nombre de Cliente (A través de la relación de contrato/cliente)
             $query->when($request->filled('clientname'), function ($q) use ($request) {
                 $clientName = $request->input('clientname');
@@ -110,28 +50,44 @@ class TicketController extends Controller
                 $q->where('status', $request->input('status'));
             });
 
+            if ($request->input(('datei')) !== "null" &&  $request->input(('datee')) !== "null") {
+
+                //// 5. Filtro por Rango de Fechas (fecha_inicio - fecha_fin)
+                if ($request->filled('datei') && $request->filled('datee')) {
+                    $query->whereBetween('date', [
+                        Carbon::parse($request->input('datei'))->format('Y-m-d'),
+                        Carbon::parse($request->input('datee'))->format('Y-m-d')
+                    ]);
+                } else {
+                    // Si solo viene una de las dos:
+                    $query->when($request->filled('datei'), function ($q) use ($request) {
+                        $q->whereDate('date', '>=', Carbon::parse($request->input('datei'))->format('Y-m-d'));
+                    });
+
+                    $query->when($request->filled('datee'), function ($q) use ($request) {
+                        $q->whereDate('date', '<=', Carbon::parse($request->input('datee'))->format('Y-m-d'));
+                    });
+                }
+            }
 
 
-            //// 5. Filtro por Rango de Fechas (fecha_inicio - fecha_fin)
-            //$query->when($request->filled('fecha_inicio'), function ($q) use ($request) {
-            //    $q->whereDate('created_at', '>=', $request->input('fecha_inicio'));
-            //});
-//
-            //$query->when($request->filled('fecha_fin'), function ($q) use ($request) {
-            //    $q->whereDate('created_at', '<=', $request->input('fecha_fin'));
-            //});
 
             // 6. Filtro por Mes (1 al 12)
+
             $query->when($request->filled('month'), function ($q) use ($request) {
-                $q->whereMonth('created_at', $request->input('month'));
+                $q->whereMonth('date', $request->input('month'));
             });
+
+
+
 
             // 7. Filtro por Año (Ej: 2026)
             $query->when($request->filled('year'), function ($q) use ($request) {
-                $q->whereYear('created_at', $request->input('year'));
+                $q->whereYear('date', $request->input('year'));
             });
 
-            //dd($query->get()[0]);
+            //dd($query->get());
+
             // Ordenamiento y Paginación limpia
             $tickets = $query->orderBy('id', 'desc')
                 ->paginate(perPage: $perPage, page: $page);
@@ -180,8 +136,7 @@ class TicketController extends Controller
                 'amount' => 'required|numeric|min:0',
                 'date' => 'required|date',
                 'contract_id' => 'required|exists:contracts,id',
-                'ref' => 'nullable|string|max:255',
-                //'status' => 'nullable|string|in:pendiente,cobrado,cancelado',
+  
             ]);
 
             if ($validator->fails()) {
@@ -214,7 +169,7 @@ class TicketController extends Controller
                 "paytype" => $request->paytype,
                 "contract_id" => $request->contract_id,
                 "ref" => $request->ref ?? null,
-                "status" => $request->status ?? 'cobrado',
+                "status" => $request->status ?? 'Activo',
             ]);
 
             // Verificar y actualizar el status del contrato
@@ -321,6 +276,7 @@ class TicketController extends Controller
 
             // Validación
             $validator = Validator::make($request->all(), [
+                'nticket' => 'sometimes|numeric|min:0',
                 'concept' => 'sometimes|string|max:255',
                 'amount' => 'sometimes|numeric|min:0',
                 'date' => 'sometimes|date',
@@ -338,7 +294,7 @@ class TicketController extends Controller
 
             // Actualizar datos
             $updateData = [];
-            $fields = ['concept', 'amount', 'paytype', 'contract_id', 'ref', 'status'];
+            $fields = ['nticket','concept', 'amount', 'paytype', 'contract_id', 'ref', 'status'];
 
             foreach ($fields as $field) {
                 if ($request->has($field)) {

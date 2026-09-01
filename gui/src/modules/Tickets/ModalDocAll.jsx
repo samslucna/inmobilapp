@@ -1,29 +1,28 @@
 import React, { useState } from "react";
 import {
   Button,
-  
+  TextField,
   Dialog,
-  
+  DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
-  
+  InputAdornment,
   Stack,
 } from "@mui/material";
 import { Visibility, VisibilityOff, PersonAdd } from "@mui/icons-material";
-import TicketStore from "../../store/TicketStore";
-import "semantic-ui-css/semantic.min.css";
-export default function ModalDocIcon({ color, component, title, data, url }) {
-  const { toExport } = TicketStore;
+import PropertyStore from "../../store/PropertyStore";
+
+export default function ModalDocAll({ color, component, title, data, url }) {
+  const { toExport } = PropertyStore;
   const [open, setOpen] = useState(false);
   const [urlImp, setUrlImp] = useState("");
 
   const handleClickOpen = async () => {
     try {
       const pdfUrl = await toExport(
-        url + data.id,
-        data,
-        "Relacion de recibos de cliente",
+        url ,
+        data
       );
 
       setUrlImp(pdfUrl);
@@ -43,28 +42,26 @@ export default function ModalDocIcon({ color, component, title, data, url }) {
       // Reemplaza con tu endpoint de Laravel
 
       const pdfUrl = await toExport(
-        "api/contracts/export/pdf/contractExportTicketsPDF?id=" + data.id,
-        "Relacion de recibos de cliente",
+        url,
         data,
       );
     } catch (error) {
-      console.error("Error al abrir pdf", error.response?.data);
+      console.error("Error al crear usuario", error.response?.data);
       alert("Hubo un error al registrar");
     }
   };
 
   return (
     <>
-   
-      <IconButton
-        size="small"
+      <Button
+         type="button"
+         variant="contained"
         color={color || "secondary"}
         onClick={handleClickOpen}
-        id={"view" + data.id}
-        sx={{ mb: 2 }}
+        
       >
-        <Visibility fontSize="small" />
-      </IconButton>
+        {title}
+      </Button>
 
       {urlImp && (
         <Dialog
@@ -88,7 +85,7 @@ export default function ModalDocIcon({ color, component, title, data, url }) {
                 Cerrar Vista Previa
               </Button>
             </Stack>
-            <DialogTitle>{title}</DialogTitle>
+            <DialogTitle>Estado de Cuenta</DialogTitle>
             <embed
               type="application/pdf"
               width={"100%"}

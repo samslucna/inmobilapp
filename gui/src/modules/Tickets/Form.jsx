@@ -47,41 +47,51 @@ const PAYMENT_TYPES = [
 const CONCEPT_TYPES = [
   { value: "Enganche", label: "Enganche" },
   { value: "Mensualidad", label: "Mensualidad" },
-  { value: "Pago extraordinario", label: "Pago Extraordinario" },
-  { value: "Pago total", label: "Pago Total" },
-  { value: "Comisión", label: "Comisión" },
-  { value: "Otro", label: "Otro" },
+  { value: "Finiquito", label: "Finiquito" },
+  { value: "Anticipo", label: "Anticipo" },
+  { value: "0tro", label: "Otro" },
 ];
 
-export default function Form() {
+const STATUS_TYPES = [
+  { value: "activo", label: "Activo" },
+  { value: "cancelado", label: "Cancelado" },
+];
+
+export default function Form({ setData, setPaginate, filters }) {
   // Hooks y stores
-  const {
-    seachQueryData,
-    setSearchEdit,
-    contract,
-    loadContracts,
-    setContract,
-  } = ContractStore;
+  const { seachQueryData, contract, setContract } = ContractStore;
+
+  const { state, errors, setState, handleChange, handleSubmit, handleBlur } =
+    useSaveSub(TicketStore.ticket, ticketValidate, TicketStore.addTicket);
   const [datasContract, setDatasContract] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [contractDetails, setContractDetails] = useState(null);
 
-  const { state, errors, setState, handleChange, handleSubmit, handleBlur } =
-    useSaveSub(TicketStore.ticket, ticketValidate, TicketStore.addTicket);
-
-  const { id, contract_id, date, concept, amount, paytype, ref } = state;
+  const {
+    id,
+    contract_id,
+    date,
+    nticket,
+    concept,
+    amount,
+    paytype,
+    ref,
+    status,
+  } = state;
 
   // Limpiar formulario
   const resetForm = useCallback(() => {
     setState({
       id: null,
+      nticket: "",
       concept: "Mensualidad",
       contract_id: null,
       paytype: "Efectivo",
-      ref: "",
+      ref: "Sin referencia",
       date: dayjs().format("YYYY-MM-DD"),
       amount: "$ 0.00",
+      status: "",
     });
     setContract(null);
     setContractDetails(null);
@@ -133,7 +143,6 @@ export default function Form() {
       setLoading(true);
       try {
         const results = await seachQueryData("contracts", searchValue);
-
         setDatasContract(results.data || []);
       } catch (error) {
         console.error("Error en búsqueda de contratos:", error);
@@ -179,40 +188,47 @@ export default function Form() {
         showCancelButton: true,
         confirmButtonText: "Sí, Guardar",
         cancelButtonText: "Cancelar",
-        confirmButtonColor: "#4CAF50",
-        cancelButtonColor: "#d33",
+        confirmButtonColor: "#6baf4c",
+        cancelButtonColor: "rgb(180, 73, 73)",
         reverseButtons: true,
       });
 
       if (result.isConfirmed) {
         setLoading(true);
-        console.log("Guardando recibo con datos:", state);
-        // Preparar datos para guardar
         let amountValue = amount;
         if (typeof amount === "string") {
           amountValue = parseFloat(amount.replace(/[$,]/g, ""));
         }
-        const ticketData = {
+        let ticketData = {
           ...state,
           contract_id: contract?.id || contract_id,
           amount: parseFloat(amountValue || 0),
         };
+        console.log("Guardando recibo con datos:", ticketData);
 
-        setState(ticketData);
-        await handleSubmit(e);
-        TicketStore.setHiddenForm(false);
-        TicketStore.setEditing(false);
-        resetForm();
-        await loadContracts();
-
-        Swal.fire({
-          title: "¡Éxito!",
-          text: "El recibo se registró correctamente",
-          icon: "success",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-
+        if (ticketData.amount <= 0) {
+          Swal.fire({
+            title: "Error",
+            text: "El verifique el monto del ticket",
+            icon: "error",
+            timer: 3000,
+          });
+        } else {
+          await TicketStore.addTicket(ticketData);
+          const res = await TicketStore.loadTickets(1, filters);
+          setData(res.data);
+          setPaginate(res);
+          resetForm();
+          TicketStore.setHiddenForm(false);
+          TicketStore.setEditing(false);
+          Swal.fire({
+            title: "¡Éxito!",
+            text: "El recibo se registró correctamente",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        }
         // Resetear formulario después de guardar
         if (!TicketStore.editing) {
           resetForm();
@@ -229,14 +245,6 @@ export default function Form() {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Formatear monto
-  const formatAmount = (value) => {
-    if (!value) return "$ 0.00";
-    const num = parseFloat(value.toString().replace(/[$,]/g, ""));
-    if (isNaN(num)) return "$ 0.00";
-    return `$ ${num.toFixed(2)}`;
   };
 
   // Manejar cambio de monto
@@ -262,7 +270,6 @@ export default function Form() {
 
   // Renderizar opciones del autocomplete
   const renderContractOption = useCallback((option) => {
-    console.log(option);
     if (!option.id) return "";
     return `C-${option?.id} - ${option?.cliente} `;
   }, []);
@@ -270,7 +277,7 @@ export default function Form() {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Paper elevation={3} sx={{ p: 3, maxWidth: 800, mx: "auto" }}>
-        <Box component="form" onSubmit={saveTicket} noValidate>
+        <Box component="form" noValidate>
           {/* Encabezado */}
           <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
             <ReceiptIcon sx={{ fontSize: 32, color: "primary.main", mr: 1 }} />
@@ -414,6 +421,30 @@ export default function Form() {
                 }}
               />
             </Grid>
+            {/* Numero de recibo */}
+            <Grid item xs={12}>
+              <TextField
+                label="Numero de Recibo"
+                placeholder="Numero recibo"
+                type="text"
+                fullWidth
+                name="nticket"
+                value={nticket}
+                onChange={handleChange}
+                //onBlur={handleBlur}
+                //error={!!errors.ref}
+                //helperText={errors.ref || "Ej: 1, 2"}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Tooltip title="Número de recibo:">
+                        <InfoIcon color="action" />
+                      </Tooltip>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
 
             {/* Concepto */}
             <Grid item xs={12} sm={6}>
@@ -516,6 +547,30 @@ export default function Form() {
                 }}
               />
             </Grid>
+            {/* Status */}
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                label="Status"
+                fullWidth
+                required
+                name="status"
+                value={status}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={!!errors.concept}
+                helperText={errors.concept}
+                SelectProps={{
+                  native: false,
+                }}
+              >
+                {STATUS_TYPES.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
 
             {/* Información adicional del recibo (solo edición) */}
             {TicketStore.editing && id && (
@@ -552,7 +607,7 @@ export default function Form() {
               Cancelar
             </Button>
             <Button
-              type="submit"
+              onClick={(e) => saveTicket(e)}
               variant="contained"
               color="primary"
               startIcon={<SaveIcon />}

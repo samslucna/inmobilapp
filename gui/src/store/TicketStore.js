@@ -19,10 +19,11 @@ import changeFormat from "../helper/changeFormat";
 class TicketStore {
   ticket = {
     id: null,
+    nticket:'',
     concept: "Mensualidad",
     contract_id: null,
-    paytype: "Efectivo",
-    ref: "",
+    paytype: "efectivo",
+    ref: "Sin referencia",
     date: "",
     amount: "$ 0.00",
   };
@@ -54,6 +55,17 @@ class TicketStore {
     from: null,
     to: null,
   };
+
+  filters = {
+      search: "",
+      clientname: "",
+      concept: "",
+      status: "",
+      datei: null,
+      datee: null,
+      month: "",
+      year: "",
+    }
 
   rangeDate = {
     date_init: "",
@@ -150,26 +162,6 @@ class TicketStore {
     await this.loadTickets(1);
   };
 
-  //
-  //loadTickets = async () => {
-  //  try {
-  //    const data = await getAllBd("tickets");
-  //    this.setPagination(data);
-  //       this.setPagination({
-  //          current_page: data.current_page,
-  //          last_page: data.last_page,
-  //          total: data.total,
-  //          per_page: data.per_page,
-  //          from: data.from,
-  //          to: data.to,
-  //        });
-  //    this.setTickets(data.data);
-  //    return data.data;
-  //  } catch (error) {
-  //    console.log(error);
-  //  }
-  //};
-  //
 
   /**
    * Cargar lista de contratos con filtros y paginación
@@ -184,10 +176,7 @@ class TicketStore {
           page: page,
           ...filters,
         });
-
         const data = await getFilteredBd("tickets?", params);
-
-        console.log(data);
         return data;
       }
     } catch (error) {
@@ -211,19 +200,28 @@ class TicketStore {
 
   addTicket = async (data) => {
     data.amount = changeFormat.toInt(data.amount);
+    data.ref = data.ref === "" ? "Sin referencia" : data.ref;
 
     if (data.id !== null) {
-      await updateBd("tickets", data.id, data);
+      const resup =await updateBd("tickets", data.id, data);
 
-      this.setEditing(false);
-      this.loadTickets();
+      if(resup){
+        return resup;
+      }
+
     } else {
-      await createBd("tickets", data);
+      
+      console.log(data);
+      const res = await createBd("tickets", data);
 
-      this.setEditing(false);
-      this.loadTickets();
+      if(res){
+        return res;
+      }
+      
     }
   };
+
+
   importXlsTickets = async () => {
     try {
       const importData = await setUrImport("/api/tickets/import", this.urlImp);
@@ -261,7 +259,6 @@ class TicketStore {
       if (value !== "") {
         this.setTickets([]);
         let seachRender = await searchBd(table, value);
-        console.log(seachRender);
 
         runInAction(() => {
           if (seachRender && seachRender.data) {

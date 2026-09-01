@@ -12,7 +12,7 @@ import {
   useTheme,
   useMediaQuery,
   Chip,
-  Stack,
+
   Divider,
   Collapse,
   FormControl,
@@ -24,7 +24,7 @@ import {
   FilterList,
   Clear,
   Search,
-  RotateRight,
+  
   PlayForWork,
   ExpandMore,
   ExpandLess,
@@ -35,47 +35,32 @@ import {
 } from "@mui/icons-material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
 import TicketStore from "../../store/TicketStore";
+import ModalDoc from "./ModalDocAll";
 
 export default function Filters({
   onFilter,
   onReset,
   filters,
   setFilters,
-  btnConsolidate,
+  btnAction,
   loading = false,
   setMnSearch,
 }) {
+  const { toExportExcel } = TicketStore;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [tempDateFilter, setTempDateFilter] = useState({
-    fecha_inicio: filters?.fecha_inicio || null,
-    fecha_fin: filters?.fecha_fin || null,
-    mes: filters?.mes || "",
-    año: filters?.año || "",
+    datei: filters?.datei || null,
+    datee: filters?.datee || null,
+    month: filters?.month || "",
+    year: filters?.year || "",
   });
 
-  // Manejar cambios en los filtros
-  const handleChange = (e) => {
-    e.preventDefault();
-    try {
-      const { name, value } = e.target;
-      setFilters({
-        ...filters,
-        [name]: value,
-      });
-      handleApply(e); // Aplica los filtros automáticamente al cambiar cualquier campo
-    } catch (error) {
-      console.log(e);
-    }
-  };
-
   // Aplicar filtros
-  const handleApply = (e) => {
-    e.preventDefault();
+  const handleApply = () => {
     if (onFilter) {
       onFilter(filters);
     }
@@ -88,22 +73,19 @@ export default function Filters({
       search: "",
       clientname: "",
       concept: "",
-      status: "",
-      fecha_inicio: null,
-      fecha_fin: null,
-      mes: "",
-      año: "",
+      status: "activo",
+      datei: null,
+      datee: null,
+      month: "",
+      year: "",
     };
     setFilters(resetFilters);
     setTempDateFilter({
-      fecha_inicio: null,
-      fecha_fin: null,
-      mes: "",
-      año: "",
+      datei: null,
+      datee: null,
+      month: "",
+      year: "",
     });
-    if (onReset) {
-      onReset();
-    }
   };
 
   // Manejar cambios en fechas
@@ -119,39 +101,44 @@ export default function Filters({
       ...filters,
       [name]: value,
     });
+
+    handleApply();
   };
 
   // Manejar cambio en mes/año
-  const handleSelectChange = (e) => {
+  const handleSelectChange = async (e) => {
     const { name, value } = e.target;
+
     setTempDateFilter({
       ...tempDateFilter,
       [name]: value,
     });
+
     setFilters({
       ...filters,
       [name]: value,
     });
+    handleApply();
   };
 
   // Contar filtros activos
-  const getActiveFiltersCount = () => {
+  const getActiveFiltersCount = (e) => {
     let count = 0;
     if (filters?.search) count++;
     if (filters?.clientname) count++;
     if (filters?.concept) count++;
     if (filters?.status) count++;
-    if (filters?.fecha_inicio) count++;
-    if (filters?.fecha_fin) count++;
-    if (filters?.mes) count++;
-    if (filters?.año) count++;
+    if (filters?.datei) count++;
+    if (filters?.datee) count++;
+    if (filters?.month) count++;
+    if (filters?.year) count++;
     return count;
   };
 
   const activeFiltersCount = getActiveFiltersCount();
 
   // Generar opciones para meses
-  const mesesOptions = [
+  const monthOptions = [
     { value: "", label: "Todos" },
     { value: "01", label: "Enero" },
     { value: "02", label: "Febrero" },
@@ -169,7 +156,7 @@ export default function Filters({
 
   // Generar opciones para años (últimos 10 años)
   const currentYear = new Date().getFullYear();
-  const añosOptions = [
+  const yearOptions = [
     { value: "", label: "Todos" },
     ...Array.from({ length: 10 }, (_, i) => ({
       value: String(currentYear - i),
@@ -222,10 +209,10 @@ export default function Filters({
               <TextField
                 fullWidth
                 size="small"
-                label="Buscar por N°"
+                label="N°"
                 name="search"
                 value={filters?.search || ""}
-                onChange={handleChange}
+                onChange={onFilter}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -256,7 +243,7 @@ export default function Filters({
                 label="Cliente"
                 name="clientname"
                 value={filters?.clientname || ""}
-                onChange={handleChange}
+                onChange={onFilter}
                 InputProps={{
                   endAdornment: filters?.clientname && (
                     <InputAdornment position="end">
@@ -282,7 +269,7 @@ export default function Filters({
                 label="Concepto"
                 name="concept"
                 value={filters?.concept || ""}
-                onChange={handleChange}
+                onChange={onFilter}
                 InputProps={{
                   endAdornment: filters?.concept && (
                     <InputAdornment position="end">
@@ -309,7 +296,7 @@ export default function Filters({
                 label="Status"
                 name="status"
                 value={filters?.status || ""}
-                onChange={handleChange}
+                onChange={onFilter}
               >
                 <MenuItem value="">Todos</MenuItem>
                 <MenuItem value="activo">Activo</MenuItem>
@@ -341,60 +328,15 @@ export default function Filters({
                   </Divider>
 
                   <Grid container spacing={isMobile ? 1.5 : 2}>
-                    {/* Rango de Fechas */}
-                    <Grid item size={{ xs: 12, md: 2 }}>
-                      <DatePicker
-                        label="Fecha Inicio"
-                        value={tempDateFilter.fecha_inicio}
-                        onChange={(newValue) =>
-                          handleDateChange("fecha_inicio", newValue)
-                        }
-                        slotProps={{
-                          textField: {
-                            fullWidth: true,
-                            size: "small",
-                            InputProps: {
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <Today fontSize="small" color="action" />
-                                </InputAdornment>
-                              ),
-                            },
-                          },
-                        }}
-                      />
-                    </Grid>
-
-                    <Grid item size={{ xs: 12, md: 2 }}>
-                      <DatePicker
-                        label="Fecha Fin"
-                        value={tempDateFilter.fecha_fin}
-                        onChange={(newValue) =>
-                          handleDateChange("fecha_fin", newValue)
-                        }
-                        slotProps={{
-                          textField: {
-                            fullWidth: true,
-                            size: "small",
-                            InputProps: {
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <Today fontSize="small" color="action" />
-                                </InputAdornment>
-                              ),
-                            },
-                          },
-                        }}
-                      />
-                    </Grid>
+           
 
                     {/* Filtro por Mes */}
                     <Grid item size={{ xs: 12, md: 2 }}>
                       <FormControl fullWidth size="small">
                         <InputLabel>Mes</InputLabel>
                         <Select
-                          name="mes"
-                          value={tempDateFilter.mes || ""}
+                          name="month"
+                          value={tempDateFilter.month || ""}
                           onChange={handleSelectChange}
                           label="Mes"
                           startAdornment={
@@ -403,9 +345,9 @@ export default function Filters({
                             </InputAdornment>
                           }
                         >
-                          {mesesOptions.map((mes) => (
-                            <MenuItem key={mes.value} value={mes.value}>
-                              {mes.label}
+                          {monthOptions.map((month) => (
+                            <MenuItem key={month.value} value={month.value}>
+                              {month.label}
                             </MenuItem>
                           ))}
                         </Select>
@@ -417,14 +359,14 @@ export default function Filters({
                       <FormControl fullWidth size="small">
                         <InputLabel>Año</InputLabel>
                         <Select
-                          name="año"
-                          value={tempDateFilter.año || ""}
+                          name="year"
+                          value={tempDateFilter.year || ""}
                           onChange={handleSelectChange}
                           label="Año"
                         >
-                          {añosOptions.map((año) => (
-                            <MenuItem key={año.value} value={año.value}>
-                              {año.label}
+                          {yearOptions.map((year) => (
+                            <MenuItem key={year.value} value={year.value}>
+                              {year.label}
                             </MenuItem>
                           ))}
                         </Select>
@@ -444,17 +386,17 @@ export default function Filters({
                           variant="outlined"
                           onClick={() => {
                             setTempDateFilter({
-                              fecha_inicio: null,
-                              fecha_fin: null,
-                              mes: "",
-                              año: "",
+                              datei: null,
+                              datee: null,
+                              month: "",
+                              year: "",
                             });
                             setFilters({
                               ...filters,
-                              fecha_inicio: null,
-                              fecha_fin: null,
-                              mes: "",
-                              año: "",
+                              datei: null,
+                              datee: null,
+                              month: "",
+                              year: "",
                             });
                           }}
                         >
@@ -508,7 +450,7 @@ export default function Filters({
                   flexWrap="wrap"
                   width={isMobile ? "100%" : "auto"}
                 >
-           {/*        <Button
+                  {/*        <Button
                     type="button"
                     variant="contained"
                     sx={{
@@ -532,27 +474,24 @@ export default function Filters({
                       "&:hover": { background: "#006400" },
                     }}
                     startIcon={<PlayForWork />}
-                    onClick={btnConsolidate}
+                    onClick={() => {
+                      toExportExcel(
+                        "/api/tickets/export/xls",
+                        "Reporte de recibos",
+                        filters,
+                      );
+                    }}
                     fullWidth={isMobile}
                     size={isMobile ? "small" : "medium"}
                   >
                     Xls
                   </Button>
-                  <Button
-                    type="button"
-                    variant="contained"
-                    sx={{
-                      color: "white",
-                      background: "#d42e2e",
-                      "&:hover": { background: "#b02626" },
-                    }}
-                    startIcon={<PlayForWork />}
-                    onClick={setMnSearch}
-                    fullWidth={isMobile}
-                    size={isMobile ? "small" : "medium"}
-                  >
-                    Pdf
-                  </Button>
+                  <ModalDoc
+                    data={filters}
+                    url={"/api/tickets/reportTicketsPdf"}
+                    color={"error"}
+                    title={"PDF"}
+                  />
                   <Button
                     type="button"
                     variant="contained"

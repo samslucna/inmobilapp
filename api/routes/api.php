@@ -167,6 +167,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/export/xls', [XlsController::class, 'exportTickets']);
         Route::post('/import', [XlsController::class, 'importTickets']);
         Route::post('/export/pdf/ticket', [PdfController::class, 'exportTicketPDF']);
+        Route::post('/reportTicketsPdf', [PdfController::class, 'reportTicketsPdf']);
     });
     Route::apiResource('/tickets', TicketController::class);
 

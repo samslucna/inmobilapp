@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Ticket;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -35,11 +36,9 @@ class TicketsXlsExport implements
     public function collection()
     {
         $request = $this->request;
-
-        $perPage = (int) $request->input('per_page', 5);
-        $page = (int) $request->input('page', 1);
         $query = Ticket::query()->with(['contract.buyer']); // Carga ansiosa para evitar problema N+1
 
+        //dd($query->)
         // 1. Filtro General de Búsqueda (ID o Número de Recibo)
         $query->when($request->filled('search'), function ($q) use ($request) {
             $search = $request->input('search');
@@ -48,7 +47,7 @@ class TicketsXlsExport implements
 
         // Aplicar filtros aquí...
 
-        //dd($request->input('clientname'));
+        //dd($query->get()[0]);
         // 2. Filtro por Nombre de Cliente (A través de la relación de contrato/cliente)
         $query->when($request->filled('clientname'), function ($q) use ($request) {
             $clientName = $request->input('clientname');
@@ -73,13 +72,25 @@ class TicketsXlsExport implements
 
 
         //// 5. Filtro por Rango de Fechas (fecha_inicio - fecha_fin)
-        //$query->when($request->filled('fecha_inicio'), function ($q) use ($request) {
-        //    $q->whereDate('created_at', '>=', $request->input('fecha_inicio'));
-        //});
-        //
-        //$query->when($request->filled('fecha_fin'), function ($q) use ($request) {
-        //    $q->whereDate('created_at', '<=', $request->input('fecha_fin'));
-        //});
+        if ($request->input(('datei')) !== "null" &&  $request->input(('datee')) !== "null") {
+
+            //// 5. Filtro por Rango de Fechas (fecha_inicio - fecha_fin)
+            if ($request->filled('datei') && $request->filled('datee')) {
+                $query->whereBetween('date', [
+                    Carbon::parse($request->input('datei'))->format('Y-m-d'),
+                    Carbon::parse($request->input('datee'))->format('Y-m-d')
+                ]);
+            } else {
+                // Si solo viene una de las dos:
+                $query->when($request->filled('datei'), function ($q) use ($request) {
+                    $q->whereDate('date', '>=', Carbon::parse($request->input('datei'))->format('Y-m-d'));
+                });
+
+                $query->when($request->filled('datee'), function ($q) use ($request) {
+                    $q->whereDate('date', '<=', Carbon::parse($request->input('datee'))->format('Y-m-d'));
+                });
+            }
+        }
 
         // 6. Filtro por Mes (1 al 12)
         $query->when($request->filled('month'), function ($q) use ($request) {
@@ -101,15 +112,11 @@ class TicketsXlsExport implements
         return [
             'ID',
             'Numero',
-            'Manzana',
-            'Etapa',
-            'Proyecto',
-            'Estado',
-            'M²',
-            'Precio',
-            'Total Pagado',
-            'Saldo',
-            'Fecha Contrato'
+            'Fecha',
+            'Cliente',
+            'Concepto',
+            'Monto',
+            'Status',
         ];
     }
 
@@ -117,17 +124,13 @@ class TicketsXlsExport implements
     {
         return [
             $row->id,
-            $row->name,
-            $row->manzana,
-            $row->etapa ?? 'N/A',
-            $row->project_name ?? 'N/A',
+            $row->nticket,
+            $row->date,
+            $row->contract->buyer->name." ".$row->contract->buyer->lastnames ?? 'N/A',
+            $row->concept,
+            number_format($row->amount, 2),
             ucfirst($row->status),
-            $row->m2,
-            number_format($row->amount_init, 2),
-            number_format($row->total_pagado, 2),
-            number_format($row->saldo, 2),
-            $row->fecha_contrato ?? 'N/A',
-            //$row->address ?? 'N/A',
+
         ];
     }
 
@@ -140,7 +143,7 @@ class TicketsXlsExport implements
 
     public function title(): string
     {
-        return 'Lotes';
+        return 'Recibos';
     }
 
     public function registerEvents(): array

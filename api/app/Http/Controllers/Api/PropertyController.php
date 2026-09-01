@@ -167,6 +167,7 @@ class PropertyController extends Controller
         }
     }
 
+
     public function consolidate()
     {
         try {

@@ -59,7 +59,7 @@ export default function ModalDoc({ color, component, title, data }) {
         variant="contained"
         color={color || "secondary"}
         onClick={handleClickOpen}
-        sx={{ mb: 2 }}
+      
       >
         {title}
       </Button>

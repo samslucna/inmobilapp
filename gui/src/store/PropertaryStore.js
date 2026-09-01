@@ -71,7 +71,6 @@ class PropertaryStore {
   loadPropertaries = async () => {
     try {
       const data = await getAllBd("sellers");
-
       this.setPagination(data);
       this.setPropertaries(data.data);
       return data;

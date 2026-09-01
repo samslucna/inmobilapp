@@ -19,16 +19,16 @@ const DataList = observer(({ btnMn }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const [mnSearch, setMnSearch] = useState("");
-  const { loadTickets, handlePaginationChange, consolidate } = TicketStore;
+  const { loadTickets } = TicketStore;
   const [filters, setFilters] = useState({
     search: "",
     clientname: "",
     concept: "",
     status: "",
-    fecha_inicio: null,
-    fecha_fin: null,
-    mes: "",
-    año: "",
+    datei: null,
+    datee: null,
+    month: "",
+    year: "",
   });
   const [loading, setLoading] = useState(false);
   const [paginate, setPaginate] = useState({
@@ -49,7 +49,7 @@ const DataList = observer(({ btnMn }) => {
       let filter = { ...filters, [name]: value };
       filter.page = 1;
       const res = await loadTickets(filter.page, filter);
-      console.log(res);
+
       if (res) {
         setPaginate(res);
         setFilters(filter);
@@ -92,13 +92,14 @@ const DataList = observer(({ btnMn }) => {
       clientname: "",
       concept: "",
       status: "",
-      fecha_inicio: null,
-      fecha_fin: null,
-      mes: "",
-      año: "",
+      datei: null,
+      datee: null,
+      month: "",
+      year: "",
     };
 
     const res = await loadTickets(filterInit.page, filterInit);
+    console.log(res);
     setFilters(filterInit);
     setData(res.data);
     setPaginate(res);
@@ -135,16 +136,18 @@ const DataList = observer(({ btnMn }) => {
         return <SearchInput btnMn={btnMn} setMnSearch={setMnSearch} />;
 
       case "filters":
-        return      <Filters
-              onFilter={handleFilterSubmit}
-              onReset={resetFilter}
-              filters={filters}
-              setFilters={setFilters}
-              btnConsolidate={btnConsolidate}
-              setMnSearch={setMnSearch}
-            /> ;
+        return (
+          <Filters
+            onFilter={handleFilterSubmit}
+            onReset={resetFilter}
+            filters={filters}
+            setFilters={setFilters}
+            btnConsolidate={btnConsolidate}
+            setMnSearch={setMnSearch}
+          />
+        );
 
-       case "seachbydate":
+      case "seachbydate":
         return <SearchByDate setMnSearch={setMnSearch} />;
       case "import":
         return <ImportInput btnMnSearch={btnMnSearch} btnMn={btnMn} />;
@@ -167,15 +170,13 @@ const DataList = observer(({ btnMn }) => {
             <Button
               id="main"
               sx={{ background: "#3d5b92", color: "white" }}
-              id="fade-button"
               aria-controls={open ? "fade-menu" : undefined}
               aria-haspopup="true"
               aria-expanded={open ? "true" : undefined}
               onClick={handleClick}
             >
-              Mas
+              Opciones..
             </Button>
-       
           </Can>
           <Menu
             id="fade-menu"
@@ -190,17 +191,29 @@ const DataList = observer(({ btnMn }) => {
             onClose={handleClose}
           >
             <Can permission={"recibos.create"}>
+              <MenuItem
+                color="success"
+                onClick={() => {
+                  TicketStore.setHiddenForm(true);
+                }}
+                sx={{ mb: 2 }}
+              >
+                +Recibo
+              </MenuItem>
+            </Can>
+            <Can permission={"recibos.create"}>
               <MenuItem id="import" onClick={handleClose}>
                 Import
               </MenuItem>
-           
-            <MenuItem id="filters" onClick={handleClose}>
-              Buscar y filtrar
-            </MenuItem>
-            <MenuItem id="searchClient" onClick={handleClose}>
-              Buscar por Cliente
-            </MenuItem>
-             </Can>
+            </Can>
+            <Can permission={"recibos.read"}>
+              <MenuItem id="filters" onClick={handleClose}>
+                Filtros
+              </MenuItem>
+              <MenuItem id="searchClient" onClick={handleClose}>
+                Buscar por Cliente
+              </MenuItem>
+            </Can>
           </Menu>
         </Typography>
       </Box>
@@ -212,21 +225,32 @@ const DataList = observer(({ btnMn }) => {
         <Grid container spacing={2}>
           {TicketStore.hiddenForm ? (
             <Grid size={12}>
-              <Form />
+              <Form
+                setData={setData}
+                setPaginate={setPaginate}
+                filters={filters}
+              />
             </Grid>
           ) : (
-            <Grid size={12}>
-              <TableData datasTable={data} loading={loading} />
-            
-            </Grid>
-          )}
-        </Grid>
-          <Pagination
+            <>
+              <Grid size={12}>
+                <TableData
+                  datasTable={data}
+                  setData={setData}
+                  setPaginate={setPaginate}
+                  filters={filters}
+                  loading={loading}
+                />
+              </Grid>
+              <Pagination
                 sx={{ textAlign: "center" }}
                 count={paginate?.last_page}
                 page={paginate?.current_page}
                 onChange={(e) => changePage(e)}
               />
+            </>
+          )}
+        </Grid>
       </Box>
     </>
   );

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\TicketsPdfExport;
 use App\Exports\PropertiesPdfExport;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
@@ -382,24 +383,111 @@ class PdfController extends Controller
             }
         }
 
-        if ($request->has('stage_id') && $request->stage_id) {
-            $filtros[] = "Etapa: " . $request->stage_id;
-        }
+        //if ($request->has('stage_id') && $request->stage_id) {
+        //    $filtros[] = "Etapa: " . $request->stage_id;
+        //}
 
-        if ($request->has('block_id') && $request->block_id) {
-            $filtros[] = "Manzana: " . $request->block_id;
-        }
+        //if ($request->has('block_id') && $request->block_id) {
+        //    $filtros[] = "Manzana: " . $request->block_id;
+        //}
 
-        if ($request->has('project_id') && $request->project_id) {
-            $filtros[] = "Proyecto: " . $request->project_id;
-        }
+        //if ($request->has('project_id') && $request->project_id) {
+        //    $filtros[] = "Proyecto: " . $request->project_id;
+        //}
 
         if ($request->has('dates') && $request->input('dates')['date_init'] && $request->input('dates')['date_end']) {
             $filtros[] = "Fechas: " . $request->input('dates')['date_init'] . " al " . $request->input('dates')['date_end'];
         }
+        dd($filtros);
 
         return empty($filtros) ? 'Filtros aplicados: Todos los registros' : 'Filtros aplicados: ' . implode(' | ', $filtros);
     }
+
+    private function getFilterTextTickets(Request $request)
+{
+    $filtros = [];
+
+    // Helper para sanitizar cadenas nulas enviadas desde React
+    $getValidValue = function ($key) use ($request) {
+        $val = $request->input($key);
+        if (is_null($val) || $val === 'null' || $val === 'undefined' || trim($val) === '') {
+            return null;
+        }
+        return trim($val);
+    };
+
+    // 1. Buscador General
+    if ($search = $getValidValue('search')) {
+        $filtros[] = "Búsqueda: '{$search}'";
+    }
+
+    // 2. Nombre del Cliente
+    if ($clientname = $getValidValue('clientname')) {
+        $filtros[] = "Cliente: '{$clientname}'";
+    }
+
+    // 3. Concepto
+    if ($concept = $getValidValue('concept')) {
+        $filtros[] = "Concepto: '{$concept}'";
+    }
+
+    // 4. Estatus del Recibo
+    if ($status = $getValidValue('status')) {
+        $filtros[] = "Estatus: " . ucfirst($status);
+    }
+
+    // 5. Rango de Fechas (datei / datee)
+    $datei = $getValidValue('datei');
+    $datee = $getValidValue('datee');
+
+    if ($datei && $datee) {
+        $filtros[] = "Periodo: {$datei} al {$datee}";
+    } elseif ($datei) {
+        $filtros[] = "Desde: {$datei}";
+    } elseif ($datee) {
+        $filtros[] = "Hasta: {$datee}";
+    }
+
+    // Soporte heredado para array 'dates' (date_init y date_end)
+    if (empty($datei) && empty($datee) && $request->has('dates')) {
+        $dates = $request->input('dates');
+        if (!empty($dates['date_init']) && !empty($dates['date_end'])) {
+            $filtros[] = "Periodo: {$dates['date_init']} al {$dates['date_end']}";
+        }
+    }
+
+    // 6. Mes Específico
+    if ($month = $getValidValue('month')) {
+        $meses = [
+            1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril',
+            5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto',
+            9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
+        ];
+        $nombreMes = $meses[(int)$month] ?? "Mes {$month}";
+        $filtros[] = "Mes: {$nombreMes}";
+    }
+
+    // 7. Año Específico
+    if ($year = $getValidValue('year')) {
+        $filtros[] = "Año: {$year}";
+    }
+
+    // 8. Filtros Estructurales (Proyecto, Etapa, Manzana)
+    if ($project = $getValidValue('project_id')) {
+        $filtros[] = "Proyecto ID: {$project}";
+    }
+
+    if ($stage = $getValidValue('stage_id')) {
+        $filtros[] = "Etapa ID: {$stage}";
+    }
+
+    if ($block = $getValidValue('block_id')) {
+        $filtros[] = "Manzana ID: {$block}";
+    }
+
+    // Retornar la cadena concatenada limpia para el PDF
+    return empty($filtros) ? 'Todos los registros' : implode(' | ', $filtros);
+}
 
     // Método para aplicar filtros
     private function applyFilters($query, $request)
@@ -408,7 +496,7 @@ class PdfController extends Controller
 
         $query->when($request->filled('status'), function ($q) use ($request) {
             $status = $request->input('status');
-            $allowedStatuses = ['disponible', 'pagado', 'finiquitado', 'pendiente'];
+            $allowedStatuses = ['disponible', 'pagado', 'finiquitado', 'pendiente', 'activo', 'cancelado'];
 
             if (in_array($status, $allowedStatuses)) {
                 // Si el estado enviado es válido, filtra solo por ese
@@ -451,162 +539,77 @@ class PdfController extends Controller
         }
     }
 
-
-    public function reportPropertiesPdf2(Request $request)
+    // Método para aplicar filtros
+    private function applyFiltersTickets($query, Request $request)
     {
+        // 1. Buscador General (search -> No. Ticket, Referencia, Nombre del Lote)
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $search = trim($request->input('search'));
+            $q->where(function ($sub) use ($search) {
+                $sub->where('tickets.nticket', 'like', "%{$search}%")
+                    ->orWhere('tickets.ref', 'like', "%{$search}%");
+            });
+        });
 
-        //dd($request->all());
+        // 2. Filtro por Nombre de Cliente (clientname)
+        $query->when($request->filled('clientname'), function ($q) use ($request) {
+            $client = trim($request->input('clientname'));
+            $q->where(function ($sub) use ($client) {
+                $sub->where('buyers.name', 'like', "%{$client}%")
+                    ->orWhere('buyers.lastnames', 'like', "%{$client}%")
+                    ->orWhere(DB::raw("CONCAT(buyers.name, ' ', buyers.lastnames)"), 'like', "%{$client}%");
+            });
+        });
 
+        // 3. Filtro por Concepto (concept)
+        $query->when($request->filled('concept'), function ($q) use ($request) {
+            $concept = trim($request->input('concept'));
+            $q->where('tickets.concept', 'like', "%{$concept}%");
+        });
 
-        // Construir consulta base
-        $query = DB::table('properties as p')
-            ->join('blocks as b', 'p.block_id', '=', 'b.id')
-            ->leftJoin('stages as s', 's.id', '=', 'b.stage_id')
-            ->leftJoin('contracts as c', 'p.id', '=', 'c.property_id')
-            ->leftJoin('tickets as t', 'c.id', '=', 't.contract_id')
-            ->select(
-                'p.id',
-                'p.name',
-                'b.name as manzana',
-                's.name as etapa',
-                'p.amount_init',
-                'p.status',
-
-                // Subconsulta 1: Trae la suma total de los montos de los tickets
-                DB::raw("COALESCE(
-                (SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 0) as total_pagado"),
-
-                // Subconsulta 2: Calcula el saldo (amount_init - total_tickets)
-                DB::raw("p.amount_init - COALESCE(
-                (SELECT SUM(tk.amount) FROM tickets tk WHERE tk.contract_id = c.id), 
-                0
-            ) as saldo"),
-                'c.date as fecha_contrato' // asumiendo que existe esta columna
-            );
-
-
-        //dd($query->get());
-        // 2. FILTRO POR ESTADO (disponible, vendido, apartado)
-        // Recibe el parámetro 'status' desde el request
+        // 4. Filtro por Estatus (status -> por defecto 'activo')
         $query->when($request->filled('status'), function ($q) use ($request) {
             $status = $request->input('status');
-            //dd($status['disponible']);
+            $allowedStatuses = ['activo', 'cancelado'];
 
-            if ($status) {
-                // Solo disponibles
-                //dd($status);
-
-                $seleccionados = array_filter($status);
-                $conteo = count($seleccionados);
-
-                if ($conteo === 1) {
-                    // Un solo estado seleccionado
-                    $estadoUnico = key($seleccionados);
-                    $q->where('p.status', $estadoUnico);
-                } elseif ($conteo === 2) {
-                    // Dos estados seleccionados
-                    $estados = array_keys($seleccionados);
-                    $q->whereIn('p.status', $estados);
-                } elseif ($conteo === 3 || $conteo === 0) {
-                    // Todos o ninguno seleccionado
-                    $q->whereIn('p.status', ['disponible', 'apartado', 'vendido']);
-                }
+            if (in_array($status, $allowedStatuses)) {
+                $q->where('tickets.status', $status);
             }
         });
 
+        // 5. Filtro por Rango de Fechas Sanitizado (datei / datee)
+        $datei = filter_var($request->input('datei'), FILTER_DEFAULT);
+        $datei = ($datei === 'null' || $datei === 'undefined') ? null : $datei;
 
-        // Filtro 3: Por etapa específica
-        if ($request->has('stage_id') && $request->stage_id) {
-            $query->where('b.stage_id', $request->stage_id);
+        $datee = filter_var($request->input('datee'), FILTER_DEFAULT);
+        $datee = ($datee === 'null' || $datee === 'undefined') ? null : $datee;
+
+        if ($datei && $datee) {
+            $query->whereBetween('tickets.date', [$datei, $datee]);
+        } else {
+            $query->when($datei, fn($q) => $q->whereDate('tickets.date', '>=', $datei));
+            $query->when($datee, fn($q) => $q->whereDate('tickets.date', '<=', $datee));
         }
 
-        // Filtro 6: Por manzana específica
-        if ($request->has('block_id') && $request->block_id) {
-            $query->where('b.id', $request->block_id);
-        }
-
-
-
-        $query->when($request->input('dates')['date_init'] && $request->input('dates')['date_end'], function ($q) use ($request) {
-            //dd($request->input('dates')['date_init']);
-            $q->whereBetween('c.date', [
-                $request->input('dates')['date_init'],
-                $request->input('dates')['date_end']
-
-            ]);
+        // 6. Filtro por Mes Específico (month -> 1 al 12)
+        $query->when($request->filled('month') && is_numeric($request->input('month')), function ($q) use ($request) {
+            $q->whereMonth('tickets.date', $request->input('month'));
         });
 
+        // 7. Filtro por Año Específico (year -> ej. 2026)
+        $query->when($request->filled('year') && is_numeric($request->input('year')), function ($q) use ($request) {
+            $q->whereYear('tickets.date', $request->input('year'));
+        });
 
-        // Obtenemos todos los registros correspondientes para el reporte (sin paginar en base de datos)
-        $properties = $query->get();
+        //// 8. Filtros por Estructura (Proyecto, Etapa, Manzana)
+        //$query->when($request->filled('project_id'), fn($q) => $q->where('pr.id', $request->input('project_id')));
+        //$query->when($request->filled('stage_id'), fn($q) => $q->where('s.id', $request->input('stage_id')));
+        //$query->when($request->filled('block_id'), fn($q) => $q->where('b.id', $request->input('block_id')));
 
-
-
-
-        // Ejemplo de procesamiento en tu controlador antes de mandar a llamar al PDF:
-        $filtersLabels = [
-            'proyecto' => $request->input('project_id') > 0 ? 'Proyecto ' . $request->input('project_id') : 'Todos',
-            'etapa'    => $request->input('stage_id') > 0 ? 'Etapa ' . $request->input('stage_id') : 'Todas',
-            'manzana'  => $request->input('block_id') > 0 ? 'Manzana ' . $request->input('block_id') : 'Todas',
-            'desde'    => $request->input('dates')['date_init'], // Valor por defecto o real
-            'hasta'    => $request->input('dates')['date_end'],
-            'status'   => $request->input('status') ? implode(', ', array_keys(array_filter($request->input('status')))) : 'Todos',
-        ];
-
-        // Obtenemos el usuario autenticado (O un fallback si es testing)
-        $userName = auth()->user() ? auth()->user()->name : 'Usuario Desconocido';
-
-        // Inicializamos nuestra clase personalizada
-        $pdf = new CustomPDF($filtersLabels, $userName);
-        $pdf->AliasNbPages('{nb}'); // Define el alias del total de páginas
-        $pdf->AddPage(); // Esto gatilla de manera interna el método Header()
-
-        // Cuerpo de la Tabla - Tipografía para los registros
-        $pdf->SetFont('Arial', '', 8);
-        $pdf->SetTextColor(45, 55, 72);
-
-        //dd($properties);
-        $granTotalPrecioInicial = 0;
-        $granTotalTickets = 0;
-        $granTotalSaldo = 0;
-
-        foreach ($properties as $property) {
-            $granTotalPrecioInicial += $property->amount_init;
-            $granTotalTickets       += $property->total_pagado;
-            $granTotalSaldo         += $property->saldo;
-            // Validamos que el contenido no desborde la celda y respetamos los anchos definidos en Header()
-            $pdf->Cell(15, 7, $property->id, 1, 0, 'C');
-            $pdf->Cell(45, 7, utf8_decode($property->name), 1, 0, 'L');
-            $pdf->Cell(45, 7, utf8_decode($property->manzana), 1, 0, 'L');
-            $pdf->Cell(30, 7, ucfirst($property->status), 1, 0, 'C');
-            $pdf->Cell(33, 7, '$' . number_format($property->amount_init, 2), 1, 0, 'R');
-            $pdf->Cell(33, 7, '$' . number_format($property->total_pagado, 2), 1, 0, 'R');
-            $pdf->Cell(33, 7, '$' . number_format($property->saldo, 2), 1, 0, 'R');
-            $pdf->Cell(33, 7, isset($property->fecha_contrato) ? $property->fecha_contrato : 'N/A', 1, 1, 'C');
-        }
-
-
-        // FILA DE TOTALES GENERALES (Al salir del ciclo foreach)
-        $pdf->SetFont('Arial', 'B', 9); // Cambiamos la fuente a Negrita
-        $pdf->SetFillColor(237, 242, 247); // Fondo gris claro institucional (#edf2f7)
-        $pdf->SetTextColor(26, 32, 44); // Texto casi negro para contrastar
-
-
-        // Fusionamos las primeras 4 columnas (15 + 45 + 45 + 30 = 135mm) para poner la etiqueta "TOTALES"
-        $pdf->Cell(135, 8, 'TOTALES GENERALES ', 1, 0, 'R', true);
-
-        // Imprimimos las sumatorias formateadas con su respectivo ancho de columna
-        $pdf->Cell(33, 8, '$' . number_format($granTotalPrecioInicial, 2), 1, 0, 'R', true);
-        $pdf->Cell(33, 8, '$' . number_format($granTotalTickets, 2), 1, 0, 'R', true);
-        $pdf->Cell(33, 8, '$' . number_format($granTotalSaldo, 2), 1, 0, 'R', true);
-
-        // Dejamos la última celda vacía o con un guion bajo la columna de fecha de contrato
-        $pdf->Cell(33, 8, '', 1, 1, 'C', true);
-
-        // Retornamos el PDF para abrirse directamente en el navegador del cliente
-        return response($pdf->Output('S', 'Reporte_Propiedades.pdf'))
-            ->header('Content-Type', 'application/pdf');
+        return $query;
     }
+
+
 
     public function reportAgentsContractsPdf(Request $request)
     {
@@ -1236,6 +1239,57 @@ class PdfController extends Controller
 
         return $pdf->stream();
     }
+
+    public function reportTicketsPdf(Request $request)
+    {
+        try {
+            // 1. Consulta base usando Eloquent para traer el contrato y cliente
+            $query = Ticket::with(['contract.buyer'])->orderBy('id', 'ASC');
+
+            // 2. Aplicar los filtros correspondientes
+            $this->applyFiltersTickets($query, $request);
+
+            // 3. Obtener la colección de recibos
+            $tickets = $query->get();
+
+            //dd($tickets);
+            if ($tickets->isEmpty()) {
+                return response()->json([
+                    'message' => 'No hay datos para generar el reporte',
+                    'error' => true
+                ], 404);
+            }
+
+            // 4. Calcular Total General de los recibos filtrados
+            $totals = [
+                'amount' => $tickets->sum('amount'),
+            ];
+
+            $userName = auth()->user()->name ?? 'Sistema';
+            $filtersText = $this->getFilterTextTickets($request);
+
+            // 5. Instanciar y generar el PDF
+            $pdf = new TicketsPdfExport($tickets, $request, $totals, $userName, $filtersText);
+            $pdf->AliasNbPages();
+            $pdf->AddPage();
+            $pdf->GenerateTable();
+
+            $fileName = 'Reporte_Recibos_' . date('Y-m-d_His') . '.pdf';
+            $pdfContent = $pdf->Output('S', $fileName);
+
+            return response($pdfContent, 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'inline; filename="' . $fileName . '"')
+                ->header('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
+                ->header('Content-Length', strlen($pdfContent));
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al generar el PDF',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 
     public function dateText($date)
     {
