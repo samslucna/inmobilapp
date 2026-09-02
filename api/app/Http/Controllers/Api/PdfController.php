@@ -294,8 +294,6 @@ class PdfController extends Controller
         // Aumentar tiempo de ejecución
         set_time_limit(120);
 
-
-
         // Construir consulta base
         $query = DB::table('properties as p')
             ->join('blocks as b', 'p.block_id', '=', 'b.id')
@@ -319,8 +317,6 @@ class PdfController extends Controller
             ->distinct();
 
         // Aplicar filtros
-
-
 
 
         $this->applyFilters($query, $request);
@@ -398,7 +394,7 @@ class PdfController extends Controller
         if ($request->has('dates') && $request->input('dates')['date_init'] && $request->input('dates')['date_end']) {
             $filtros[] = "Fechas: " . $request->input('dates')['date_init'] . " al " . $request->input('dates')['date_end'];
         }
-        dd($filtros);
+        //dd($filtros);
 
         return empty($filtros) ? 'Filtros aplicados: Todos los registros' : 'Filtros aplicados: ' . implode(' | ', $filtros);
     }
@@ -965,7 +961,7 @@ class PdfController extends Controller
         // Generar PDF
         $pdf = Pdf::loadView('templates/ticket/ticketpdf', compact('data'))
             ->setOption(['dpi' => 150, 'defaultFont' => 'sans-serif'])
-            ->setPaper('a1', 'landscape');
+            ->setPaper('letter', 'Portrait');
 
         // Nombre del archivo
         $filename = 'recibo-' . ($ticket->receipt_number ?? $contract->ref ?? 'ticket') . '.pdf';
@@ -998,7 +994,7 @@ class PdfController extends Controller
         $fechaContratoFormateada = $this->dateText2($fechaContrato->timestamp);
 
         // Calcular monto en letras
-        $montoEnLetras = $this->convertirMontoALetras($ticket->amount ?? $contract->advance ?? 0);
+        $montoEnLetras = $this->RenderNumberToWords($ticket->amount ?? $contract->advance ?? 0);
 
         // Obtener forma de pago
         $paytypeName = $ticket->paytype ? $ticket->paytype : ($contract->paytype ?? 'NO ESPECIFICADO');
@@ -1009,7 +1005,6 @@ class PdfController extends Controller
             'place' => $proyecto ? strtoupper($proyecto->name ?? strtoupper($proyecto->name)) : 'FRACCIONAMIENTO LOS ENCINOS',
             'etapa' => $etapa ? strtoupper($etapa->name) : 'ETAPA NO DEFINIDA',
             'manzana' => $manzana ? strtoupper($manzana->name) : 'MANZANA NO DEFINIDA',
-
             // Datos del ticket
             'receipt_number' => $ticket->id ?? 'S/N',
             'ticket_id' => $ticket->id,
@@ -1017,7 +1012,7 @@ class PdfController extends Controller
             'date_contract' => $fechaContratoFormateada,
 
             // Datos del cliente (comprador)
-            'received' => $comprador ? strtoupper($comprador->name ?? 'CLIENTE NO REGISTRADO') : 'CLIENTE NO REGISTRADO',
+            'received' => $comprador ? strtoupper($comprador->name." ".$comprador->lastnames ?? 'CLIENTE NO REGISTRADO') : 'CLIENTE NO REGISTRADO',
             'addressbuyer' => $comprador ? strtoupper($comprador->address ?? 'SIN DOMICILIO') : 'SIN DOMICILIO',
             'phonebuyer' => $comprador ? ($comprador->phone ?? 'SIN TELÉFONO') : 'SIN TELÉFONO',
             'emailbuyer' => $comprador ? ($comprador->email ?? 'SIN EMAIL') : 'SIN EMAIL',
@@ -1026,8 +1021,8 @@ class PdfController extends Controller
             // Datos del lote
             'lotname' => $lote ? strtoupper($lote->name ?? 'LOTE SIN NOMBRE') : 'LOTE NO ASIGNADO',
             'lotmz' => $manzana ? strtoupper($manzana->name ?? 'MANZANA SIN NOMBRE') : 'MANZANA NO ASIGNADA',
-            'lotm2' => $lote ? ($lote->area ?? 0) : 0,
-            'lotamount' => $lote ? ($lote->price ?? 0) : 0,
+            'lotm2' => $lote ? ($lote->m2 ?? 0) : 0,
+            'lotamount' => $lote ? ($lote->amount_init ?? 0) : 0,
             'lotplazo' => $contract->plazo ? $contract->plazo . ' MESES' : 'NO DEFINIDO',
             'lotstatus' => $lote ? ($lote->status ?? 'disponible') : 'desconocido',
 
@@ -1149,69 +1144,9 @@ class PdfController extends Controller
         return strtoupper($fecha->locale('es')->isoFormat('D [DE] MMMM [DE] YYYY'));
     }
 
-    /**
-     * Convertir monto a letras
-     */
-    protected function convertirMontoALetras($monto)
-    {
-        try {
-            // Opción 1: Usar librería NumberToWords (recomendado)
-            if (class_exists('NumberToWords\NumberToWords')) {
-                $numberToWords = new NumberToWords();
-                $currencyTransformer = $numberToWords->getCurrencyTransformer('es');
 
-                $monto = round($monto, 2);
-                $parteEntera = floor($monto);
-                $parteDecimal = round(($monto - $parteEntera) * 100);
 
-                $letras = $currencyTransformer->toWords($parteEntera, 'MXN');
-                return strtoupper($letras . ' CON ' . $parteDecimal . '/100 M.N.');
-            }
-
-            // Opción 2: Función básica si no está instalada la librería
-            return $this->convertirMontoALetrasBasico($monto);
-        } catch (\Exception $e) {
-            // Fallback: solo mostrar el número
-            return strtoupper('$' . number_format($monto, 2) . ' M.N.');
-        }
-    }
-
-    /**
-     * Función básica para convertir monto a letras (fallback)
-     */
-    protected function convertirMontoALetrasBasico($monto)
-    {
-        $monto = round($monto, 2);
-        $parteEntera = floor($monto);
-        $parteDecimal = round(($monto - $parteEntera) * 100);
-
-        // Array de números en español (simplificado)
-        $unidades = ['', 'UN', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE'];
-        $decenas = ['', 'DIEZ', 'VEINTE', 'TREINTA', 'CUARENTA', 'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'];
-        $centenas = ['', 'CIENTO', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS', 'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS'];
-
-        if ($parteEntera == 0) {
-            $letras = 'CERO';
-        } else if ($parteEntera < 10) {
-            $letras = $unidades[$parteEntera];
-        } else if ($parteEntera < 100) {
-            $d = floor($parteEntera / 10);
-            $u = $parteEntera % 10;
-            $letras = $decenas[$d] . ($u > 0 ? ' Y ' . $unidades[$u] : '');
-        } else if ($parteEntera < 1000) {
-            $c = floor($parteEntera / 100);
-            $resto = $parteEntera % 100;
-            $letras = $centenas[$c] . ($resto > 0 ? ' ' . $this->convertirMontoALetrasBasico($resto) : '');
-        } else if ($parteEntera < 1000000) {
-            $m = floor($parteEntera / 1000);
-            $resto = $parteEntera % 1000;
-            $letras = ($m == 1 ? 'MIL' : $this->convertirMontoALetrasBasico($m) . ' MIL') . ($resto > 0 ? ' ' . $this->convertirMontoALetrasBasico($resto) : '');
-        } else {
-            $letras = 'MONTO NO SOPORTADO';
-        }
-
-        return strtoupper($letras . ' PESOS ' . $parteDecimal . '/100 M.N.');
-    }
+  
 
 
 
