@@ -45,10 +45,7 @@ export default function Form() {
     );
 
   const {
-    id,
     block_id,
-    project_id,
-    stage_id,
     name,
     description,
     address,

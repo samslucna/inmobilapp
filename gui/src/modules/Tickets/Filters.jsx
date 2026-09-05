@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState,useEffect } from "react";
 import {
   Grid,
   TextField,
@@ -12,7 +12,6 @@ import {
   useTheme,
   useMediaQuery,
   Chip,
-
   Divider,
   Collapse,
   FormControl,
@@ -22,9 +21,8 @@ import {
 } from "@mui/material";
 import {
   FilterList,
-  Clear,
   Search,
-  
+  Clear,
   PlayForWork,
   ExpandMore,
   ExpandLess,
@@ -37,6 +35,9 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import TicketStore from "../../store/TicketStore";
 import ModalDoc from "./ModalDocAll";
+import ProjectStore from "../../store/ProjectStore";
+import BlocksStore from "../../store/BlocksStore";
+import StageStore from "../../store/StageStore";
 
 export default function Filters({
   onFilter,
@@ -58,6 +59,17 @@ export default function Filters({
     month: filters?.month || "",
     year: filters?.year || "",
   });
+    const [data, setData] = useState({
+    projects: [],
+    stages: [],
+    blocks: [],
+  });
+
+  const [selected, setSelected] = useState({
+    project: "",
+    stage: "",
+    block: "",
+  });
 
   // Aplicar filtros
   const handleApply = () => {
@@ -70,6 +82,9 @@ export default function Filters({
   const handleReset = (e) => {
     e.preventDefault();
     const resetFilters = {
+      block_id: "",
+      stage_id: "",
+      project_id: "",
       search: "",
       clientname: "",
       concept: "",
@@ -164,6 +179,63 @@ export default function Filters({
     })),
   ];
 
+  const clearFilter = (fieldName) => {
+    try {
+      setFilters({
+        ...filters,
+        [fieldName]: "",
+      });
+      // Aplicar filtros después de limpiar
+      if (onFilter) {
+        onFilter({
+          ...filters,
+          [fieldName]: "",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+  useEffect(() => {
+      const init = async () => {
+        try {
+         
+            const [rawProjects, rawBlocks, rawStages] = await Promise.all([
+              ProjectStore.loadProjects(),
+              BlocksStore.getBlocks(),
+              StageStore.getStages(),
+            ]);
+            let projecs = [
+              { id: 0, name: "Todos los proyectos" },
+              ...rawProjects,
+            ];
+            let blocks = [{ id: 0, name: "Todas las manzanas" }, ...rawBlocks];
+            let stages = [{ id: 0, name: "Todas las etapas" }, ...rawStages];
+  
+            setData({
+              ...data,
+              blocks: blocks,
+              stages: stages,
+              projects: projecs,
+            });
+  
+            const selectOpt = {
+              project: projecs[0]?.id,
+              stage: stages[0]?.id,
+              block: blocks[0]?.id,
+            };
+  
+            setSelected(selectOpt);
+          
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      init();
+    }, [])
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, mb: 3, borderRadius: 2 }}>
@@ -204,6 +276,78 @@ export default function Filters({
 
         <Box component="form">
           <Grid container spacing={isMobile ? 1.5 : 2}>
+            {/* Proyecto */}
+            <Grid item size={{ xs: 12, md: 2 }}>
+              <TextField
+                fullWidth
+                size="small"
+                label="Proyecto ID"
+                name="project_id"
+                value={filters?.project_id || ""}
+                onChange={onFilter}
+                InputProps={{
+                  endAdornment: filters?.project_id && (
+                    <InputAdornment position="end">
+                      <IconButton
+                        size="small"
+                        onClick={() => clearFilter("project_id")}
+                      >
+                        <Clear fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+
+            {/* Etapa */}
+            <Grid item size={{ xs: 12, md: 2 }}>
+              <TextField
+                fullWidth
+                size="small"
+                label="Etapa ID"
+                name="stage_id"
+                value={filters?.stage_id || ""}
+                onChange={onFilter}
+                InputProps={{
+                  endAdornment: filters?.stage_id && (
+                    <InputAdornment position="end">
+                      <IconButton
+                        size="small"
+                        onClick={() => clearFilter("stage_id")}
+                      >
+                        <Clear fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+
+            {/* Manzana / Block */}
+            <Grid item size={{ xs: 12, md: 2 }}>
+              <TextField
+                fullWidth
+                size="small"
+                label="Manzana"
+                name="block_id"
+                value={filters?.block_id || ""}
+                onChange={onFilter}
+                InputProps={{
+                  endAdornment: filters?.block_id && (
+                    <InputAdornment position="end">
+                      <IconButton
+                        size="small"
+                        onClick={() => clearFilter("block_id")}
+                      >
+                        <Clear fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+
             {/* Búsqueda General */}
             <Grid item xs={12} sm={6} md={4}>
               <TextField
@@ -235,7 +379,7 @@ export default function Filters({
               />
             </Grid>
 
-            {/* Proyecto */}
+            {/* Cliente */}
             <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
@@ -328,8 +472,6 @@ export default function Filters({
                   </Divider>
 
                   <Grid container spacing={isMobile ? 1.5 : 2}>
-           
-
                     {/* Filtro por Mes */}
                     <Grid item size={{ xs: 12, md: 2 }}>
                       <FormControl fullWidth size="small">

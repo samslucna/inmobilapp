@@ -60,7 +60,12 @@
         }
 
         .sutext {
-            font-size: 1rem;
+            font-size: .7rem;
+        }
+
+
+        .sutext2 {
+            font-size: .7rem;
         }
     </style>
 </head>
@@ -68,52 +73,31 @@
 <body>
 
     <!-- Imagen posicionada al 100% de toda la hoja -->
-    <img src="{{ public_path('images/recibo3.png') }}" class="bg-image">
+    <img src="{{ public_path('images/recibosmall.png') }}" class="bg-image">
 
     <!-- Todo tu contenido envuelto dentro de .content -->
     <div class="content">
 
 
-    <p class="subold" style="text-align: right;margin-top: 105px;position: relative; right: 150px; font-weight: bold; color: #ad4c4c;"> {{$data['ticket_id']}} </p>
-    <p class="sutext" style="margin-top: 50px;position: relative; left: 980px;">{{number_format($data['amount'],2) }} </p>
+    <p class="subold" style="text-align: right;margin-top: 105px;position: relative; right: 155px; font-weight: bold; color: #ad4c4c;"> {{$data['ticket_id']}} </p>
+    <p class="sutext" style="font-size: 1.2rem;margin-top: 45px;position: relative; left: 980px;">{{number_format($data['amount'],2) }} </p>
 
-    <p class="sutext" style="margin-top: 40px;position: relative; left: 240px;" > {{ strtoupper($data['received']) }} </p>
+    <p class="sutext" style="margin-top: 45px;position: relative; left: 240px;" > {{ strtoupper($data['received']) }} </p>
         
-    <p class="sutext" style="margin-top: -25px;position: relative; left: 295px;">{{strtoupper($data['fortheamount']) }}</p>
+    <p class="sutext" style="margin-top: -5px;position: relative; left: 295px;">{{strtoupper($data['fortheamount']) }}</p>
     
-    <p class="sutext" style="margin-top: 50px;position: relative; left: 225px;">{{ strtoupper($data['lotname']) }}</p>
+    <p class="sutext" style="margin-top: 60px;position: relative; left: 225px;">{{ strtoupper($data['lotname']) }}</p>
     <p class="sutext" style="margin-top: -52px;position: relative; left: 500px;">{{ strtoupper($data['lotmz']) }}</p>
-    <p class="sutext" style="margin-top: -52px;position: relative; left: 950px;">{{ strtoupper($data['paytype']) }}</p>
-    <p class="sutext" style="margin-top: -25px;position: relative; left: 150px;">{{ strtoupper($data['lotm2']) }}</p>
+    <p class="sutext" style="margin-top: -38px;position: relative; left: 950px;">{{ strtoupper($data['paytype']) }}</p>
+    <p class="sutext" style="margin-top: -7px;position: relative; left: 150px;">{{ strtoupper($data['lotm2']) }}</p>
     <p class="sutext" style="margin-top: -55px;position: relative; left: 455px;">{{ number_format($data['lotamount'],2) }}</p>
     <p class="sutext" style="margin-top: -55px;position: relative; left: 955px;">{{ strtoupper($data['lotplazo']) }}</p>
-    <p class="sutext" style="margin-top: 26px;position: relative; left: 400px;">{{ strtoupper($data['addressbuyer']) }}</p>
-    <p class="sutext" style="margin-top: 26px;position: relative; left: 955px;">{{ strtoupper($data['phonebuyer']) }}</p>
-    <table>
+    <p class="sutext" style="margin-top: 38px;position: relative; left: 400px;">{{ strtoupper($data['addressbuyer']) }}</p>
+    <p class="sutext" style="margin-top: -6px;position: relative; left: 845px;">{{ strtoupper($data['phonebuyer']) }}</p>
 
-            <tr>
-          
-                <td><p class="subold">TELÉFONO: </p></td>
-                <td colspan="2"></td>
-            </tr>
-        </table>
 
-        <p class="subold" style="text-align: right; margin-top: 15px;">TLAPA DE COMONFORT, GUERRERO {{$data["date"]}}</p>
+        <p class="sutext" style="margin-top: -16px;position: relative; left: 112px;">TLAPA DE COMONFORT, GUERRERO {{$data["date"]}}</p>
 
-        <table style="margin-top: 30px;">
-            <tr style="text-align: center;">
-                <td>
-                    <p class="subold">_____________________________________ </p>
-                    <p class="subold">L.C. ÁLVARO PANO HERNÁNDEZ</p>
-                    <p class="subold"> Autorizó </p>
-                </td>
-                <td>
-                    <p class="subold">_____________________________________ </p>
-                    <p class="subold">C. RAÚL VALENTE BELTRÁN CAJERO</p>
-                    <p class="subold"> CAJERO </p>
-                </td>
-            </tr>
-        </table>
 
     </div>
 

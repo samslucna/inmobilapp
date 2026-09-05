@@ -26,29 +26,39 @@ class ContractController extends Controller
             $perPage = $request->input('per_page', 5);
             $page = $request->input('page', 1);
             $search = $request->input('search', '');
-            $agentId = $request->input('agent_id', 0); 
-            //$status = $request->input('status', '');
+            $agentId = $request->input('agent_id', 0);
+            $status = $request->input('status', '');
             //$paytype = $request->input('paytype', '');
             //$dateFrom = $request->input('date_from', '');
             //$dateTo = $request->input('date_to', '');
 
             $query = Contract::query()
                 ->with(['agent', 'buyer', 'seller', 'property', 'tickets']);
-                
-            // Aplicar filtros
+
+
             if (!empty($search)) {
+                $search = trim($search);
+
                 $query->where(function ($q) use ($search) {
-                    $q->where('id', 'LIKE', "%{$search}%")
-                        ->orWhereHas('buyer', function ($sub) use ($search) {
-                            $sub->where('name', 'LIKE', "%{$search}%")
-                                ->orWhere('lastnames', 'LIKE', "%{$search}%")
-                                ->orWhere('email', 'LIKE', "%{$search}%");
-                        });
+                    // 1. Búsqueda en la relación del comprador (buyer)
+                    $q->whereHas('buyer', function ($sub) use ($search) {
+                        $sub->where('name', 'LIKE', "%{$search}%")
+                            ->orWhere('lastnames', 'LIKE', "%{$search}%")
+                            // Permite buscar por Nombre Apellido juntos
+                            ->orWhere(DB::raw("CONCAT(name, ' ', lastnames)"), 'LIKE', "%{$search}%");
+                    });
+
+                    // 2. Si quieres buscar también por otros campos de la tabla principal (Opcional):
+                    // $q->orWhere('folio', 'LIKE', "%{$search}%")
+                    //   ->orWhere('concept', 'LIKE', "%{$search}%");
                 });
             }
-
+            dd($query->get());
             if ($agentId > 0) {
                 $query->where('agent_id', $agentId);
+            }
+            if (!empty($status)) {
+                $query->where('status', $status);
             }
 
 
@@ -60,7 +70,7 @@ class ContractController extends Controller
                 $totalTickets = $this->calculateTotalTickets($contract->tickets);
                 $advance = $contract->advance ?? 0;
                 $block = Block::find($contract->property->block_id ?? null);
-                $stage= Stage::find($block->stage_id ?? null);
+                $stage = Stage::find($block->stage_id ?? null);
                 $contract->etapa = $stage ? $stage->name : null;
                 $contract->cliente = trim($contract->buyer->name . ' ' . ($contract->buyer->lastnames ?? ''));
                 $contract->pagado = $totalTickets > 0 ? $totalTickets : $advance;
@@ -81,9 +91,6 @@ class ContractController extends Controller
                 'from' => $contracts->firstItem(),
                 'to' => $contracts->lastItem(),
             ]);
-
-
-
         } catch (\Exception $e) {
             return $this->errorResponse('Error al obtener contratos', $e);
         }
@@ -97,16 +104,16 @@ class ContractController extends Controller
 
         try {
             // Validación mejorada
-            
+
             //dd($request->all());
             $validator = Validator::make($request->all(), [
-                
+
                 'seller_id' => 'required|exists:sellers,id',
                 'agent_id' => 'required|exists:agents,id',
                 'plazo' => 'required|integer|min:1',
                 'paytype' => 'required|string',
                 'ref' => 'nullable|string|max:255',
-           
+
                 'date' => 'required|date',
             ]);
 
@@ -291,7 +298,7 @@ class ContractController extends Controller
                 $updateData['date'] = Carbon::parse($request->date)->format('Y-m-d');
             }
 
-            
+
             $contract->update($updateData);
 
             // Registrar cambios en auditoría
@@ -400,7 +407,7 @@ class ContractController extends Controller
                 return $this->index($request);
             }
 
-            
+
             $contracts = Contract::with(['buyer', 'seller', 'agent', 'property', 'tickets'])
                 ->whereHas('buyer', function ($subQuery) use ($q) {
                     $subQuery->where('name', 'LIKE', "%{$q}%")

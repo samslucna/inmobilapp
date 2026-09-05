@@ -986,7 +986,7 @@ class PdfController extends Controller
         $agente = $contract->agent;
 
         // Formatear fecha del ticket
-        $fechaTicket = Carbon::parse($ticket->datepay ?? $contract->date ?? now());
+        $fechaTicket = Carbon::parse($ticket->date ?? $contract->date ?? now());
         $fechaFormateada = $this->dateText2($fechaTicket->timestamp);
 
         // Formatear fecha del contrato
